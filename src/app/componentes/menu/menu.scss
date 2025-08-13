@@ -1,0 +1,158 @@
+// Estilos do componente Menu
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #fafafa;
+}
+
+// Header do Menu
+.menu-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  min-height: 64px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  
+  // Ícones do menu
+  .menu-title {
+    font-weight: 500;
+    font-size: 18px;
+    color: white;
+  }
+}
+
+// Ícones Material Design Icons
+.mdi {
+  font-size: 24px;
+  line-height: 1;
+  vertical-align: middle;
+  
+  &.menu-logo {
+    font-size: 28px;
+  }
+}
+
+// Navegação do Menu
+.menu-nav {
+  flex: 1;
+  padding: 8px 0;
+  
+  h3[mat-subheader] {
+    color: #666;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 16px 16px 8px 16px;
+    margin: 0;
+  }
+  
+  .menu-item {
+    height: 48px;
+    margin: 2px 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    color: #333;
+    text-decoration: none;
+    
+    &:hover {
+      background-color: rgba(63, 81, 181, 0.08);
+      
+      mat-icon {
+        color: #3f51b5;
+      }
+    }
+    
+    &.active-link {
+      background-color: rgba(63, 81, 181, 0.12);
+      color: #3f51b5;
+      font-weight: 500;
+      
+      mat-icon {
+        color: #3f51b5;
+      }
+    }
+    
+    mat-icon {
+      color: #666;
+      transition: color 0.2s ease;
+    }
+    
+    .menu-badge {
+      background-color: #ff4444;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      min-height: 20px;
+      height: 20px;
+      border-radius: 10px;
+      padding: 0 6px;
+    }
+  }
+  
+  .admin-item {
+    &:hover {
+      background-color: rgba(255, 152, 0, 0.08);
+      
+      mat-icon {
+        color: #ff9800;
+      }
+    }
+    
+    &.active-link {
+      background-color: rgba(255, 152, 0, 0.12);
+      color: #ff9800;
+      
+      mat-icon {
+        color: #ff9800;
+      }
+    }
+  }
+  
+  .menu-divider {
+    margin: 16px 16px;
+    background-color: rgba(0,0,0,0.08);
+  }
+}
+
+// Footer do Menu
+.menu-footer {
+  margin-top: auto;
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background-color: rgba(0,0,0,0.02);
+    
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: #666;
+    }
+    
+    .user-details {
+      display: flex;
+      flex-direction: column;
+      
+      .user-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+      }
+      
+      .user-role {
+        font-size: 12px;
+        color: #666;
+        margin-top: 2px;
+      }
+    }
+  }
+}
+
+// Layout otimizado exclusivamente para desktop
+// Menu com dimensões fixas para telas grandes

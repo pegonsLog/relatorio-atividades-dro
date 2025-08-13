@@ -1,0 +1,50 @@
+<div class="produtividade-form-container">
+  <div class="form-header">
+    <h2>{{ isEditMode ? 'Editar Item de Produtividade' : 'Novo Item de Produtividade' }}</h2>
+  </div>
+
+  <form [formGroup]="produtividadeForm" (ngSubmit)="onSubmit()" class="produtividade-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="codProd">Código do Produto *</label>
+        <select id="codProd" formControlName="codProd" class="form-control"
+                [class.is-invalid]="isFieldInvalid('codProd')" (change)="onCodigoProdutoChange()">
+          <option value="">Selecione um produto</option>
+          <option *ngFor="let produto of codigosProdutos" [value]="produto.codigo">
+            {{ produto.codigo }} - {{ produto.descricao }}
+          </option>
+        </select>
+        <div class="invalid-feedback" *ngIf="isFieldInvalid('codProd')">
+          {{ getFieldError('codProd') }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="qtdProd">Quantidade Produzida *</label>
+        <input type="number" id="qtdProd" formControlName="qtdProd" class="form-control"
+               [class.is-invalid]="isFieldInvalid('qtdProd')" 
+               placeholder="Digite a quantidade" min="1">
+        <div class="invalid-feedback" *ngIf="isFieldInvalid('qtdProd')">
+          {{ getFieldError('qtdProd') }}
+        </div>
+      </div>
+    </div>
+
+    <div class="produto-info" *ngIf="produtividadeForm.get('codProd')?.value">
+      <div class="info-card">
+        <h4>Produto Selecionado</h4>
+        <p><strong>Código:</strong> {{ produtividadeForm.get('codProd')?.value }}</p>
+        <p><strong>Descrição:</strong> {{ getDescricaoProduto(produtividadeForm.get('codProd')?.value) }}</p>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">
+        Cancelar
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="produtividadeForm.invalid">
+        {{ isEditMode ? 'Atualizar' : 'Salvar' }}
+      </button>
+    </div>
+  </form>
+</div>

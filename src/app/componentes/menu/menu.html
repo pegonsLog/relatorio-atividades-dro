@@ -1,0 +1,52 @@
+<!-- Header do Menu -->
+<mat-toolbar color="primary" class="menu-header">
+  <i class="mdi mdi-clipboard-text menu-logo"></i>
+  <span class="menu-title">Sistema DRO</span>
+</mat-toolbar>
+
+<!-- Lista de Navegação Principal -->
+<mat-nav-list class="menu-nav">
+  <h3 mat-subheader>Navegação Principal</h3>
+  
+  @for (item of menuItems(); track item.route) {
+    <a mat-list-item 
+       [routerLink]="item.route" 
+       routerLinkActive="active-link"
+       class="menu-item">
+      <i class="mdi {{ item.icon }}" matListItemIcon></i>
+      <span matListItemTitle>{{ item.label }}</span>
+      @if (item.badge) {
+        <mat-chip-set matListItemMeta>
+          <mat-chip class="menu-badge">{{ item.badge }}</mat-chip>
+        </mat-chip-set>
+      }
+    </a>
+  }
+  
+  <mat-divider class="menu-divider"></mat-divider>
+  
+  <!-- Seção Administrativa -->
+  <h3 mat-subheader>Administração</h3>
+  
+  @for (item of adminItems(); track item.route) {
+    <a mat-list-item 
+       [routerLink]="item.route" 
+       routerLinkActive="active-link"
+       class="menu-item admin-item">
+      <i class="mdi {{ item.icon }}" matListItemIcon></i>
+      <span matListItemTitle>{{ item.label }}</span>
+    </a>
+  }
+</mat-nav-list>
+
+<!-- Footer do Menu -->
+<div class="menu-footer">
+  <mat-divider></mat-divider>
+  <div class="user-info">
+    <i class="mdi mdi-account-circle"></i>
+    <div class="user-details">
+      <span class="user-name">Usuário Admin</span>
+      <span class="user-role">Administrador</span>
+    </div>
+  </div>
+</div>
