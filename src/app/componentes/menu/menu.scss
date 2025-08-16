@@ -4,6 +4,7 @@
   flex-direction: column;
   height: 100%;
   background-color: #fafafa;
+  width: max-content; // ocupar apenas a largura do conteúdo
 }
 
 // Header do Menu
@@ -38,82 +39,57 @@
 .menu-nav {
   flex: 1;
   padding: 8px 0;
+  padding-left: 16px; // ajuste fino padrão Material
+  display: inline-block; // lista encolhe para caber o conteúdo
+  width: auto;
   
-  h3[mat-subheader] {
+  h3 {
     color: #666;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    padding: 16px 16px 8px 16px;
     margin: 0;
   }
   
   .menu-item {
     height: 48px;
-    margin: 2px 8px;
-    border-radius: 8px;
+    margin: 2px 0; // sem margem esquerda
+    border-radius: 0; // borda reta para colar na lateral
     transition: all 0.2s ease;
     color: #333;
     text-decoration: none;
+    display: block; // empilhamento vertical dos itens
     
+    // Bootstrap já provê hover/active; ajustes sutis opcionais
     &:hover {
-      background-color: rgba(63, 81, 181, 0.08);
-      
-      mat-icon {
-        color: #3f51b5;
-      }
+      background-color: rgba(0, 0, 0, 0.03);
     }
     
-    &.active-link {
-      background-color: rgba(63, 81, 181, 0.12);
-      color: #3f51b5;
+    &.active {
       font-weight: 500;
-      
-      mat-icon {
-        color: #3f51b5;
-      }
+      background-color: rgba(13, 110, 253, 0.08); // cor base do primary do Bootstrap
+      color: #0d6efd;
     }
     
-    mat-icon {
+    .mdi {
       color: #666;
       transition: color 0.2s ease;
     }
-    
-    .menu-badge {
-      background-color: #ff4444;
-      color: white;
-      font-size: 11px;
-      font-weight: 600;
-      min-height: 20px;
-      height: 20px;
-      border-radius: 10px;
-      padding: 0 6px;
+
+    // Tamanho do texto dos itens do menu
+    span {
+      font-size: 14px;
     }
   }
   
-  .admin-item {
-    &:hover {
-      background-color: rgba(255, 152, 0, 0.08);
-      
-      mat-icon {
-        color: #ff9800;
-      }
-    }
-    
-    &.active-link {
-      background-color: rgba(255, 152, 0, 0.12);
-      color: #ff9800;
-      
-      mat-icon {
-        color: #ff9800;
-      }
-    }
+  .admin-item.active {
+    background-color: rgba(255, 193, 7, 0.12); // baseado em warning do Bootstrap
+    color: #fd7e14; // laranja mais forte
   }
   
   .menu-divider {
-    margin: 16px 16px;
-    background-color: rgba(0,0,0,0.08);
+    margin: 16px 0; // acompanha padding do container
   }
 }
 
@@ -125,10 +101,10 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 16px;
+    padding: 16px 0 16px 16px; // 16px da borda esquerda
     background-color: rgba(0,0,0,0.02);
     
-    mat-icon {
+    .mdi {
       font-size: 32px;
       width: 32px;
       height: 32px;

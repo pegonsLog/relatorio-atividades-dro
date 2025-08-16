@@ -1,0 +1,87 @@
+<div class="container py-3">
+  <div class="row g-3 mb-2 align-items-center">
+    <div class="col">
+      <h2 class="h4 mb-0">Agentes</h2>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-6">
+      <div class="input-group">
+        <span class="input-group-text"><i class="mdi mdi-magnify"></i></span>
+        <input type="text" class="form-control" [(ngModel)]="filtro" (ngModelChange)="onFilterChange()" name="filtro" placeholder="Buscar por nome ou matrícula" />
+        <button class="btn btn-header" type="button" (click)="clearFilter()" [disabled]="!filtro" aria-label="Limpar filtro">
+          <i class="mdi mdi-close-circle-outline"></i>
+        </button>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 text-md-end">
+      <a class="btn btn-outline-secondary me-2" [routerLink]="['/menu']"><i class="mdi mdi-arrow-left me-1"></i>Voltar ao Menu</a>
+      <a class="btn btn-primary" [routerLink]="['/agente/novo']"><i class="mdi mdi-account-plus-outline me-1"></i>Novo Agente</a>
+    </div>
+  </div>
+
+  <div class="table-responsive shadow-sm">
+    <table class="table table-striped table-hover align-middle mb-0">
+      <colgroup>
+        <col class="col-matricula" />
+        <col />
+        <col class="col-cargo" />
+        <col class="col-turno" />
+        <col class="col-gerencia" />
+        <col class="col-acoes" />
+      </colgroup>
+      <thead class="table-light">
+        <tr>
+          <th class="th-nowrap">
+            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('matricula')">
+              <span [class.fw-semibold]="sortKey==='matricula'">Matrícula</span>
+              <i class="mdi" [ngClass]="sortKey==='matricula' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            </button>
+          </th>
+          <th class="th-nowrap">
+            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('nome')">
+              <span [class.fw-semibold]="sortKey==='nome'">Nome</span>
+              <i class="mdi" [ngClass]="sortKey==='nome' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            </button>
+          </th>
+          <th class="th-nowrap">
+            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('cargo')">
+              <span [class.fw-semibold]="sortKey==='cargo'">Cargo</span>
+              <i class="mdi" [ngClass]="sortKey==='cargo' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            </button>
+          </th>
+          <th class="th-nowrap">
+            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('turno')">
+              <span [class.fw-semibold]="sortKey==='turno'">Turno</span>
+              <i class="mdi" [ngClass]="sortKey==='turno' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            </button>
+          </th>
+          <th class="th-nowrap">
+            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('gerencia')">
+              <span [class.fw-semibold]="sortKey==='gerencia'">Gerência</span>
+              <i class="mdi" [ngClass]="sortKey==='gerencia' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            </button>
+          </th>
+          <th class="th-nowrap text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of agentesOrdenados">
+          <td>{{ a.matricula }}</td>
+          <td>{{ a.nome }}</td>
+          <td>{{ a.cargo }}</td>
+          <td>{{ a.turno }}</td>
+          <td>{{ a.gerencia }}</td>
+          <td class="text-end">
+            <a class="btn btn-sm btn-outline-secondary me-1" [routerLink]="['/agente', a.matricula, 'editar']"><i class="mdi mdi-pencil-outline"></i></a>
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="delete(a.matricula)"><i class="mdi mdi-trash-can-outline"></i></button>
+          </td>
+        </tr>
+        <tr *ngIf="agentes.length === 0">
+          <td colspan="6" class="empty-state">Nenhum agente encontrado</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

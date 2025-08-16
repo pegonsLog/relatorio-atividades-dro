@@ -1,12 +1,10 @@
 import { Component, signal, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { MaterialModule } from './shared/material.module';
 import { CommonModule } from '@angular/common';
-import { Menu } from './componentes/menu/menu';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MaterialModule, CommonModule, Menu],
+  imports: [RouterOutlet, CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

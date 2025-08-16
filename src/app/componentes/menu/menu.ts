@@ -1,5 +1,4 @@
 import { Component, signal } from '@angular/core';
-import { MaterialModule } from '../../shared/material.module';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -7,51 +6,59 @@ interface MenuItem {
   icon: string;
   label: string;
   route: string;
-  badge?: number;
 }
 
 @Component({
   selector: 'app-menu',
-  imports: [MaterialModule, CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './menu.html',
-  styleUrl: './menu.scss'
+  styleUrls: ['./menu.scss']
 })
 export class Menu {
   protected readonly menuItems = signal<MenuItem[]>([
     {
-      icon: 'mdi-view-dashboard',
+      icon: 'mdi-file-document',
+      label: 'Relatório Base',
+      route: '/relatorio-base'
+    },
+    {
+     icon: 'mdi-format-list-bulleted',
+     label: 'Relatório de Atividade',
+     route: '/item-atividade'
+   },
+   {
+    icon: 'mdi-format-list-bulleted',
+    label: 'Relatório de Produtividade',
+    route: '/item-produtividade'
+  },
+   {
+    icon: 'mdi-view-dashboard',
       label: 'Dashboard',
       route: '/dashboard'
     },
-    {
-      icon: 'mdi-file-document-multiple',
-      label: 'Relatórios Base',
-      route: '/relatorios',
-      badge: 156
-    },
-    {
-      icon: 'mdi-clipboard-check-multiple',
-      label: 'Atividades',
-      route: '/atividades',
-      badge: 1247
-    },
-    {
-      icon: 'mdi-chart-line',
-      label: 'Produtividade',
-      route: '/produtividade'
-    }
+    
   ]);
 
   protected readonly adminItems = signal<MenuItem[]>([
     {
-      icon: 'mdi-cog',
-      label: 'Configurações',
-      route: '/configuracoes'
+      icon: 'mdi-account',
+      label: 'Agente',
+      route: '/agente'
     },
     {
       icon: 'mdi-account-group',
       label: 'Usuários',
       route: '/usuarios'
+    },
+    {
+      icon: 'mdi-table',
+      label: 'Tabela de Atividades',
+      route: '/tabela-atividades'
+    },
+    {
+      icon: 'mdi-table-large',
+      label: 'Tabela de Produtividade',
+      route: '/tabela-produtividade'
     },
     {
       icon: 'mdi-chart-bar',

@@ -1,4 +1,4 @@
 // Serviços do sistema de relatório DRO
-export { RelatorioBaseService } from './relatorio-base.service';
-export { RelatorioAtividadeService } from './relatorio-atividade.service';
+export { ItemAtividadeService } from './item-atividade.service';
 export { ItemProdutividadeService } from './item-produtividade.service';
+export { RelatorioBaseService } from './relatorio-base.service';
