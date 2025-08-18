@@ -21,20 +21,10 @@ export class Menu {
       label: 'Relatório Base',
       route: '/relatorio-base'
     },
-    {
-     icon: 'mdi-format-list-bulleted',
-     label: 'Relatório de Atividade',
-     route: '/item-atividade'
-   },
-   {
-    icon: 'mdi-format-list-bulleted',
-    label: 'Relatório de Produtividade',
-    route: '/item-produtividade'
-  },
    {
     icon: 'mdi-view-dashboard',
-      label: 'Dashboard',
-      route: '/dashboard'
+      label: 'Relatórios',
+      route: '/relatorios'
     },
     
   ]);
@@ -42,12 +32,12 @@ export class Menu {
   protected readonly adminItems = signal<MenuItem[]>([
     {
       icon: 'mdi-account',
-      label: 'Agente',
+      label: 'Tabela de Agentes',
       route: '/agente'
     },
     {
       icon: 'mdi-account-group',
-      label: 'Usuários',
+      label: 'Tabela de Usuário',
       route: '/usuarios'
     },
     {
@@ -59,11 +49,6 @@ export class Menu {
       icon: 'mdi-table-large',
       label: 'Tabela de Produtividade',
       route: '/tabela-produtividade'
-    },
-    {
-      icon: 'mdi-chart-bar',
-      label: 'Relatórios',
-      route: '/relatorios-sistema'
     }
   ]);
 }

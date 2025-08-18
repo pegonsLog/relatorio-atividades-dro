@@ -12,8 +12,8 @@ export class ItemAtividadeService extends CrudStore<ItemAtividade> {
 
   constructor(private firestore: Firestore) {
     super('idAtividade');
-    console.log('ItemAtividadeService: Construtor chamado');
-    console.log('Firestore instance:', this.firestore);
+    // console removido
+    // console removido
     this.testFirestoreConnection();
     this.loadAtividadesFromFirestore();
   }
@@ -22,11 +22,11 @@ export class ItemAtividadeService extends CrudStore<ItemAtividade> {
   private async testFirestoreConnection(): Promise<void> {
     return runInInjectionContext(this.injector, async () => {
       try {
-        console.log('Testando conexão com Firestore...');
+        // console removido
         const testRef = collection(this.firestore, 'test');
-        console.log('Collection reference criada:', testRef);
+        // console removido
         const snapshot = await getDocs(testRef);
-        console.log('Query executada com sucesso. Documentos encontrados:', snapshot.size);
+        // console removido
       } catch (error) {
         console.error('Erro na conexão com Firestore:', error);
       }
@@ -42,12 +42,12 @@ export class ItemAtividadeService extends CrudStore<ItemAtividade> {
   create(item: ItemAtividade): void {
     const atividadeData = {
       ...item,
-      tipo: 'atividade',
+      idRelatorio: item?.idRelatorio != null ? String(item.idRelatorio) : '',
       createdAt: new Date(),
       updatedAt: new Date()
     };
-    const relatoriosRef = collection(this.firestore, 'relatorios');
-    from(addDoc(relatoriosRef, atividadeData)).subscribe({
+    const atividadesRef = collection(this.firestore, 'item-atividade');
+    from(addDoc(atividadesRef, atividadeData)).subscribe({
       next: (docRef) => {
         const newItem = { ...item, idAtividade: docRef.id } as ItemAtividade;
         const currentItems = this.subject.value;
@@ -66,18 +66,19 @@ export class ItemAtividadeService extends CrudStore<ItemAtividade> {
     return super.getAll();
   }
 
-  getByRelatorio(idRelatorio: number): ItemAtividade[] {
-    return this.getAll().filter(a => a.idRelatorio === idRelatorio);
+  getByRelatorio(idRelatorio: string | number): ItemAtividade[] {
+    const alvo = String(idRelatorio);
+    return this.getAll().filter(a => String(a.idRelatorio) === alvo);
   }
 
   // UPDATE
   update(id: number | string, item: ItemAtividade): void {
     const atividadeData = {
       ...item,
-      tipo: 'atividade',
+      idRelatorio: item?.idRelatorio != null ? String(item.idRelatorio) : '',
       updatedAt: new Date()
     };
-    const docRef = doc(this.firestore, 'relatorios', String(id));
+    const docRef = doc(this.firestore, 'item-atividade', String(id));
     from(updateDoc(docRef, atividadeData)).subscribe({
       next: () => {
         const currentItems = this.subject.value;
@@ -93,7 +94,7 @@ export class ItemAtividadeService extends CrudStore<ItemAtividade> {
 
   // DELETE
   delete(id: number | string): void {
-    const docRef = doc(this.firestore, 'relatorios', String(id));
+    const docRef = doc(this.firestore, 'item-atividade', String(id));
     from(deleteDoc(docRef)).subscribe({
       next: () => {
         const currentItems = this.subject.value;
@@ -135,17 +136,16 @@ export class ItemAtividadeService extends CrudStore<ItemAtividade> {
   private async loadAtividadesFromFirestore(): Promise<void> {
     return runInInjectionContext(this.injector, async () => {
       try {
-        console.log('Carregando atividades do Firestore...');
-        const atividadesRef = collection(this.firestore, 'relatorios');
-        const q = query(atividadesRef, where('tipo', '==', 'atividade'));
-        const querySnapshot = await getDocs(q);
+        // console removido
+        const atividadesRef = collection(this.firestore, 'item-atividade');
+        const querySnapshot = await getDocs(atividadesRef);
         const atividades: ItemAtividade[] = [];
         querySnapshot.forEach((docSnapshot) => {
           const data = docSnapshot.data();
-          console.log('Atividade encontrada:', docSnapshot.id, data);
+          // console removido
           atividades.push({
             idAtividade: docSnapshot.id,
-            idRelatorio: data['idRelatorio'] || 0,
+            idRelatorio: data['idRelatorio'] || '',
             item: data['item'] || 0,
             acionamento: data['acionamento'] || '',
             chegada: data['chegada']?.toDate() || new Date(),
@@ -159,7 +159,7 @@ export class ItemAtividadeService extends CrudStore<ItemAtividade> {
             data: data['data']?.toDate?.() || data['data'] || new Date()
           } as ItemAtividade);
         });
-        console.log('Total de atividades carregadas:', atividades.length);
+        // console removido
         atividades.sort((a, b) => (a.item || 0) - (b.item || 0));
         this.subject.next(atividades);
       } catch (error) {

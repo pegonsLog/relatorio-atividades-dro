@@ -1,26 +1,39 @@
 <div class="produtividade-form-container">
   <div class="form-header">
     <h2 class="mb-0">{{ isEditMode ? 'Editar Item de Produtividade' : 'Novo Item de Produtividade' }}</h2>
-    <div class="ms-auto" *ngIf="idRelatorio && idRelatorio > 0">
-      <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/relatorio-base', idRelatorio]">
+    <div class="ms-auto" *ngIf="idAtividade">
+      <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/item-atividade', idAtividade]">
         <i class="mdi mdi-arrow-left me-1"></i>
-        Voltar ao Relatório
+        Voltar à Atividade
       </a>
     </div>
   </div>
 
   <!-- Aviso de contexto ausente -->
   <div *ngIf="!hasContext" class="alert alert-warning" role="alert">
-    Este item precisa estar associado a um <strong>Relatório</strong> e a uma <strong>Atividade</strong>.
-    Volte para a lista a partir do contexto correto ou informe os parâmetros na URL (?idRelatorio=...&idAtividade=...).
+    Este item precisa estar associado a uma <strong>Atividade</strong> (idAtividade).
+    Volte para a lista a partir do contexto correto ou informe o parâmetro na URL (?idAtividade=...).
   </div>
 
   <!-- Resumo do contexto -->
   <div *ngIf="hasContext" class="mb-3 text-muted">
-    <small>Contexto: Relatório #{{ idRelatorio }} · Atividade #{{ idAtividade }}</small>
+    <small>
+      Contexto: Atividade #{{ idAtividade }}
+      <ng-container *ngIf="idRelatorio"> · Relatório #{{ idRelatorio }}</ng-container>
+    </small>
   </div>
 
   <form [formGroup]="produtividadeForm" (ngSubmit)="onSubmit()" class="produtividade-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="idAtividade">ID da Atividade</label>
+        <input type="text" id="idAtividade" class="form-control" [value]="idAtividade" readonly>
+      </div>
+      <div class="form-group" *ngIf="idRelatorio">
+        <label for="idRelatorio">ID do Relatório</label>
+        <input type="text" id="idRelatorio" class="form-control" [value]="idRelatorio" readonly>
+      </div>
+    </div>
     <div class="form-row">
       <div class="form-group">
         <label for="codProd">Código do Produto *</label>

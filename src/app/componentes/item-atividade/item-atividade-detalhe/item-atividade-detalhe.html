@@ -1,16 +1,16 @@
 <div class="container-fluid py-3" *ngIf="atividade as a; else carregando">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h5 mb-0">Atividade ID: #{{ a.idAtividade }}</h2>
-    <a class="btn btn-outline-secondary" (click)="voltarRelatorio()"><i class="mdi mdi-arrow-left"></i> Voltar ao Relatório</a>
+    <h2 class="h5 mb-0">Atividade Item: {{ a.item }}</h2>
+    <a class="btn btn-outline-secondary" (click)="voltarRelatorio()"><i class="mdi mdi-arrow-left"></i> Voltar para Atividade</a>
   </div>
 
   <!-- Resumo da Atividade -->
   <div class="card mb-3">
     <div class="card-body">
       <div class="row g-3 align-items-center flex-nowrap overflow-auto justify-content-between">
-        <div class="col-auto">
+        <div class="col-auto" hidden>
           <div class="text-muted small">Item</div>
-          <div class="fw-semibold">#{{ a.item }}</div>
+          <div class="fw-semibold">{{ a.item }}</div>
         </div>
         <div class="col-auto">
           <div class="text-muted small">Local</div>
@@ -18,7 +18,7 @@
         </div>
         <div class="col-auto">
           <div class="text-muted small">Data</div>
-          <div class="fw-semibold">{{ a.data | date:'EEE, dd/MM/yyyy' }}</div>
+          <div class="fw-semibold">{{ a.data | date:'dd/MM/yyyy, EEEE' }}</div>
         </div>
         <div class="col-auto">
           <div class="text-muted small">Chegada</div>
@@ -46,8 +46,11 @@
 
   <!-- Ações -->
   <div class="d-flex justify-content-end mb-3">
-    <button class="btn btn-primary me-2" (click)="novoItem()" [disabled]="!hasValidContext"><i class="mdi mdi-plus"></i> Novo item de produtividade</button>
-    <a class="btn btn-outline-secondary" (click)="voltarRelatorio()"><i class="mdi mdi-arrow-left"></i> Voltar ao Relatório</a>
+    <a class="btn btn-primary me-2"
+       [routerLink]="['/item-produtividade/novo']"
+       [queryParams]="{ idRelatorio: strIdRelatorio, idAtividade: strIdAtividade }">
+      <i class="mdi mdi-plus"></i> Adicionar item de produtividade
+    </a>
   </div>
 
   <!-- Alert -->
@@ -72,7 +75,7 @@
           <div class="d-flex justify-content-between align-items-start mb-2">
             <div>
               <div class="text-muted small">Produtividade</div>
-              <div class="h6 mb-0">#{{ i.idProdutividade }}</div>
+              <div class="h6 mb-0">{{ i.idProdutividade }}</div>
             </div>
             <span class="badge text-bg-info">{{ i.codProd }}</span>
           </div>
@@ -81,10 +84,9 @@
             <div class="fw-semibold">{{ i.qtdProd }}</div>
           </div>
           <div class="small text-muted">
-            <div>Data: <span class="fw-semibold">{{ i.data | date:'dd/MM/yyyy HH:mm' }}</span></div>
+            <div>Data: <span class="fw-semibold">{{ i.data | date:'dd/MM/yyyy' }}</span></div>
           </div>
           <div class="d-flex justify-content-end gap-2 mt-3">
-            <a class="btn btn-sm btn-outline-info" [routerLink]="['/item-produtividade', i.idProdutividade]"><i class="mdi mdi-eye-outline"></i> Detalhe</a>
             <a class="btn btn-sm btn-outline-primary" [routerLink]="['/item-produtividade', i.idProdutividade, 'editar']"><i class="mdi mdi-pencil"></i> Editar</a>
           </div>
         </div>

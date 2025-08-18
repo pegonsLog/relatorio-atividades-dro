@@ -100,9 +100,6 @@
           <td>{{ i.idAtividade }}</td>
           <td *ngIf="!contextRelatorioId">{{ i.idRelatorio }}</td>
           <td class="text-end">
-            <a class="btn btn-sm btn-outline-info me-1" [routerLink]="['/item-produtividade', i.idProdutividade]" [queryParams]="novoQueryParams" aria-label="Detalhe">
-              <i class="mdi mdi-eye-outline"></i>
-            </a>
             <a class="btn btn-sm btn-outline-secondary me-1" [routerLink]="['/item-produtividade', i.idProdutividade, 'editar']" [queryParams]="novoQueryParams"><i class="mdi mdi-pencil-outline"></i></a>
             <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDelete(i.idProdutividade)"><i class="mdi mdi-trash-can-outline"></i></button>
           </td>

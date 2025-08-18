@@ -53,10 +53,6 @@ export const routes: Routes = [
     loadComponent: () => import('./componentes/item-produtividade/item-produtividade-form/item-produtividade-form').then(m => m.ItemProdutividadeForm)
   },
   {
-    path: 'item-produtividade/:id',
-    loadComponent: () => import('./componentes/item-produtividade/item-produtividade-detalhe/item-produtividade-detalhe').then(m => m.ItemProdutividadeDetalhe)
-  },
-  {
     path: 'usuarios',
     loadComponent: () => import('./componentes/usuarios/usuarios').then(m => m.Usuarios)
   },

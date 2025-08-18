@@ -15,17 +15,9 @@
   gap: 8px;
 }
 
-.btn {
-  padding: 6px 12px;
-  border: 1px solid #ccc;
-  background: #f6f6f6;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn.secondary {
-  background: #fff;
-}
+/* Removidas regras genéricas de .btn que sobrepunham o Bootstrap
+   para permitir que as classes .btn-success, .btn-secondary etc.
+   exibam as cores corretas. */
 
 .alert {
   padding: 8px 12px;

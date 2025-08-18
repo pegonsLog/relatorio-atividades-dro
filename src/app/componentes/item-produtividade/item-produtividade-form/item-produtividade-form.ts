@@ -14,8 +14,8 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 })
 export class ItemProdutividadeForm implements OnInit {
   @Input() itemProdutividade?: ItemProdutividade;
-  @Input() idRelatorio!: number;
-  @Input() idAtividade!: number;
+  @Input() idRelatorio!: string;
+  @Input() idAtividade!: string;
   @Input() dataRelatorio?: Date;
   @Input() isEditMode = false;
   @Output() formSubmit = new EventEmitter<ItemProdutividade>();
@@ -50,8 +50,8 @@ export class ItemProdutividadeForm implements OnInit {
       if (item) {
         this.itemProdutividade = item;
         // Preencher ids relacionados a partir do item
-        this.idRelatorio = item.idRelatorio;
-        this.idAtividade = item.idAtividade;
+        this.idRelatorio = String(item.idRelatorio);
+        this.idAtividade = String(item.idAtividade);
         this.loadItemProdutividade();
       } else {
         // Item não encontrado, retornar para lista
@@ -61,13 +61,13 @@ export class ItemProdutividadeForm implements OnInit {
     } else {
       // Modo criação: tentar obter ids via query params, se não vierem por @Input
       const qp = this.route.snapshot.queryParamMap;
-      if (this.idRelatorio === undefined || this.idRelatorio === null) {
-        const ir = Number(qp.get('idRelatorio'));
-        if (Number.isFinite(ir)) this.idRelatorio = ir as number; else this.idRelatorio = 0 as number;
+      if (this.idRelatorio === undefined || this.idRelatorio === null || this.idRelatorio === '') {
+        const ir = qp.get('idRelatorio');
+        this.idRelatorio = ir ?? '';
       }
-      if (this.idAtividade === undefined || this.idAtividade === null) {
-        const ia = Number(qp.get('idAtividade'));
-        if (Number.isFinite(ia)) this.idAtividade = ia as number; else this.idAtividade = 0 as number;
+      if (this.idAtividade === undefined || this.idAtividade === null || this.idAtividade === '') {
+        const ia = qp.get('idAtividade');
+        this.idAtividade = ia ?? '';
       }
       if (this.itemProdutividade && this.isEditMode) {
         this.loadItemProdutividade();
@@ -166,16 +166,21 @@ export class ItemProdutividadeForm implements OnInit {
     const codigo = this.produtividadeForm.get('codProd')?.value;
     if (codigo) {
       // Pode adicionar lógica adicional quando o código do produto mudar
-      console.log('Produto selecionado:', this.getDescricaoProduto(parseInt(codigo)));
+      // console removido
     }
   }
 
   // Contexto obrigatório: idRelatorio e idAtividade devem existir (>0)
   get hasContext(): boolean {
-    return !!(this.idRelatorio && this.idRelatorio > 0 && this.idAtividade && this.idAtividade > 0);
+    // Para criar o item de produtividade, o obrigatório é pertencer a uma Atividade
+    return !!this.idAtividade;
   }
 
   private navigateBack(): void {
+    if (this.idAtividade) {
+      this.router.navigate(['/item-atividade', this.idAtividade]);
+      return;
+    }
     this.router.navigate(['/item-produtividade'], {
       queryParams: {
         idRelatorio: this.idRelatorio || undefined,

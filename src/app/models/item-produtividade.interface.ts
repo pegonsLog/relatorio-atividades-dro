@@ -1,6 +1,6 @@
 export interface ItemProdutividade {
-  idRelatorio: number;
-  idAtividade: number;
+  idRelatorio: string | number;
+  idAtividade: string | number;
   idProdutividade: number;
   codProd: number;
   qtdProd: number;

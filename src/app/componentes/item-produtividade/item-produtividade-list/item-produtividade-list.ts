@@ -16,8 +16,8 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
   filtro = '';
   itens: ItemProdutividade[] = [];
   // Contexto
-  contextRelatorioId: number | null = null;
-  contextAtividadeId: number | null = null;
+  contextRelatorioId: string | null = null;
+  contextAtividadeId: string | null = null;
   // Paginação
   page = 1;
   pageSize = 10;
@@ -42,11 +42,11 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
   ngOnInit(): void {
     const qp = this.route.snapshot.queryParamMap;
     this.filtro = qp.get('q') ?? '';
-    // Contexto de navegação: pertencem a uma atividade (e relatório)
-    const ir = Number(qp.get('idRelatorio'));
-    const ia = Number(qp.get('idAtividade'));
-    this.contextRelatorioId = Number.isFinite(ir) && ir > 0 ? ir : null;
-    this.contextAtividadeId = Number.isFinite(ia) && ia > 0 ? ia : null;
+    // Contexto de navegação: pertencem a uma atividade (e relatório) - IDs alfanuméricos
+    const ir = (qp.get('idRelatorio') || '').trim();
+    const ia = (qp.get('idAtividade') || '').trim();
+    this.contextRelatorioId = ir || null;
+    this.contextAtividadeId = ia || null;
     const p = Number(qp.get('page'));
     const ps = Number(qp.get('pageSize'));
     this.page = Number.isFinite(p) && p > 0 ? p : 1;
@@ -107,9 +107,9 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
     // Primeiro aplica o contexto (atividade > relatório), depois o filtro textual
     let base = [...this.itens];
     if (this.contextAtividadeId) {
-      base = base.filter(i => i.idAtividade === this.contextAtividadeId);
+      base = base.filter(i => String(i.idAtividade) === this.contextAtividadeId);
     } else if (this.contextRelatorioId) {
-      base = base.filter(i => i.idRelatorio === this.contextRelatorioId);
+      base = base.filter(i => String(i.idRelatorio) === this.contextRelatorioId);
     }
 
     return base.filter(i => {
@@ -147,22 +147,27 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
     const arr = [...this.filtrados];
     const dir = this.sortDir === 'asc' ? 1 : -1;
     arr.sort((a, b) => {
-      let va: number = 0;
-      let vb: number = 0;
+      let vaN = 0, vbN = 0;
+      let vaS = '', vbS = '';
+      let isString = false;
       switch (this.sortKey) {
         case 'idProdutividade':
-          va = a.idProdutividade; vb = b.idProdutividade; break;
+          vaN = a.idProdutividade; vbN = b.idProdutividade; break;
         case 'codProd':
-          va = a.codProd; vb = b.codProd; break;
+          vaN = a.codProd; vbN = b.codProd; break;
         case 'qtdProd':
-          va = a.qtdProd; vb = b.qtdProd; break;
+          vaN = a.qtdProd; vbN = b.qtdProd; break;
         case 'idAtividade':
-          va = a.idAtividade; vb = b.idAtividade; break;
+          vaS = String(a.idAtividade); vbS = String(b.idAtividade); isString = true; break;
         case 'idRelatorio':
-          va = a.idRelatorio; vb = b.idRelatorio; break;
+          vaS = String(a.idRelatorio); vbS = String(b.idRelatorio); isString = true; break;
       }
-      if (va < vb) return -1 * dir;
-      if (va > vb) return 1 * dir;
+      if (isString) {
+        const cmp = vaS.localeCompare(vbS);
+        return cmp * dir;
+      }
+      if (vaN < vbN) return -1 * dir;
+      if (vaN > vbN) return 1 * dir;
       return 0;
     });
     return arr;
@@ -216,7 +221,8 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
   }
 
   newItem(): void {
-    const hasContext = !!(this.contextRelatorioId && this.contextAtividadeId);
+    // Para criar um item de produtividade, o obrigatório é ter idAtividade (FK)
+    const hasContext = !!this.contextAtividadeId;
     if (!hasContext) {
       // Mostra alerta de contexto ausente
       this.alertKey = 'missingContext';

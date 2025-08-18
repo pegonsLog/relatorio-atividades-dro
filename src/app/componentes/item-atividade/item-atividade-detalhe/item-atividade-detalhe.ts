@@ -46,8 +46,10 @@ export class ItemAtividadeDetalhe implements OnInit, OnDestroy {
 
       // Carregar itens de produtividade vinculados
       this.prodService.getItens().subscribe(list => {
-        const atvNum = this.numericIdAtividade;
-        this.itens = (list || []).filter(i => i.idAtividade === atvNum || String(i.idAtividade) === this.idAtividade);
+        const atvId = this.strIdAtividade;
+        this.itens = (list || [])
+          .filter(i => String(i.idAtividade) === atvId)
+          .sort((a, b) => (Number(a.idProdutividade) || 0) - (Number(b.idProdutividade) || 0));
       });
     });
   }
@@ -59,27 +61,26 @@ export class ItemAtividadeDetalhe implements OnInit, OnDestroy {
     }
   }
 
-  // Helpers
-  get numericIdAtividade(): number {
+  // Helpers (IDs alfanuméricos do Firebase)
+  get strIdAtividade(): string {
     const baseId: any = this.atividade?.idAtividade ?? this.idAtividade;
-    const n = Number(baseId);
-    return Number.isFinite(n) ? n : 0;
+    return baseId != null ? String(baseId) : '';
   }
 
-  get numericIdRelatorio(): number {
+  get strIdRelatorio(): string {
     const baseId: any = this.atividade?.idRelatorio;
-    const n = Number(baseId);
-    return Number.isFinite(n) ? n : 0;
+    return baseId != null ? String(baseId) : '';
   }
 
   get hasValidContext(): boolean {
-    return this.numericIdRelatorio > 0 && this.numericIdAtividade > 0;
+    // Para criar item de produtividade, basta ter uma Atividade válida (idAtividade)
+    return !!this.strIdAtividade;
   }
 
   get alertText(): string {
     switch (this.alertKey) {
       case 'missingContext':
-        return 'Para criar um item de produtividade, é necessário que a Atividade possua IDs numéricos válidos (idRelatorio e idAtividade).';
+        return 'Para criar um item de produtividade, é necessário ter uma Atividade válida (idAtividade).';
       default:
         return '';
     }
@@ -94,8 +95,8 @@ export class ItemAtividadeDetalhe implements OnInit, OnDestroy {
   }
 
   voltarRelatorio(): void {
-    const idRel = this.numericIdRelatorio;
-    if (idRel > 0) {
+    const idRel = this.strIdRelatorio;
+    if (idRel) {
       this.router.navigate(['/relatorio-base', idRel]);
     } else {
       this.router.navigate(['/relatorio-base']);
@@ -112,8 +113,8 @@ export class ItemAtividadeDetalhe implements OnInit, OnDestroy {
     }
     this.router.navigate(['/item-produtividade/novo'], {
       queryParams: {
-        idRelatorio: this.numericIdRelatorio,
-        idAtividade: this.numericIdAtividade,
+        idRelatorio: this.strIdRelatorio,
+        idAtividade: this.strIdAtividade,
       },
     });
   }

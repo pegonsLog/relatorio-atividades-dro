@@ -31,12 +31,11 @@ export class RelatorioBaseService {
     const relatorioData = {
       ...relatorio,
       idRelatorio: (relatorio as any)?.idRelatorio ?? '',
-      tipo: 'base',
       createdAt: new Date(),
       updatedAt: new Date(),
     } as any;
 
-    const relatoriosRef = collection(this.firestore, 'relatorios');
+    const relatoriosRef = collection(this.firestore, 'relatorio-base');
     from(addDoc(relatoriosRef, relatorioData)).subscribe({
       next: (docRef) => {
         const novo: RelatorioBase = { ...relatorio, idRelatorio: docRef.id, createdAt: relatorioData.createdAt };
@@ -51,11 +50,10 @@ export class RelatorioBaseService {
     const data = {
       ...relatorio,
       idRelatorio: (relatorio as any)?.idRelatorio ?? '',
-      tipo: 'base',
       updatedAt: new Date(),
     } as any;
 
-    const ref = doc(this.firestore, 'relatorios', String(id));
+    const ref = doc(this.firestore, 'relatorio-base', String(id));
     from(updateDoc(ref, data)).subscribe({
       next: () => {
         const arr = [...this.subject.value];
@@ -71,7 +69,7 @@ export class RelatorioBaseService {
 
   // DELETE
   delete(id: string | number): void {
-    const ref = doc(this.firestore, 'relatorios', String(id));
+    const ref = doc(this.firestore, 'relatorio-base', String(id));
     from(deleteDoc(ref)).subscribe({
       next: () => {
         this.subject.next(this.subject.value.filter(r => r.idRelatorio !== id));
@@ -90,9 +88,8 @@ export class RelatorioBaseService {
   private async loadFromFirestore(): Promise<void> {
     return runInInjectionContext(this.injector, async () => {
       try {
-        const relatoriosRef = collection(this.firestore, 'relatorios');
-        const q = query(relatoriosRef, where('tipo', '==', 'base'));
-        const snap = await getDocs(q);
+        const relatoriosRef = collection(this.firestore, 'relatorio-base');
+        const snap = await getDocs(relatoriosRef);
 
         const list: RelatorioBase[] = [];
         snap.forEach(d => {

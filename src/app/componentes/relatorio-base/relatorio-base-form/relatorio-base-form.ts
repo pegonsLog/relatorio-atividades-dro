@@ -103,7 +103,8 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
     // Reseta estado de validação/toque
     this.form.markAsPristine();
     this.form.markAsUntouched();
-    // Não emite evento: limpeza local apenas
+    // Emite evento para o componente pai fechar o modo de edição
+    this.cancel.emit();
   }
 
   private toInputDate(date: Date): string {

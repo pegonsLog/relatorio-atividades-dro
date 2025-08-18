@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, from } from 'rxjs';
 import { ItemProdutividade } from '../models';
+import { Firestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +11,9 @@ export class ItemProdutividadeService {
   private itensSubject = new BehaviorSubject<ItemProdutividade[]>([]);
   private nextId = 1;
 
-  constructor() {
-    this.loadMockData();
+  constructor(private firestore: Firestore) {
+    // Carregar itens persistidos do Firestore
+    this.loadItensFromFirestore();
   }
 
   // Observables
@@ -21,15 +23,33 @@ export class ItemProdutividadeService {
 
   // CREATE
   create(item: Omit<ItemProdutividade, 'idProdutividade'>): ItemProdutividade {
+    // Gera id incremental local com base no maior id carregado
+    const novoId = this.getNextId();
     const novoItem: ItemProdutividade = {
       ...item,
-      // garante que exista uma data
       data: (item as any).data instanceof Date ? (item as any).data : new Date(),
-      idProdutividade: this.nextId++
+      idProdutividade: novoId
     };
-    
-    this.itens.push(novoItem);
-    this.itensSubject.next([...this.itens]);
+
+    // Persistir no Firestore (coleção 'item-produtividade')
+    const ref = collection(this.firestore, 'item-produtividade');
+    from(addDoc(ref, {
+      ...novoItem,
+      // Guardar ids como string quando aplicável
+      idRelatorio: novoItem.idRelatorio != null ? String(novoItem.idRelatorio) : '',
+      idAtividade: novoItem.idAtividade != null ? String(novoItem.idAtividade) : ''
+    })).subscribe({
+      next: () => {
+        // Atualiza memória e observable
+        this.itens.push(novoItem);
+        this.itensSubject.next([...this.itens]);
+        this.nextId = Math.max(this.nextId, novoId + 1);
+      },
+      error: (err) => {
+        console.error('Erro ao criar item de produtividade no Firestore:', err);
+      }
+    });
+
     return novoItem;
   }
 
@@ -42,60 +62,70 @@ export class ItemProdutividadeService {
     return [...this.itens];
   }
 
-  getByAtividade(idAtividade: number): ItemProdutividade[] {
-    return this.itens.filter(i => i.idAtividade === idAtividade);
+  getByAtividade(idAtividade: string | number): ItemProdutividade[] {
+    const alvo = String(idAtividade);
+    return this.itens.filter(i => String(i.idAtividade) === alvo);
   }
 
-  getByRelatorio(idRelatorio: number): ItemProdutividade[] {
-    return this.itens.filter(i => i.idRelatorio === idRelatorio);
+  getByRelatorio(idRelatorio: string | number): ItemProdutividade[] {
+    const alvo = String(idRelatorio);
+    return this.itens.filter(i => String(i.idRelatorio) === alvo);
   }
 
   // UPDATE
   update(id: number, dadosAtualizados: Partial<ItemProdutividade>): boolean {
     const index = this.itens.findIndex(i => i.idProdutividade === id);
-    if (index !== -1) {
-      this.itens[index] = { ...this.itens[index], ...dadosAtualizados };
-      this.itensSubject.next([...this.itens]);
-      return true;
-    }
-    return false;
+    if (index === -1) return false;
+
+    // Atualiza no Firestore localizando por campo idProdutividade
+    this.updateOnFirestoreByItemId(id, dadosAtualizados);
+
+    this.itens[index] = { ...this.itens[index], ...dadosAtualizados } as ItemProdutividade;
+    this.itensSubject.next([...this.itens]);
+    return true;
   }
 
   // DELETE
   delete(id: number): boolean {
     const index = this.itens.findIndex(i => i.idProdutividade === id);
-    if (index !== -1) {
-      this.itens.splice(index, 1);
-      this.itensSubject.next([...this.itens]);
-      return true;
-    }
-    return false;
+    if (index === -1) return false;
+
+    // Remover no Firestore
+    this.deleteOnFirestoreByItemId(id);
+
+    this.itens.splice(index, 1);
+    this.itensSubject.next([...this.itens]);
+    return true;
   }
 
-  deleteByAtividade(idAtividade: number): number {
-    const itensRemovidos = this.itens.filter(i => i.idAtividade === idAtividade);
-    this.itens = this.itens.filter(i => i.idAtividade !== idAtividade);
+  deleteByAtividade(idAtividade: string | number): number {
+    const alvo = String(idAtividade);
+    const itensRemovidos = this.itens.filter(i => String(i.idAtividade) === alvo);
+    this.itens = this.itens.filter(i => String(i.idAtividade) !== alvo);
     this.itensSubject.next([...this.itens]);
     return itensRemovidos.length;
   }
 
-  deleteByRelatorio(idRelatorio: number): number {
-    const itensRemovidos = this.itens.filter(i => i.idRelatorio === idRelatorio);
-    this.itens = this.itens.filter(i => i.idRelatorio !== idRelatorio);
+  deleteByRelatorio(idRelatorio: string | number): number {
+    const alvo = String(idRelatorio);
+    const itensRemovidos = this.itens.filter(i => String(i.idRelatorio) === alvo);
+    this.itens = this.itens.filter(i => String(i.idRelatorio) !== alvo);
     this.itensSubject.next([...this.itens]);
     return itensRemovidos.length;
   }
 
   // Análises e relatórios
-  getTotalProdutividadePorAtividade(idAtividade: number): number {
+  getTotalProdutividadePorAtividade(idAtividade: string | number): number {
+    const alvo = String(idAtividade);
     return this.itens
-      .filter(i => i.idAtividade === idAtividade)
+      .filter(i => String(i.idAtividade) === alvo)
       .reduce((total, item) => total + item.qtdProd, 0);
   }
 
-  getTotalProdutividadePorRelatorio(idRelatorio: number): number {
+  getTotalProdutividadePorRelatorio(idRelatorio: string | number): number {
+    const alvo = String(idRelatorio);
     return this.itens
-      .filter(i => i.idRelatorio === idRelatorio)
+      .filter(i => String(i.idRelatorio) === alvo)
       .reduce((total, item) => total + item.qtdProd, 0);
   }
 
@@ -124,28 +154,72 @@ export class ItemProdutividadeService {
   }
 
   // Mock data para desenvolvimento
-  private loadMockData(): void {
-    const mockData: ItemProdutividade[] = [
-      {
-        idRelatorio: 1,
-        idAtividade: 1,
-        idProdutividade: 1,
-        codProd: 301,
-        qtdProd: 15,
-        data: new Date()
-      },
-      {
-        idRelatorio: 1,
-        idAtividade: 1,
-        idProdutividade: 2,
-        codProd: 302,
-        qtdProd: 8,
-        data: new Date()
+  private async loadItensFromFirestore(): Promise<void> {
+    try {
+      const ref = collection(this.firestore, 'item-produtividade');
+      const snapshot = await getDocs(ref);
+      const lista: ItemProdutividade[] = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data() as any;
+        lista.push({
+          idRelatorio: data['idRelatorio'] ?? '',
+          idAtividade: data['idAtividade'] ?? '',
+          idProdutividade: Number(data['idProdutividade']) || 0,
+          codProd: Number(data['codProd']) || 0,
+          qtdProd: Number(data['qtdProd']) || 0,
+          data: data['data']?.toDate?.() || data['data'] || new Date()
+        });
+      });
+      this.itens = lista;
+      this.itensSubject.next([...this.itens]);
+      this.recalculateNextId();
+    } catch (err) {
+      console.error('Erro ao carregar itens de produtividade do Firestore:', err);
+      // Em caso de erro, iniciar vazio para evitar dados voláteis
+      this.itens = [];
+      this.itensSubject.next([]);
+      this.nextId = 1;
+    }
+  }
+
+  private recalculateNextId(): void {
+    const maxId = this.itens.reduce((max, it) => Math.max(max, Number(it.idProdutividade) || 0), 0);
+    this.nextId = maxId + 1;
+  }
+
+  private getNextId(): number {
+    if (!this.itens || this.itens.length === 0) return this.nextId;
+    const maxId = this.itens.reduce((max, it) => Math.max(max, Number(it.idProdutividade) || 0), 0);
+    return Math.max(this.nextId, maxId + 1);
+  }
+
+  private async updateOnFirestoreByItemId(id: number, dadosAtualizados: Partial<ItemProdutividade>): Promise<void> {
+    try {
+      const ref = collection(this.firestore, 'item-produtividade');
+      const q = query(ref, where('idProdutividade', '==', id));
+      const snapshot = await getDocs(q);
+      for (const d of snapshot.docs) {
+        await updateDoc(doc(this.firestore, 'item-produtividade', d.id), {
+          ...dadosAtualizados,
+          idRelatorio: dadosAtualizados.idRelatorio !== undefined ? String(dadosAtualizados.idRelatorio) : undefined,
+          idAtividade: dadosAtualizados.idAtividade !== undefined ? String(dadosAtualizados.idAtividade) : undefined,
+        } as any);
       }
-    ];
-    
-    this.itens = mockData;
-    this.nextId = 3;
-    this.itensSubject.next([...this.itens]);
+    } catch (err) {
+      console.error('Erro ao atualizar item de produtividade no Firestore:', err);
+    }
+  }
+
+  private async deleteOnFirestoreByItemId(id: number): Promise<void> {
+    try {
+      const ref = collection(this.firestore, 'item-produtividade');
+      const q = query(ref, where('idProdutividade', '==', id));
+      const snapshot = await getDocs(q);
+      for (const d of snapshot.docs) {
+        await deleteDoc(doc(this.firestore, 'item-produtividade', d.id));
+      }
+    } catch (err) {
+      console.error('Erro ao deletar item de produtividade no Firestore:', err);
+    }
   }
 }

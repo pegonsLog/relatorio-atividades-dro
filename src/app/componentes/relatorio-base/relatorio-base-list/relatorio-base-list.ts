@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RelatorioBase } from '../../../models';
 import { RouterModule } from '@angular/router';
@@ -40,6 +40,9 @@ export class RelatorioBaseList implements OnInit {
   showDeleteModal = false;
   toDelete?: string | number;
   deleting = false;
+
+  // Âncora para rolar até o formulário ao editar
+  @ViewChild('formTop') formTop?: ElementRef<HTMLElement>;
 
   ngOnInit(): void {
     // Query params
@@ -132,7 +135,11 @@ export class RelatorioBaseList implements OnInit {
   }
 
   startEdit(item: RelatorioBase): void {
-    this.selected = item;
+    this.selected = { ...item };
+    // Rola a tela até o formulário para tornar a edição visível
+    setTimeout(() => {
+      this.formTop?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
   }
 
   cancel(): void {
