@@ -1,0 +1,138 @@
+<div class="container-fluid py-3" *ngIf="relatorio; else carregando">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h5 mb-0">Relatório Diário nº #{{ relatorio.idRelatorio }}</h2>
+    <a class="btn btn-outline-secondary" [routerLink]="['/relatorio-base']"><i class="mdi mdi-arrow-left"></i> Voltar</a>
+  </div>
+
+  <!-- Resumo do Relatório -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3 align-items-center flex-nowrap overflow-auto justify-content-between">
+        <div class="col-auto">
+          <div class="text-muted small">Data</div>
+          <div class="fw-semibold">{{ relatorio!.data | date:'dd/MM/yyyy' }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Dia da Semana</div>
+          <div class="fw-semibold">{{ relatorio!.diaSemana }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Gerência</div>
+          <div class="fw-semibold">{{ relatorio!.gerencia }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Turno</div>
+          <div class="fw-semibold">{{ relatorio!.turno }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Criado em</div>
+          <div class="fw-semibold">{{ relatorio!.createdAt ? (relatorio!.createdAt | date:'dd/MM/yyyy HH:mm') : '-' }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Mat. 1</div>
+          <div class="fw-semibold">{{ relatorio!.mat1 }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Mat. 2</div>
+          <div class="fw-semibold">{{ relatorio!.mat2 }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Coord.</div>
+          <div class="fw-semibold">{{ relatorio!.coord }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Superv.</div>
+          <div class="fw-semibold">{{ relatorio!.superv }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ações -->
+  <div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-primary" (click)="abrirForm()"><i class="mdi mdi-plus"></i> Adicionar atividade</button>
+  </div>
+
+  <!-- Formulário de Item Atividade -->
+  <div class="card mb-4" *ngIf="showForm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span>{{ editAtividade ? 'Editar atividade' : 'Nova atividade' }}</span>
+      <button class="btn btn-sm btn-outline-secondary" (click)="fecharForm()"><i class="mdi mdi-close"></i> Fechar</button>
+    </div>
+    <div class="card-body">
+      <app-item-atividade-form
+        [idRelatorio]="idRelatorio"
+        [dataRelatorio]="relatorio!.data"
+        [atividade]="editAtividade || undefined"
+        [isEditMode]="!!editAtividade"
+        (formSubmit)="onAtividadeCriada($event)"
+        (formCancel)="fecharForm()"
+      ></app-item-atividade-form>
+    </div>
+  </div>
+
+  <!-- Cards das atividades -->
+  <div class="row g-3">
+    <div class="col-12" *ngIf="atividadesOrdenadas.length === 0">
+      <div class="empty-state">Nenhuma atividade adicionada ainda.</div>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-4" *ngFor="let a of atividadesOrdenadas">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <div class="text-muted small">Item</div>
+              <div class="h6 mb-0">#{{ a.item }}</div>
+            </div>
+            <span class="badge text-bg-info">{{ a.codAtv }}</span>
+          </div>
+          <div class="mb-2">
+            <div class="text-muted small">Local</div>
+            <div class="fw-semibold">{{ a.local }}</div>
+          </div>
+          <div class="mb-2 small">
+            <span class="text-muted">Data:</span>
+            <span class="fw-semibold">{{ a.data | date:'EEE, dd/MM/yyyy' }}</span>
+          </div>
+          <div class="row g-2 small text-muted">
+            <div class="col-6">
+              <div>Chegada: {{ a.chegada | date:'HH:mm' }}</div>
+            </div>
+            <div class="col-6">
+              <div>Solução: {{ a.solucao | date:'HH:mm' }}</div>
+            </div>
+            <div class="col-6">
+              <div>Saída: {{ a.saida | date:'HH:mm' }}</div>
+            </div>
+            <div class="col-6">
+              <div>Agentes: {{ a.qtdAgentes }}</div>
+            </div>
+          </div>
+          <div class="small mt-2" *ngIf="a.observacoes">
+            <div class="text-muted">Obs.:</div>
+            <div>{{ a.observacoes }}</div>
+          </div>
+          <div class="d-flex justify-content-end gap-2 mt-3">
+            <a class="btn btn-sm btn-outline-info"
+               [routerLink]="['/item-atividade', a.idAtividade]">
+              <i class="mdi mdi-eye-outline"></i> Detalhe
+            </a>
+            <button class="btn btn-sm btn-outline-primary" (click)="editarAtividade(a)">
+              <i class="mdi mdi-pencil"></i> Editar
+            </button>
+            <a class="btn btn-sm btn-outline-success"
+               [routerLink]="['/item-produtividade/novo']"
+               [queryParams]="{ idRelatorio: numericIdRelatorio, idAtividade: toNumber(a.idAtividade) }">
+              <i class="mdi mdi-plus"></i> Produtividade
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #carregando>
+  <div class="container py-5 text-center text-muted">Carregando...</div>
+</ng-template>

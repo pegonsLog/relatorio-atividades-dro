@@ -30,6 +30,7 @@ export class RelatorioBaseService {
   create(relatorio: RelatorioBase): void {
     const relatorioData = {
       ...relatorio,
+      idRelatorio: (relatorio as any)?.idRelatorio ?? '',
       tipo: 'base',
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -38,7 +39,7 @@ export class RelatorioBaseService {
     const relatoriosRef = collection(this.firestore, 'relatorios');
     from(addDoc(relatoriosRef, relatorioData)).subscribe({
       next: (docRef) => {
-        const novo: RelatorioBase = { ...relatorio, idRelatorio: docRef.id };
+        const novo: RelatorioBase = { ...relatorio, idRelatorio: docRef.id, createdAt: relatorioData.createdAt };
         this.subject.next([...this.subject.value, novo]);
       },
       error: (error) => console.error('Erro ao criar relatório base:', error),
@@ -49,6 +50,7 @@ export class RelatorioBaseService {
   update(id: string | number, relatorio: RelatorioBase): void {
     const data = {
       ...relatorio,
+      idRelatorio: (relatorio as any)?.idRelatorio ?? '',
       tipo: 'base',
       updatedAt: new Date(),
     } as any;
@@ -83,6 +85,7 @@ export class RelatorioBaseService {
     await this.loadFromFirestore();
   }
 
+
   // Carregar do Firestore
   private async loadFromFirestore(): Promise<void> {
     return runInInjectionContext(this.injector, async () => {
@@ -104,6 +107,7 @@ export class RelatorioBaseService {
             mat2: data['mat2'] || 0,
             coord: data['coord'] || 0,
             superv: data['superv'] || 0,
+            createdAt: data['createdAt']?.toDate?.() || data['createdAt'] || undefined,
           });
         });
 

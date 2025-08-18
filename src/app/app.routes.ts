@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { requireProdContextGuard } from './guards/require-prod-context.guard';
 
 export const routes: Routes = [
   {
@@ -19,6 +20,10 @@ export const routes: Routes = [
     loadComponent: () => import('./componentes/relatorio-base/relatorio-base-list/relatorio-base-list').then(m => m.RelatorioBaseList)
   },
   {
+    path: 'relatorio-base/:id',
+    loadComponent: () => import('./componentes/relatorio-base/relatorio-base-detalhe/relatorio-base-detalhe').then(m => m.RelatorioBaseDetalhe)
+  },
+  {
     path: 'item-atividade',
     loadComponent: () => import('./componentes/item-atividade/item-atividade-list/item-atividade-list').then(m => m.ItemAtividadeList)
   },
@@ -29,6 +34,27 @@ export const routes: Routes = [
   {
     path: 'item-atividade/:id/editar',
     loadComponent: () => import('./componentes/item-atividade/item-atividade-form/item-atividade-form').then(m => m.ItemAtividadeForm)
+  },
+  {
+    path: 'item-atividade/:id',
+    loadComponent: () => import('./componentes/item-atividade/item-atividade-detalhe/item-atividade-detalhe').then(m => m.ItemAtividadeDetalhe)
+  },
+  {
+    path: 'item-produtividade',
+    loadComponent: () => import('./componentes/item-produtividade/item-produtividade-list/item-produtividade-list').then(m => m.ItemProdutividadeList)
+  },
+  {
+    path: 'item-produtividade/novo',
+    loadComponent: () => import('./componentes/item-produtividade/item-produtividade-form/item-produtividade-form').then(m => m.ItemProdutividadeForm),
+    canActivate: [requireProdContextGuard]
+  },
+  {
+    path: 'item-produtividade/:id/editar',
+    loadComponent: () => import('./componentes/item-produtividade/item-produtividade-form/item-produtividade-form').then(m => m.ItemProdutividadeForm)
+  },
+  {
+    path: 'item-produtividade/:id',
+    loadComponent: () => import('./componentes/item-produtividade/item-produtividade-detalhe/item-produtividade-detalhe').then(m => m.ItemProdutividadeDetalhe)
   },
   {
     path: 'usuarios',
@@ -83,3 +109,4 @@ export const routes: Routes = [
     redirectTo: '/dashboard'
   }
 ];
+

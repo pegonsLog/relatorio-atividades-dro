@@ -1,6 +1,23 @@
 <div class="produtividade-form-container">
   <div class="form-header">
-    <h2>{{ isEditMode ? 'Editar Item de Produtividade' : 'Novo Item de Produtividade' }}</h2>
+    <h2 class="mb-0">{{ isEditMode ? 'Editar Item de Produtividade' : 'Novo Item de Produtividade' }}</h2>
+    <div class="ms-auto" *ngIf="idRelatorio && idRelatorio > 0">
+      <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/relatorio-base', idRelatorio]">
+        <i class="mdi mdi-arrow-left me-1"></i>
+        Voltar ao Relatório
+      </a>
+    </div>
+  </div>
+
+  <!-- Aviso de contexto ausente -->
+  <div *ngIf="!hasContext" class="alert alert-warning" role="alert">
+    Este item precisa estar associado a um <strong>Relatório</strong> e a uma <strong>Atividade</strong>.
+    Volte para a lista a partir do contexto correto ou informe os parâmetros na URL (?idRelatorio=...&idAtividade=...).
+  </div>
+
+  <!-- Resumo do contexto -->
+  <div *ngIf="hasContext" class="mb-3 text-muted">
+    <small>Contexto: Relatório #{{ idRelatorio }} · Atividade #{{ idAtividade }}</small>
   </div>
 
   <form [formGroup]="produtividadeForm" (ngSubmit)="onSubmit()" class="produtividade-form">
@@ -42,7 +59,7 @@
       <button type="button" class="btn btn-secondary" (click)="onCancel()">
         Cancelar
       </button>
-      <button type="submit" class="btn btn-primary" [disabled]="produtividadeForm.invalid">
+      <button type="submit" class="btn btn-primary" [disabled]="produtividadeForm.invalid || !hasContext">
         {{ isEditMode ? 'Atualizar' : 'Salvar' }}
       </button>
     </div>

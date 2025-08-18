@@ -13,7 +13,8 @@ import { CommonModule } from '@angular/common';
 })
 export class ItemAtividadeForm implements OnInit {
   @Input() atividade?: ItemAtividade;
-  @Input() idRelatorio!: number;
+  @Input() idRelatorio!: string | number;
+  @Input() dataRelatorio?: Date;
   @Input() isEditMode = false;
   @Output() formSubmit = new EventEmitter<ItemAtividade>();
   @Output() formCancel = new EventEmitter<void>();
@@ -54,9 +55,9 @@ export class ItemAtividadeForm implements OnInit {
       this.atividadeForm.patchValue({
         item: this.atividade.item,
         acionamento: this.atividade.acionamento,
-        chegada: this.formatDateTimeForInput(this.atividade.chegada),
-        solucao: this.formatDateTimeForInput(this.atividade.solucao),
-        saida: this.formatDateTimeForInput(this.atividade.saida),
+        chegada: this.formatTimeForInput(this.atividade.chegada),
+        solucao: this.formatTimeForInput(this.atividade.solucao),
+        saida: this.formatTimeForInput(this.atividade.saida),
         codAtv: this.atividade.codAtv,
         codOcor: this.atividade.codOcor,
         qtdAgentes: this.atividade.qtdAgentes,
@@ -66,13 +67,22 @@ export class ItemAtividadeForm implements OnInit {
     }
   }
 
-  private formatDateTimeForInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+  private formatTimeForInput(date: Date): string {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    return `${hours}:${minutes}`;
+  }
+
+  private getBaseDate(): Date {
+    const base = this.dataRelatorio instanceof Date ? this.dataRelatorio : new Date();
+    return new Date(base);
+  }
+
+  private combineTimeWithBaseDate(time: string): Date {
+    const [hh, mm] = String(time).split(':').map((v: string) => parseInt(v, 10));
+    const d = this.getBaseDate();
+    d.setHours(Number.isFinite(hh) ? hh : 0, Number.isFinite(mm) ? mm : 0, 0, 0);
+    return d;
   }
 
   onSubmit(): void {
@@ -80,11 +90,13 @@ export class ItemAtividadeForm implements OnInit {
       const formData = this.atividadeForm.value;
       const atividadeData: ItemAtividade = {
         ...formData,
-        chegada: new Date(formData.chegada),
-        solucao: new Date(formData.solucao),
-        saida: new Date(formData.saida),
+        chegada: this.combineTimeWithBaseDate(formData.chegada),
+        solucao: this.combineTimeWithBaseDate(formData.solucao),
+        saida: this.combineTimeWithBaseDate(formData.saida),
         idRelatorio: this.idRelatorio,
-        idAtividade: this.atividade?.idAtividade || 0
+        idAtividade: this.atividade?.idAtividade || 0,
+        // Usa sempre a data do relatório-base
+        data: this.dataRelatorio instanceof Date ? this.dataRelatorio : new Date()
       };
 
       if (this.isEditMode && this.atividade) {
@@ -140,11 +152,15 @@ export class ItemAtividadeForm implements OnInit {
     const solucao = this.atividadeForm.get('solucao')?.value;
     const saida = this.atividadeForm.get('saida')?.value;
 
-    if (chegada && solucao && new Date(solucao) < new Date(chegada)) {
+    const dChegada = chegada ? this.combineTimeWithBaseDate(chegada) : null;
+    const dSolucao = solucao ? this.combineTimeWithBaseDate(solucao) : null;
+    const dSaida = saida ? this.combineTimeWithBaseDate(saida) : null;
+
+    if (dChegada && dSolucao && dSolucao < dChegada) {
       this.atividadeForm.get('solucao')?.setErrors({ 'invalidTime': true });
     }
 
-    if (solucao && saida && new Date(saida) < new Date(solucao)) {
+    if (dSolucao && dSaida && dSaida < dSolucao) {
       this.atividadeForm.get('saida')?.setErrors({ 'invalidTime': true });
     }
   }

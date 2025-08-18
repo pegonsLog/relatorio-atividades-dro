@@ -1,0 +1,15 @@
+.empty-state {
+  border: 1px dashed rgba(0,0,0,0.2);
+  border-radius: .5rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.card .card-header {
+  font-weight: 600;
+}
+
+:host ::ng-deep .badge.text-bg-info {
+  background-color: #e9f5ff;
+  color: #0366d6;
+}

@@ -77,6 +77,12 @@
             <small>{{ formatDateTime(a.chegada) }}</small>
           </td>
           <td class="text-end">
+            <a class="btn btn-sm btn-outline-info me-1" [routerLink]="['/item-atividade', a.idAtividade]" aria-label="Detalhe da atividade">
+              <i class="mdi mdi-eye-outline"></i>
+            </a>
+            <a class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/item-produtividade']" [queryParams]="{ idRelatorio: a.idRelatorio, idAtividade: a.idAtividade }" aria-label="Ver produtividade">
+              <i class="mdi mdi-clipboard-text-outline"></i>
+            </a>
             <a class="btn btn-sm btn-outline-secondary me-1" [routerLink]="['/item-atividade', a.idAtividade, 'editar']"><i class="mdi mdi-pencil-outline"></i></a>
             <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDelete(a.idAtividade)"><i class="mdi mdi-trash-can-outline"></i></button>
           </td>

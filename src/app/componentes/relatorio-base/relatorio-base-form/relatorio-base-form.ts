@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RelatorioBase } from '../../../models';
+import { AgentesService } from '../../../services/agentes.service';
 
 @Component({
   selector: 'app-relatorio-base-form',
@@ -10,8 +11,9 @@ import { RelatorioBase } from '../../../models';
   templateUrl: './relatorio-base-form.html',
   styleUrls: ['./relatorio-base-form.scss']
 })
-export class RelatorioBaseFormComponent implements OnChanges {
+export class RelatorioBaseFormComponent implements OnChanges, OnInit {
   private readonly fb = inject(FormBuilder);
+  private readonly agentesService = inject(AgentesService);
 
   @Input() value?: RelatorioBase | null;
   @Input() saving = false;
@@ -19,23 +21,38 @@ export class RelatorioBaseFormComponent implements OnChanges {
   @Output() cancel = new EventEmitter<void>();
 
   form: FormGroup = this.fb.group({
-    idRelatorio: [''],
     gerencia: ['', [Validators.required, Validators.minLength(2)]],
     data: ['', [Validators.required]],
     diaSemana: ['', [Validators.required]],
     turno: ['', [Validators.required]],
-    mat1: [0, [Validators.required]],
-    mat2: [0, [Validators.required]],
-    coord: [0, [Validators.required]],
-    superv: [0, [Validators.required]],
+    mat1: [null, [Validators.required]],
+    mat2: [null, [Validators.required]],
+    coord: [null, [Validators.required]],
+    superv: [null, [Validators.required]],
   });
+
+  // Observable de agentes para popular selects
+  agentes$ = this.agentesService.list();
+
+  ngOnInit(): void {
+    const dataCtrl = this.form.get('data');
+    const diaCtrl = this.form.get('diaSemana');
+    dataCtrl?.valueChanges.subscribe((val: string) => {
+      const dia = this.computeDiaSemana(val);
+      diaCtrl?.setValue(dia, { emitEvent: false });
+    });
+    // Ajuste inicial se já houver data preenchida
+    const initial = dataCtrl?.value as string;
+    if (initial) {
+      diaCtrl?.setValue(this.computeDiaSemana(initial), { emitEvent: false });
+    }
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['value']) {
       const v = this.value;
       if (v) {
         this.form.reset({
-          idRelatorio: v.idRelatorio,
           gerencia: v.gerencia,
           data: this.toInputDate(v.data),
           diaSemana: v.diaSemana,
@@ -46,7 +63,7 @@ export class RelatorioBaseFormComponent implements OnChanges {
           superv: v.superv,
         });
       } else {
-        this.form.reset({ idRelatorio: '', gerencia: '', data: '', diaSemana: '', turno: '', mat1: 0, mat2: 0, coord: 0, superv: 0 });
+        this.form.reset({ gerencia: '', data: '', diaSemana: '', turno: '', mat1: null, mat2: null, coord: null, superv: null });
       }
     }
   }
@@ -58,9 +75,9 @@ export class RelatorioBaseFormComponent implements OnChanges {
     }
     const v = this.form.value as any;
     const payload: RelatorioBase = {
-      idRelatorio: v.idRelatorio || 0,
       gerencia: v.gerencia,
-      data: new Date(v.data),
+      // Cria Date em horário local (00:00), evitando UTC e offset -03.
+      data: this.parseLocalDate(v.data),
       diaSemana: v.diaSemana,
       turno: v.turno,
       mat1: Number(v.mat1) || 0,
@@ -71,7 +88,23 @@ export class RelatorioBaseFormComponent implements OnChanges {
     this.submitValue.emit(payload);
   }
 
-  onCancel() { this.cancel.emit(); }
+  onCancel() {
+    // Limpa todos os campos do formulário
+    this.form.reset({
+      gerencia: '',
+      data: '',
+      diaSemana: '',
+      turno: '',
+      mat1: null,
+      mat2: null,
+      coord: null,
+      superv: null,
+    });
+    // Reseta estado de validação/toque
+    this.form.markAsPristine();
+    this.form.markAsUntouched();
+    // Não emite evento: limpeza local apenas
+  }
 
   private toInputDate(date: Date): string {
     const d = new Date(date);
@@ -79,5 +112,27 @@ export class RelatorioBaseFormComponent implements OnChanges {
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  private computeDiaSemana(val?: string): string {
+    if (!val) return '';
+    // Espera formato YYYY-MM-DD
+    const parts = val.split('-');
+    if (parts.length !== 3) return '';
+    const [y, m, d] = parts.map(Number);
+    if (!y || !m || !d) return '';
+    const date = new Date(y, m - 1, d); // Data local para evitar timezone offset
+    const names = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+    return names[date.getDay()] ?? '';
+  }
+
+  private parseLocalDate(val?: string): Date {
+    if (!val) return new Date();
+    const parts = val.split('-');
+    if (parts.length !== 3) return new Date(val);
+    const [y, m, d] = parts.map(Number);
+    if (!y || !m || !d) return new Date(val);
+    // Cria a data em horário local às 00:00:00
+    return new Date(y, m - 1, d, 0, 0, 0, 0);
   }
 }

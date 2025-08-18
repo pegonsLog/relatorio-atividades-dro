@@ -1,19 +1,22 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ItemProdutividade } from '../../../models';
-import { ItemProdutividadeService } from '../../../services';
+import { ItemProdutividadeService, RelatorioBaseService } from '../../../services';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-item-produtividade-form',
-  imports: [CommonModule, ReactiveFormsModule],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './item-produtividade-form.html',
-  styleUrl: './item-produtividade-form.scss'
+  styleUrls: ['./item-produtividade-form.scss']
 })
 export class ItemProdutividadeForm implements OnInit {
   @Input() itemProdutividade?: ItemProdutividade;
   @Input() idRelatorio!: number;
   @Input() idAtividade!: number;
+  @Input() dataRelatorio?: Date;
   @Input() isEditMode = false;
   @Output() formSubmit = new EventEmitter<ItemProdutividade>();
   @Output() formCancel = new EventEmitter<void>();
@@ -29,14 +32,52 @@ export class ItemProdutividadeForm implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private produtividadeService: ItemProdutividadeService
+    private produtividadeService: ItemProdutividadeService,
+    private relatorioBaseService: RelatorioBaseService,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {
     this.produtividadeForm = this.createForm();
   }
 
   ngOnInit(): void {
-    if (this.itemProdutividade && this.isEditMode) {
-      this.loadItemProdutividade();
+    // Detectar modo edição via parâmetro de rota (/:id/editar)
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+      this.isEditMode = true;
+      const id = Number(idParam);
+      const item = this.produtividadeService.getById(id);
+      if (item) {
+        this.itemProdutividade = item;
+        // Preencher ids relacionados a partir do item
+        this.idRelatorio = item.idRelatorio;
+        this.idAtividade = item.idAtividade;
+        this.loadItemProdutividade();
+      } else {
+        // Item não encontrado, retornar para lista
+        this.navigateBack();
+        return;
+      }
+    } else {
+      // Modo criação: tentar obter ids via query params, se não vierem por @Input
+      const qp = this.route.snapshot.queryParamMap;
+      if (this.idRelatorio === undefined || this.idRelatorio === null) {
+        const ir = Number(qp.get('idRelatorio'));
+        if (Number.isFinite(ir)) this.idRelatorio = ir as number; else this.idRelatorio = 0 as number;
+      }
+      if (this.idAtividade === undefined || this.idAtividade === null) {
+        const ia = Number(qp.get('idAtividade'));
+        if (Number.isFinite(ia)) this.idAtividade = ia as number; else this.idAtividade = 0 as number;
+      }
+      if (this.itemProdutividade && this.isEditMode) {
+        this.loadItemProdutividade();
+      }
+    }
+
+    // Preencher dataRelatorio a partir do serviço caso não seja fornecida via @Input
+    if (!this.dataRelatorio && this.idRelatorio) {
+      const rel = this.relatorioBaseService.getById(this.idRelatorio);
+      if (rel?.data) this.dataRelatorio = rel.data instanceof Date ? rel.data : new Date(rel.data);
     }
   }
 
@@ -63,7 +104,9 @@ export class ItemProdutividadeForm implements OnInit {
         ...formData,
         idRelatorio: this.idRelatorio,
         idAtividade: this.idAtividade,
-        idProdutividade: this.itemProdutividade?.idProdutividade || 0
+        idProdutividade: this.itemProdutividade?.idProdutividade || 0,
+        // Usa a data do relatório-base
+        data: this.dataRelatorio instanceof Date ? this.dataRelatorio : new Date()
       };
 
       if (this.isEditMode && this.itemProdutividade) {
@@ -74,6 +117,7 @@ export class ItemProdutividadeForm implements OnInit {
 
       this.formSubmit.emit(produtividadeData);
       this.resetForm();
+      this.navigateBack();
     } else {
       this.markFormGroupTouched();
     }
@@ -82,6 +126,7 @@ export class ItemProdutividadeForm implements OnInit {
   onCancel(): void {
     this.resetForm();
     this.formCancel.emit();
+    this.navigateBack();
   }
 
   private resetForm(): void {
@@ -111,8 +156,9 @@ export class ItemProdutividadeForm implements OnInit {
     return '';
   }
 
-  getDescricaoProduto(codigo: number): string {
-    const produto = this.codigosProdutos.find(p => p.codigo === codigo);
+  getDescricaoProduto(codigo: any): string {
+    const codeNum = Number(codigo);
+    const produto = this.codigosProdutos.find(p => p.codigo === codeNum);
     return produto ? produto.descricao : '';
   }
 
@@ -122,5 +168,19 @@ export class ItemProdutividadeForm implements OnInit {
       // Pode adicionar lógica adicional quando o código do produto mudar
       console.log('Produto selecionado:', this.getDescricaoProduto(parseInt(codigo)));
     }
+  }
+
+  // Contexto obrigatório: idRelatorio e idAtividade devem existir (>0)
+  get hasContext(): boolean {
+    return !!(this.idRelatorio && this.idRelatorio > 0 && this.idAtividade && this.idAtividade > 0);
+  }
+
+  private navigateBack(): void {
+    this.router.navigate(['/item-produtividade'], {
+      queryParams: {
+        idRelatorio: this.idRelatorio || undefined,
+        idAtividade: this.idAtividade || undefined,
+      }
+    });
   }
 }

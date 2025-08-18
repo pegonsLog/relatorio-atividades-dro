@@ -1,0 +1,69 @@
+<div class="container-fluid py-3" *ngIf="!loading; else carregando">
+  <div *ngIf="item as it; else vazio">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h5 mb-0">Produtividade nº #{{ it.idProdutividade }}</h2>
+      <a class="btn btn-outline-secondary" [routerLink]="['/item-produtividade']"><i class="mdi mdi-arrow-left"></i> Voltar</a>
+    </div>
+
+  <!-- Toast de alerta (contexto ausente para criar novo item) -->
+  <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;" *ngIf="showAlert">
+    <div class="toast show align-items-center text-bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          Para criar um item de produtividade, é necessário abrir a partir de uma Atividade/Relatório.
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" aria-label="Close" (click)="showAlert=false"></button>
+      </div>
+    </div>
+  </div>
+  <!-- Resumo do Item de Produtividade -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3 align-items-center flex-nowrap overflow-auto justify-content-between">
+        <div class="col-auto">
+          <div class="text-muted small">Data</div>
+          <div class="fw-semibold">{{ it.data | date:'dd/MM/yyyy HH:mm' }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Cód. Prod.</div>
+          <div class="fw-semibold"><span class="badge text-bg-info">{{ it.codProd }}</span></div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Quantidade</div>
+          <div class="fw-semibold">{{ it.qtdProd }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Atividade</div>
+          <div class="fw-semibold">{{ it.idAtividade }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Relatório</div>
+          <div class="fw-semibold">{{ it.idRelatorio }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ações -->
+  <div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-primary me-2" (click)="editar()"><i class="mdi mdi-pencil-outline"></i> Editar</button>
+    <button class="btn btn-success me-2" (click)="novoItem()"><i class="mdi mdi-plus"></i> Novo item</button>
+    <button class="btn btn-outline-danger" (click)="excluir()"><i class="mdi mdi-trash-can-outline"></i> Excluir</button>
+  </div>
+
+  <div class="d-flex justify-content-end gap-2 mb-2">
+    <a *ngIf="idAtividade!=null" class="btn btn-sm btn-outline-secondary" [routerLink]="['/item-atividade', idAtividade]"><i class="mdi mdi-eye-outline"></i> Abrir atividade</a>
+    <a *ngIf="idRelatorio" class="btn btn-sm btn-outline-secondary" [routerLink]="['/relatorio-base', idRelatorio]"><i class="mdi mdi-eye-outline"></i> Abrir relatório</a>
+  </div>
+  </div>
+</div>
+
+<ng-template #carregando>
+  <div class="container py-5 text-center text-muted">Carregando...</div>
+</ng-template>
+
+<ng-template #vazio>
+  <div class="container py-5 text-center text-muted">
+    <div class="empty-state">Item de produtividade não encontrado.</div>
+  </div>
+</ng-template>

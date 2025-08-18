@@ -23,6 +23,8 @@ export class ItemProdutividadeService {
   create(item: Omit<ItemProdutividade, 'idProdutividade'>): ItemProdutividade {
     const novoItem: ItemProdutividade = {
       ...item,
+      // garante que exista uma data
+      data: (item as any).data instanceof Date ? (item as any).data : new Date(),
       idProdutividade: this.nextId++
     };
     
@@ -129,14 +131,16 @@ export class ItemProdutividadeService {
         idAtividade: 1,
         idProdutividade: 1,
         codProd: 301,
-        qtdProd: 15
+        qtdProd: 15,
+        data: new Date()
       },
       {
         idRelatorio: 1,
         idAtividade: 1,
         idProdutividade: 2,
         codProd: 302,
-        qtdProd: 8
+        qtdProd: 8,
+        data: new Date()
       }
     ];
     

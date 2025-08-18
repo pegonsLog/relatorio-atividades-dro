@@ -1,8 +1,11 @@
 <div class="container py-3">
-  <h2 class="mb-3">Relatórios Base</h2>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Relatório</h2>
+    <a class="btn btn-outline-secondary" [routerLink]="['/menu']"><i class="mdi mdi-home"></i> Voltar para o menu</a>
+  </div>
 
   <div class="row g-3">
-    <div class="col-12 col-lg-6">
+    <div class="col-12 order-1">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span>Lista</span>
@@ -10,38 +13,118 @@
             <i class="mdi mdi-plus"></i> Novo
           </button>
         </div>
+        <div class="p-2 border-bottom">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text"><i class="mdi mdi-magnify"></i></span>
+            <input type="text" class="form-control" [(ngModel)]="filtro" (ngModelChange)="onFilterChange()" name="filtro" placeholder="Filtrar por gerência, turno ou matrícula" />
+            <button class="btn btn-outline-secondary" type="button" (click)="clearFilter()" [disabled]="!filtro" aria-label="Limpar filtro">
+              <i class="mdi mdi-close-circle-outline"></i>
+            </button>
+          </div>
+        </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-hover table-sm mb-0">
-              <thead>
+            <table class="table table-striped table-hover align-middle mb-0">
+              <thead class="table-light">
                 <tr>
-                  <th>Data</th>
-                  <th>Gerência</th>
-                  <th>Turno</th>
-                  <th class="text-end">Ações</th>
+                  <th class="text-nowrap">
+                    <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('data')">
+                      <span [class.fw-semibold]="sortKey==='data'">Data</span>
+                      <i class="mdi" [ngClass]="sortKey==='data' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+                    </button>
+                  </th>
+                  <th class="text-nowrap">
+                    <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('gerencia')">
+                      <span [class.fw-semibold]="sortKey==='gerencia'">Gerência</span>
+                      <i class="mdi" [ngClass]="sortKey==='gerencia' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+                    </button>
+                  </th>
+                  <th class="text-nowrap">
+                    <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('turno')">
+                      <span [class.fw-semibold]="sortKey==='turno'">Turno</span>
+                      <i class="mdi" [ngClass]="sortKey==='turno' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+                    </button>
+                  </th>
+                  <th class="text-nowrap">
+                    <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('mat1')">
+                      <span [class.fw-semibold]="sortKey==='mat1'">Mat. 1</span>
+                      <i class="mdi" [ngClass]="sortKey==='mat1' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+                    </button>
+                  </th>
+                  <th class="text-nowrap">
+                    <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('mat2')">
+                      <span [class.fw-semibold]="sortKey==='mat2'">Mat. 2</span>
+                      <i class="mdi" [ngClass]="sortKey==='mat2' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+                    </button>
+                  </th>
+                  <th class="text-nowrap">
+                    <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('coord')">
+                      <span [class.fw-semibold]="sortKey==='coord'">Coord.</span>
+                      <i class="mdi" [ngClass]="sortKey==='coord' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+                    </button>
+                  </th>
+                  <th class="text-nowrap">
+                    <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('superv')">
+                      <span [class.fw-semibold]="sortKey==='superv'">Superv.</span>
+                      <i class="mdi" [ngClass]="sortKey==='superv' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+                    </button>
+                  </th>
+                  <th class="text-end text-nowrap">Ações</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let r of (relatorios$ | async)" (dblclick)="startEdit(r)">
-                  <td>{{ r.data | date:'dd/MM/yyyy' }}</td>
-                  <td>{{ r.gerencia }}</td>
-                  <td>{{ r.turno }}</td>
+                <tr *ngFor="let r of pageItems" (dblclick)="startEdit(r)">
+                  <td class="text-nowrap">{{ r.data | date:'dd/MM/yyyy' }}</td>
+                  <td class="text-nowrap">{{ r.gerencia }}</td>
+                  <td class="text-nowrap">{{ r.turno }}</td>
+                  <td class="text-nowrap">{{ r.mat1 }}</td>
+                  <td class="text-nowrap">{{ r.mat2 }}</td>
+                  <td class="text-nowrap">{{ r.coord }}</td>
+                  <td class="text-nowrap">{{ r.superv }}</td>
                   <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/relatorio-base', r.idRelatorio!]"><i class="mdi mdi-eye"></i></a>
                     <button class="btn btn-sm btn-outline-secondary me-1" (click)="startEdit(r)"><i class="mdi mdi-pencil"></i></button>
-                    <button class="btn btn-sm btn-outline-danger" (click)="delete(r.idRelatorio)"><i class="mdi mdi-delete"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="openDelete(r.idRelatorio!)"><i class="mdi mdi-delete"></i></button>
                   </td>
                 </tr>
-                <tr *ngIf="!(relatorios$ | async)?.length">
-                  <td colspan="4" class="text-center text-muted p-3">Nenhum relatório encontrado</td>
+                <tr *ngIf="filtrados.length === 0">
+                  <td colspan="8" class="text-center text-muted p-3">Nenhum relatório encontrado</td>
                 </tr>
               </tbody>
             </table>
+          </div>
+          <!-- Controles de paginação -->
+          <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 p-2">
+            <div class="text-muted small">
+              Mostrando {{ startIndex }}–{{ endIndex }} de {{ total }}
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <div class="input-group input-group-sm" style="width: 180px;">
+                <span class="input-group-text">Por página</span>
+                <select class="form-select" [(ngModel)]="pageSize" name="pageSize" (ngModelChange)="goTo(1)">
+                  <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
+                </select>
+              </div>
+              <nav>
+                <ul class="pagination pagination-sm mb-0">
+                  <li class="page-item" [class.disabled]="page === 1">
+                    <button class="page-link" (click)="goTo(page - 1)" [disabled]="page === 1">«</button>
+                  </li>
+                  <li class="page-item" *ngFor="let p of pages" [class.active]="p === page">
+                    <button class="page-link" (click)="goTo(p)">{{ p }}</button>
+                  </li>
+                  <li class="page-item" [class.disabled]="page === totalPages">
+                    <button class="page-link" (click)="goTo(page + 1)" [disabled]="page === totalPages">»</button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="col-12 col-lg-6">
+    <div class="col-12 order-0">
       <div class="card">
         <div class="card-header">{{ selected?.idRelatorio ? 'Editar Relatório' : 'Novo Relatório' }}</div>
         <div class="card-body">
@@ -54,5 +137,31 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Modal de confirmação de exclusão -->
+  <div *ngIf="showDeleteModal">
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirmar exclusão</h5>
+            <button type="button" class="btn-close" aria-label="Close" (click)="closeDelete()" [disabled]="deleting"></button>
+          </div>
+          <div class="modal-body">
+            <p>Tem certeza que deseja excluir o relatório <strong>{{ toDelete }}</strong>?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeDelete()" [disabled]="deleting">Cancelar</button>
+            <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleting">
+              <span *ngIf="!deleting">Excluir</span>
+              <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <span *ngIf="deleting" class="ms-2">Excluindo...</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
   </div>
 </div>

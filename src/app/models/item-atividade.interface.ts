@@ -11,4 +11,5 @@ export interface ItemAtividade {
   qtdAgentes: number;
   local: string;
   observacoes: string;
+  data: Date;
 }

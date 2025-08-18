@@ -1,5 +1,5 @@
 export interface RelatorioBase {
-  idRelatorio: string | number;
+  idRelatorio?: string | number;
   gerencia: string;
   data: Date;
   diaSemana: string;
@@ -8,4 +8,5 @@ export interface RelatorioBase {
   mat2: number;
   coord: number;
   superv: number;
+  createdAt?: Date;
 }

@@ -1,6 +1,9 @@
 <div class="atividade-form-container">
   <div class="form-header">
     <h2>{{ isEditMode ? 'Editar Atividade' : 'Nova Atividade' }}</h2>
+    <div class="small text-muted" *ngIf="dataRelatorio as d">
+      Data do relatório: <strong>{{ d | date:'EEE, dd/MM/yyyy' }}</strong>
+    </div>
   </div>
 
   <form [formGroup]="atividadeForm" (ngSubmit)="onSubmit()" class="atividade-form">
@@ -30,7 +33,7 @@
     <div class="form-row">
       <div class="form-group">
         <label for="chegada">Horário de Chegada *</label>
-        <input type="datetime-local" id="chegada" formControlName="chegada" class="form-control"
+        <input type="time" id="chegada" formControlName="chegada" class="form-control"
                [class.is-invalid]="isFieldInvalid('chegada')" (change)="validateHorarios()">
         <div class="invalid-feedback" *ngIf="isFieldInvalid('chegada')">
           {{ getFieldError('chegada') }}
@@ -39,7 +42,7 @@
 
       <div class="form-group">
         <label for="solucao">Horário da Solução *</label>
-        <input type="datetime-local" id="solucao" formControlName="solucao" class="form-control"
+        <input type="time" id="solucao" formControlName="solucao" class="form-control"
                [class.is-invalid]="isFieldInvalid('solucao')" (change)="validateHorarios()">
         <div class="invalid-feedback" *ngIf="isFieldInvalid('solucao')">
           {{ getFieldError('solucao') }}
@@ -53,7 +56,7 @@
     <div class="form-row">
       <div class="form-group">
         <label for="saida">Horário de Saída *</label>
-        <input type="datetime-local" id="saida" formControlName="saida" class="form-control"
+        <input type="time" id="saida" formControlName="saida" class="form-control"
                [class.is-invalid]="isFieldInvalid('saida')" (change)="validateHorarios()">
         <div class="invalid-feedback" *ngIf="isFieldInvalid('saida')">
           {{ getFieldError('saida') }}

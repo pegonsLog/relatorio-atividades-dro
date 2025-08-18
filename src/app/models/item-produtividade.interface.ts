@@ -4,4 +4,5 @@ export interface ItemProdutividade {
   idProdutividade: number;
   codProd: number;
   qtdProd: number;
+  data: Date;
 }

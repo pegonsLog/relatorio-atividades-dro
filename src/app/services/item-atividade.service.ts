@@ -155,7 +155,8 @@ export class ItemAtividadeService extends CrudStore<ItemAtividade> {
             codOcor: data['codOcor'] || 0,
             qtdAgentes: data['qtdAgentes'] || 0,
             local: data['local'] || '',
-            observacoes: data['observacoes'] || ''
+            observacoes: data['observacoes'] || '',
+            data: data['data']?.toDate?.() || data['data'] || new Date()
           } as ItemAtividade);
         });
         console.log('Total de atividades carregadas:', atividades.length);

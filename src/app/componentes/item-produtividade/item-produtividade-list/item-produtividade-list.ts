@@ -1,11 +1,266 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { ItemProdutividadeService } from '../../../services';
+import { ItemProdutividade } from '../../../models';
 
 @Component({
   selector: 'app-item-produtividade-list',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './item-produtividade-list.html',
-  styleUrl: './item-produtividade-list.scss'
+  styleUrls: ['./item-produtividade-list.scss']
 })
-export class ItemProdutividadeList {
+export class ItemProdutividadeList implements OnInit, OnDestroy {
+  filtro = '';
+  itens: ItemProdutividade[] = [];
+  // Contexto
+  contextRelatorioId: number | null = null;
+  contextAtividadeId: number | null = null;
+  // Paginação
+  page = 1;
+  pageSize = 10;
+  readonly pageSizes = [5, 10, 20, 50];
+  // Ordenação
+  sortKey: 'idProdutividade' | 'codProd' | 'qtdProd' | 'idAtividade' | 'idRelatorio' = 'idProdutividade';
+  sortDir: 'asc' | 'desc' = 'asc';
+  // Modal de exclusão
+  showDeleteModal = false;
+  selectedItemId: number | null = null;
+  deleting = false;
 
+  // Alertas (ex.: redirecionamento do guard)
+  showAlert = false;
+  private alertKey: string | null = null;
+  private alertTimer: any = null;
+
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly service = inject(ItemProdutividadeService);
+
+  ngOnInit(): void {
+    const qp = this.route.snapshot.queryParamMap;
+    this.filtro = qp.get('q') ?? '';
+    // Contexto de navegação: pertencem a uma atividade (e relatório)
+    const ir = Number(qp.get('idRelatorio'));
+    const ia = Number(qp.get('idAtividade'));
+    this.contextRelatorioId = Number.isFinite(ir) && ir > 0 ? ir : null;
+    this.contextAtividadeId = Number.isFinite(ia) && ia > 0 ? ia : null;
+    const p = Number(qp.get('page'));
+    const ps = Number(qp.get('pageSize'));
+    this.page = Number.isFinite(p) && p > 0 ? p : 1;
+    this.pageSize = this.pageSizes.includes(ps) ? ps : this.pageSize;
+    const sk = qp.get('sortKey') as any;
+    const sd = qp.get('sortDir') as any;
+    const validKeys = ['idProdutividade','codProd','qtdProd','idAtividade','idRelatorio'];
+    if (sk && validKeys.includes(sk)) this.sortKey = sk;
+    if (sd && ['asc','desc'].includes(sd)) this.sortDir = sd;
+
+    // Alertas vindos de redirecionamentos (ex.: guard)
+    const alert = qp.get('alert');
+    if (alert) {
+      this.alertKey = alert;
+      this.showAlert = true;
+      // auto-hide após 5s
+      this.alertTimer = setTimeout(() => this.closeAlert(), 5000);
+    }
+    
+    // Carregar itens da lista
+    this.service.getItens().subscribe(list => {
+      this.itens = list ?? [];
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.alertTimer) {
+      clearTimeout(this.alertTimer);
+      this.alertTimer = null;
+    }
+  }
+
+  get alertText(): string {
+    switch (this.alertKey) {
+      case 'missingContext':
+        return 'Para criar um item de produtividade, selecione uma Atividade a partir da lista (contexto obrigatório).';
+      default:
+        return '';
+    }
+  }
+
+  closeAlert() {
+    this.showAlert = false;
+    if (this.alertTimer) {
+      clearTimeout(this.alertTimer);
+      this.alertTimer = null;
+    }
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { alert: undefined },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  get filtrados(): ItemProdutividade[] {
+    const f = this.filtro.trim().toLowerCase();
+    // Primeiro aplica o contexto (atividade > relatório), depois o filtro textual
+    let base = [...this.itens];
+    if (this.contextAtividadeId) {
+      base = base.filter(i => i.idAtividade === this.contextAtividadeId);
+    } else if (this.contextRelatorioId) {
+      base = base.filter(i => i.idRelatorio === this.contextRelatorioId);
+    }
+
+    return base.filter(i => {
+      if (!f) return true;
+      return (
+        String(i.idProdutividade).includes(f) ||
+        String(i.codProd).includes(f) ||
+        String(i.qtdProd).includes(f) ||
+        String(i.idAtividade).includes(f) ||
+        String(i.idRelatorio).includes(f)
+      );
+    });
+  }
+
+  // Itens da página atual
+  get pageItems(): ItemProdutividade[] {
+    const start = (this.page - 1) * this.pageSize;
+    return this.sorted.slice(start, start + this.pageSize);
+  }
+
+  // Helpers
+  get total(): number { return this.filtrados.length; }
+  get totalPages(): number { return Math.max(1, Math.ceil(this.total / this.pageSize)); }
+  get startIndex(): number { return this.total ? (this.page - 1) * this.pageSize + 1 : 0; }
+  get endIndex(): number { return Math.min(this.page * this.pageSize, this.total); }
+  get pages(): number[] { return Array.from({ length: this.totalPages }, (_, i) => i + 1); }
+
+  goTo(p: number) {
+    this.page = Math.min(this.totalPages, Math.max(1, p));
+    this.syncQuery();
+  }
+
+  // Lista filtrada e ordenada
+  get sorted(): ItemProdutividade[] {
+    const arr = [...this.filtrados];
+    const dir = this.sortDir === 'asc' ? 1 : -1;
+    arr.sort((a, b) => {
+      let va: number = 0;
+      let vb: number = 0;
+      switch (this.sortKey) {
+        case 'idProdutividade':
+          va = a.idProdutividade; vb = b.idProdutividade; break;
+        case 'codProd':
+          va = a.codProd; vb = b.codProd; break;
+        case 'qtdProd':
+          va = a.qtdProd; vb = b.qtdProd; break;
+        case 'idAtividade':
+          va = a.idAtividade; vb = b.idAtividade; break;
+        case 'idRelatorio':
+          va = a.idRelatorio; vb = b.idRelatorio; break;
+      }
+      if (va < vb) return -1 * dir;
+      if (va > vb) return 1 * dir;
+      return 0;
+    });
+    return arr;
+  }
+
+  setSort(key: 'idProdutividade' | 'codProd' | 'qtdProd' | 'idAtividade' | 'idRelatorio') {
+    if (this.sortKey === key) {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortKey = key;
+      this.sortDir = 'asc';
+    }
+    this.goTo(1);
+  }
+
+  onFilterChange() {
+    this.goTo(1);
+    this.syncQuery();
+  }
+
+  clearFilter() {
+    if (!this.filtro) return;
+    this.filtro = '';
+    this.onFilterChange();
+  }
+
+  private syncQuery() {
+    const queryParams = {
+      q: this.filtro || undefined,
+      page: this.page !== 1 ? this.page : undefined,
+      pageSize: this.pageSize !== 10 ? this.pageSize : undefined,
+      sortKey: this.sortKey !== 'idProdutividade' ? this.sortKey : undefined,
+      sortDir: this.sortDir !== 'asc' ? this.sortDir : undefined,
+      idRelatorio: this.contextRelatorioId || undefined,
+      idAtividade: this.contextAtividadeId || undefined,
+    } as any;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  // Query params para o botão "Novo"
+  get novoQueryParams() {
+    return {
+      idRelatorio: this.contextRelatorioId || undefined,
+      idAtividade: this.contextAtividadeId || undefined,
+    } as any;
+  }
+
+  newItem(): void {
+    const hasContext = !!(this.contextRelatorioId && this.contextAtividadeId);
+    if (!hasContext) {
+      // Mostra alerta de contexto ausente
+      this.alertKey = 'missingContext';
+      this.showAlert = true;
+      if (this.alertTimer) clearTimeout(this.alertTimer);
+      this.alertTimer = setTimeout(() => this.closeAlert(), 5000);
+      // Mantém a URL sincronizada com o alerta para consistência
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { alert: 'missingContext' },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+      return;
+    }
+    this.router.navigate(['/item-produtividade/novo'], {
+      queryParams: this.novoQueryParams,
+    });
+  }
+
+  // Modal de exclusão
+  openDelete(id: number): void {
+    this.selectedItemId = id;
+    this.showDeleteModal = true;
+  }
+
+  closeDeleteModal() {
+    this.showDeleteModal = false;
+    this.selectedItemId = null;
+    this.deleting = false;
+  }
+
+  closeDelete() {
+    this.closeDeleteModal();
+  }
+
+  get toDelete() {
+    return this.selectedItemId;
+  }
+
+  confirmDelete(): void {
+    if (this.selectedItemId !== null) {
+      this.service.delete(this.selectedItemId);
+      this.closeDeleteModal();
+    }
+  }
 }

@@ -1,0 +1,98 @@
+<div class="container-fluid py-3" *ngIf="atividade as a; else carregando">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h5 mb-0">Atividade ID: #{{ a.idAtividade }}</h2>
+    <a class="btn btn-outline-secondary" (click)="voltarRelatorio()"><i class="mdi mdi-arrow-left"></i> Voltar ao Relatório</a>
+  </div>
+
+  <!-- Resumo da Atividade -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3 align-items-center flex-nowrap overflow-auto justify-content-between">
+        <div class="col-auto">
+          <div class="text-muted small">Item</div>
+          <div class="fw-semibold">#{{ a.item }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Local</div>
+          <div class="fw-semibold">{{ a.local }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Data</div>
+          <div class="fw-semibold">{{ a.data | date:'EEE, dd/MM/yyyy' }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Chegada</div>
+          <div class="fw-semibold">{{ a.chegada | date:'HH:mm' }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Solução</div>
+          <div class="fw-semibold">{{ a.solucao | date:'HH:mm' }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Saída</div>
+          <div class="fw-semibold">{{ a.saida | date:'HH:mm' }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Agentes</div>
+          <div class="fw-semibold">{{ a.qtdAgentes }}</div>
+        </div>
+        <div class="col-auto" *ngIf="a.observacoes">
+          <div class="text-muted small">Obs.</div>
+          <div class="fw-semibold">{{ a.observacoes }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ações -->
+  <div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-primary me-2" (click)="novoItem()" [disabled]="!hasValidContext"><i class="mdi mdi-plus"></i> Novo item de produtividade</button>
+    <a class="btn btn-outline-secondary" (click)="voltarRelatorio()"><i class="mdi mdi-arrow-left"></i> Voltar ao Relatório</a>
+  </div>
+
+  <!-- Alert -->
+  <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;" *ngIf="showAlert">
+    <div class="toast show align-items-center text-bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">{{ alertText }}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" aria-label="Close" (click)="closeAlert()"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards dos Itens de Produtividade -->
+  <div class="row g-3">
+    <div class="col-12" *ngIf="!itens || itens.length === 0">
+      <div class="empty-state">Nenhum item de produtividade vinculado a esta atividade.</div>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-4" *ngFor="let i of itens">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <div class="text-muted small">Produtividade</div>
+              <div class="h6 mb-0">#{{ i.idProdutividade }}</div>
+            </div>
+            <span class="badge text-bg-info">{{ i.codProd }}</span>
+          </div>
+          <div class="mb-2">
+            <div class="text-muted small">Quantidade</div>
+            <div class="fw-semibold">{{ i.qtdProd }}</div>
+          </div>
+          <div class="small text-muted">
+            <div>Data: <span class="fw-semibold">{{ i.data | date:'dd/MM/yyyy HH:mm' }}</span></div>
+          </div>
+          <div class="d-flex justify-content-end gap-2 mt-3">
+            <a class="btn btn-sm btn-outline-info" [routerLink]="['/item-produtividade', i.idProdutividade]"><i class="mdi mdi-eye-outline"></i> Detalhe</a>
+            <a class="btn btn-sm btn-outline-primary" [routerLink]="['/item-produtividade', i.idProdutividade, 'editar']"><i class="mdi mdi-pencil"></i> Editar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #carregando>
+  <div class="container py-5 text-center text-muted">Carregando...</div>
+</ng-template>

@@ -1,0 +1,77 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background: #f6f6f6;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn.secondary {
+  background: #fff;
+}
+
+.alert {
+  padding: 8px 12px;
+  border: 1px solid #f1c40f;
+  background: #fcf8e3;
+  border-radius: 4px;
+}
+
+.alert .close {
+  margin-left: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.card {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabela th,
+.tabela td {
+  border: 1px solid #eee;
+  padding: 8px;
+}
+
+.tabela th {
+  background: #fafafa;
+}
+
+.vazio {
+  text-align: center;
+  color: #777;
+}
+
+.link {
+  color: #1565c0;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
