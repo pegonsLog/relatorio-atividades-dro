@@ -3,8 +3,10 @@
 
   @for (item of menuItems(); track item.route) {
     <a
-      class="list-group-item list-group-item-action menu-item"
-      [routerLink]="item.route"
+      class="list-group-item list-group-item-action menu-item cursor-pointer"
+      [routerLink]="item.route !== '/relatorio-base' ? item.route : undefined"
+      [attr.href]="item.route !== '/relatorio-base' ? item.route : '#'"
+      (click)="onMenuClick($event, item)"
       routerLinkActive="active"
     >
       <i class="mdi {{ item.icon }} me-2"></i>
@@ -18,7 +20,7 @@
 
   @for (item of adminItems(); track item.route) {
     <a
-      class="list-group-item list-group-item-action menu-item admin-item"
+      class="list-group-item list-group-item-action menu-item admin-item cursor-pointer"
       [routerLink]="item.route"
       routerLinkActive="active"
     >
@@ -38,4 +40,40 @@
       <span class="user-role">Administrador</span>
     </div>
   </div>
+</div>
+
+<!-- Modal de Filtros para Relatório Base -->
+<div *ngIf="showFilterModal">
+  <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Selecionar filtros</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="closeRelatorioBaseModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Gerência</label>
+            <select class="form-select" [(ngModel)]="selectedGerencia">
+              <option value="">Todas</option>
+              <option *ngFor="let g of gerencias" [value]="g">{{ g }}</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Turno</label>
+            <select class="form-select" [(ngModel)]="selectedTurno">
+              <option value="">Todos</option>
+              <option *ngFor="let t of turnos" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeRelatorioBaseModal()">Cancelar</button>
+          <div class="me-auto text-muted small" *ngIf="!selectedGerencia || !selectedTurno">Selecione Gerência e Turno</div>
+          <button type="button" class="btn btn-primary" (click)="confirmRelatorioBaseFilters()" [disabled]="!selectedGerencia || !selectedTurno">Continuar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
 </div>

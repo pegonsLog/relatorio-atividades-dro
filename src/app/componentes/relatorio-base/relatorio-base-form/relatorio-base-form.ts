@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RelatorioBase } from '../../../models';
@@ -17,8 +17,10 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
 
   @Input() value?: RelatorioBase | null;
   @Input() saving = false;
+  @Input() defaults?: { gerencia?: string; turno?: string } | null;
   @Output() submitValue = new EventEmitter<RelatorioBase>();
   @Output() cancel = new EventEmitter<void>();
+  @ViewChild('dataInput') dataInput?: ElementRef<HTMLInputElement>;
 
   form: FormGroup = this.fb.group({
     gerencia: ['', [Validators.required, Validators.minLength(2)]],
@@ -33,6 +35,38 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
 
   // Observable de agentes para popular selects
   agentes$ = this.agentesService.list();
+
+  // Indica quando o formulário está em modo "novo" com defaults válidos, para travar os campos
+  get isLocked(): boolean {
+    return !this.value && !!(this.defaults?.gerencia && this.defaults?.turno);
+  }
+
+  // Reseta o formulário usando os defaults atuais e aplica bloqueio conforme necessário
+  resetToDefaults() {
+    this.form.reset({
+      gerencia: this.defaults?.gerencia || '',
+      data: '',
+      diaSemana: '',
+      turno: this.defaults?.turno || '',
+      mat1: null,
+      mat2: null,
+      coord: null,
+      superv: null,
+    });
+    const canLock = !!(this.defaults?.gerencia && this.defaults?.turno);
+    if (canLock) {
+      this.form.get('gerencia')?.disable({ emitEvent: false });
+      this.form.get('turno')?.disable({ emitEvent: false });
+    } else {
+      this.form.get('gerencia')?.enable({ emitEvent: false });
+      this.form.get('turno')?.enable({ emitEvent: false });
+    }
+    // Limpa estado de validação/toque
+    this.form.markAsPristine();
+    this.form.markAsUntouched();
+    // Foca o primeiro campo (Data)
+    setTimeout(() => this.dataInput?.nativeElement.focus(), 0);
+  }
 
   ngOnInit(): void {
     const dataCtrl = this.form.get('data');
@@ -62,9 +96,16 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
           coord: v.coord,
           superv: v.superv,
         });
+        // Em edição, permitir alterar gerência/turno
+        this.form.get('gerencia')?.enable({ emitEvent: false });
+        this.form.get('turno')?.enable({ emitEvent: false });
       } else {
-        this.form.reset({ gerencia: '', data: '', diaSemana: '', turno: '', mat1: null, mat2: null, coord: null, superv: null });
+        this.resetToDefaults();
       }
+    }
+    // Se os defaults mudarem e não estivermos em edição, re-aplica
+    if (changes['defaults'] && !this.value) {
+      this.resetToDefaults();
     }
   }
 
@@ -73,7 +114,8 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    const v = this.form.value as any;
+    // Usa getRawValue para incluir valores de campos desabilitados
+    const v = this.form.getRawValue() as any;
     const payload: RelatorioBase = {
       gerencia: v.gerencia,
       // Cria Date em horário local (00:00), evitando UTC e offset -03.

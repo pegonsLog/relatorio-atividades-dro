@@ -178,14 +178,15 @@ export class ItemProdutividadeForm implements OnInit {
 
   private navigateBack(): void {
     if (this.idAtividade) {
-      this.router.navigate(['/item-atividade', this.idAtividade]);
+      this.router.navigate(['/item-atividade', this.idAtividade], { queryParamsHandling: 'preserve' });
       return;
     }
     this.router.navigate(['/item-produtividade'], {
       queryParams: {
         idRelatorio: this.idRelatorio || undefined,
         idAtividade: this.idAtividade || undefined,
-      }
+      },
+      queryParamsHandling: 'merge',
     });
   }
 }

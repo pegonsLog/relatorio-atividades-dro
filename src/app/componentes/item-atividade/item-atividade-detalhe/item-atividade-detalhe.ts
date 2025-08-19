@@ -97,9 +97,9 @@ export class ItemAtividadeDetalhe implements OnInit, OnDestroy {
   voltarRelatorio(): void {
     const idRel = this.strIdRelatorio;
     if (idRel) {
-      this.router.navigate(['/relatorio-base', idRel]);
+      this.router.navigate(['/relatorio-base', idRel], { queryParamsHandling: 'preserve' });
     } else {
-      this.router.navigate(['/relatorio-base']);
+      this.router.navigate(['/relatorio-base'], { queryParamsHandling: 'preserve' });
     }
   }
 

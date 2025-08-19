@@ -161,10 +161,15 @@ export class ItemAtividadeList implements OnInit {
     return this.selectedItemId;
   }
 
-  confirmDelete(): void {
-    if (this.selectedItemId !== null) {
-      this.atividadeService.delete(this.selectedItemId);
+  async confirmDelete(): Promise<void> {
+    if (this.selectedItemId === null) return;
+    this.deleting = true;
+    try {
+      await Promise.resolve(this.atividadeService.delete(this.selectedItemId));
       this.closeDeleteModal();
+    } catch (e) {
+      console.error(e);
+      this.deleting = false;
     }
   }
 

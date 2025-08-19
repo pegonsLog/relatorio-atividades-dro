@@ -20,7 +20,7 @@ export class ItemAtividadeForm implements OnInit {
   @Output() formCancel = new EventEmitter<void>();
 
   atividadeForm: FormGroup;
-  tiposAcionamento = ['Chamado via rádio', 'Solicitação direta', 'Rotina programada', 'Emergência', 'Manutenção preventiva'];
+  tiposAcionamento = ['Central/Técnico', 'Não Programado', 'Programado'];
 
   constructor(
     private fb: FormBuilder,
@@ -38,14 +38,14 @@ export class ItemAtividadeForm implements OnInit {
   private createForm(): FormGroup {
     return this.fb.group({
       item: ['', [Validators.required, Validators.min(1)]],
-      acionamento: ['', [Validators.required]],
+      acionamento: ['Programado', [Validators.required]],
       chegada: ['', [Validators.required]],
-      solucao: ['', [Validators.required]],
+      solucao: [''],
       saida: ['', [Validators.required]],
       codAtv: ['', [Validators.required, Validators.min(1)]],
-      codOcor: ['', [Validators.required, Validators.min(1)]],
+      codOcor: ['', [Validators.min(1)]],
       qtdAgentes: ['', [Validators.required, Validators.min(1)]],
-      local: ['', [Validators.required, Validators.minLength(3)]],
+      local: [''],
       observacoes: ['', [Validators.maxLength(500)]]
     });
   }
@@ -56,7 +56,7 @@ export class ItemAtividadeForm implements OnInit {
         item: this.atividade.item,
         acionamento: this.atividade.acionamento,
         chegada: this.formatTimeForInput(this.atividade.chegada),
-        solucao: this.formatTimeForInput(this.atividade.solucao),
+        solucao: this.atividade.solucao ? this.formatTimeForInput(this.atividade.solucao) : '',
         saida: this.formatTimeForInput(this.atividade.saida),
         codAtv: this.atividade.codAtv,
         codOcor: this.atividade.codOcor,
@@ -88,16 +88,23 @@ export class ItemAtividadeForm implements OnInit {
   onSubmit(): void {
     if (this.atividadeForm.valid) {
       const formData = this.atividadeForm.value;
+      const chegadaDate = this.combineTimeWithBaseDate(formData.chegada);
+      const solucaoDate = formData.solucao ? this.combineTimeWithBaseDate(formData.solucao) : null;
+      const saidaDate = this.combineTimeWithBaseDate(formData.saida);
       const atividadeData: ItemAtividade = {
         ...formData,
-        chegada: this.combineTimeWithBaseDate(formData.chegada),
-        solucao: this.combineTimeWithBaseDate(formData.solucao),
-        saida: this.combineTimeWithBaseDate(formData.saida),
+        chegada: chegadaDate,
+        solucao: solucaoDate,
+        saida: saidaDate,
         idRelatorio: this.idRelatorio,
         idAtividade: this.atividade?.idAtividade || 0,
         // Usa sempre a data do relatório-base
         data: this.dataRelatorio instanceof Date ? this.dataRelatorio : new Date()
       };
+
+      // Normalizações para campos opcionais
+      (atividadeData as any).codOcor = formData.codOcor ? Number(formData.codOcor) : 0;
+      (atividadeData as any).local = formData.local ? String(formData.local) : '';
 
       if (this.isEditMode && this.atividade) {
         this.atividadeService.update(this.atividade.idAtividade, atividadeData);
@@ -118,7 +125,7 @@ export class ItemAtividadeForm implements OnInit {
   }
 
   private resetForm(): void {
-    this.atividadeForm.reset();
+    this.atividadeForm.reset({ acionamento: 'Programado' });
     this.atividade = undefined;
     this.isEditMode = false;
   }
@@ -156,12 +163,25 @@ export class ItemAtividadeForm implements OnInit {
     const dSolucao = solucao ? this.combineTimeWithBaseDate(solucao) : null;
     const dSaida = saida ? this.combineTimeWithBaseDate(saida) : null;
 
+    const solucaoCtrl = this.atividadeForm.get('solucao');
+    const saidaCtrl = this.atividadeForm.get('saida');
+
+    // Limpa erros anteriores de invalidTime se necessário
+    if (solucaoCtrl?.errors?.['invalidTime']) {
+      const { invalidTime, ...rest } = solucaoCtrl.errors as any;
+      solucaoCtrl.setErrors(Object.keys(rest).length ? rest : null);
+    }
+    if (saidaCtrl?.errors?.['invalidTime']) {
+      const { invalidTime, ...rest } = saidaCtrl.errors as any;
+      saidaCtrl.setErrors(Object.keys(rest).length ? rest : null);
+    }
+
     if (dChegada && dSolucao && dSolucao < dChegada) {
-      this.atividadeForm.get('solucao')?.setErrors({ 'invalidTime': true });
+      solucaoCtrl?.setErrors({ ...(solucaoCtrl.errors || {}), invalidTime: true });
     }
 
     if (dSolucao && dSaida && dSaida < dSolucao) {
-      this.atividadeForm.get('saida')?.setErrors({ 'invalidTime': true });
+      saidaCtrl?.setErrors({ ...(saidaCtrl.errors || {}), invalidTime: true });
     }
   }
 }

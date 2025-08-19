@@ -8,16 +8,13 @@
     <div class="col-12 order-1">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <span>Lista</span>
-          <button class="btn btn-sm btn-primary" (click)="startCreate()">
-            <i class="mdi mdi-plus"></i> Novo
-          </button>
+          <span>Lista</span>       
         </div>
         <div class="p-2 border-bottom">
           <div class="input-group input-group-sm">
             <span class="input-group-text"><i class="mdi mdi-magnify"></i></span>
-            <input type="text" class="form-control" [(ngModel)]="filtro" (ngModelChange)="onFilterChange()" name="filtro" placeholder="Filtrar por gerência, turno ou matrícula" />
-            <button class="btn btn-outline-secondary" type="button" (click)="clearFilter()" [disabled]="!filtro" aria-label="Limpar filtro">
+            <input type="text" class="form-control" [(ngModel)]="filtro" (ngModelChange)="onFilterChange()" name="filtro" placeholder="Buscar por data, matrícula 1/2, coordenação ou supervisor" />
+            <button class="btn btn-outline-secondary" type="button" (click)="clearFilter()" [disabled]="!filtro.trim()" aria-label="Limpar filtro">
               <i class="mdi mdi-close-circle-outline"></i>
             </button>
           </div>
@@ -82,7 +79,7 @@
                   <td class="text-nowrap">{{ r.coord }}</td>
                   <td class="text-nowrap">{{ r.superv }}</td>
                   <td class="text-end">
-                    <a class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/relatorio-base', r.idRelatorio!]"><i class="mdi mdi-eye"></i></a>
+                    <a class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/relatorio-base', r.idRelatorio!]" [queryParamsHandling]="'preserve'"><i class="mdi mdi-eye"></i></a>
                     <button class="btn btn-sm btn-outline-secondary me-1" (click)="startEdit(r)"><i class="mdi mdi-pencil"></i></button>
                     <button class="btn btn-sm btn-outline-danger" (click)="openDelete(r.idRelatorio!)"><i class="mdi mdi-delete"></i></button>
                   </td>
@@ -130,6 +127,7 @@
         <div class="card-body">
           <app-relatorio-base-form
             [value]="selected"
+            [defaults]="{ gerencia: defaultGerencia, turno: defaultTurno }"
             [saving]="saving"
             (submitValue)="onSubmit($event)"
             (cancel)="cancel()"
@@ -138,6 +136,8 @@
       </div>
     </div>
   </div>
+
+  
 
   <!-- Modal de confirmação de exclusão -->
   <div *ngIf="showDeleteModal">

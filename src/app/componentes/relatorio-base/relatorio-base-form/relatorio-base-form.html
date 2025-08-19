@@ -1,7 +1,7 @@
 <form class="row g-3 gy-4" (ngSubmit)="onSubmit()" [formGroup]="form">
   <div class="col-12 col-sm-6 col-md-3">
     <label class="form-label">Data</label>
-    <input type="date" class="form-control" formControlName="data" />
+    <input type="date" class="form-control" formControlName="data" #dataInput />
   </div>
   <div class="col-12 col-sm-6 col-md-3">
     <label class="form-label">Dia da Semana</label>
@@ -9,24 +9,36 @@
   </div>
   <div class="col-12 col-sm-6 col-md-3">
     <label class="form-label">Gerência</label>
-    <select class="form-select" formControlName="gerencia">
-      <option value="" disabled selected>Selecione</option>
-      <option value="GARBO">GARBO</option>
-      <option value="GARNE">GARNE</option>
-      <option value="GARNP">GARNP</option>
-      <option value="GARVN">GARVN</option>
-      <option value="GEACE">GEACE</option>
-      <option value="GAOPE">GAOPE</option>
-    </select>
+    <ng-container *ngIf="isLocked; else gerenciaSelect">
+      <input type="text" class="form-control locked-display" [value]="form.get('gerencia')?.value || defaults?.gerencia" readonly />
+      <div class="form-text text-muted">Definido pelos filtros</div>
+    </ng-container>
+    <ng-template #gerenciaSelect>
+      <select class="form-select" formControlName="gerencia">
+        <option value="" disabled selected>Selecione</option>
+        <option value="GARBO">GARBO</option>
+        <option value="GARNE">GARNE</option>
+        <option value="GARNP">GARNP</option>
+        <option value="GARVN">GARVN</option>
+        <option value="GEACE">GEACE</option>
+        <option value="GAOPE">GAOPE</option>
+      </select>
+    </ng-template>
   </div>
   <div class="col-12 col-sm-6 col-md-3">
     <label class="form-label">Turno</label>
-    <select class="form-select" formControlName="turno">
-      <option value="" disabled>Selecione</option>
-      <option value="Manhã">Manhã</option>
-      <option value="Tarde">Tarde</option>
-      <option value="Madrugada">Madrugada</option>
-    </select>
+    <ng-container *ngIf="isLocked; else turnoSelect">
+      <input type="text" class="form-control locked-display" [value]="form.get('turno')?.value || defaults?.turno" readonly />
+      <div class="form-text text-muted">Definido pelos filtros</div>
+    </ng-container>
+    <ng-template #turnoSelect>
+      <select class="form-select" formControlName="turno">
+        <option value="" disabled>Selecione</option>
+        <option value="Manhã">Manhã</option>
+        <option value="Tarde">Tarde</option>
+        <option value="Madrugada">Madrugada</option>
+      </select>
+    </ng-template>
   </div>
   <div class="col-12 col-sm-6 col-md-3">
     <label class="form-label">Mat. 1</label>

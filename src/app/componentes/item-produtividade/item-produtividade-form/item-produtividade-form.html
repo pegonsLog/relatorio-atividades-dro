@@ -1,13 +1,7 @@
-<div class="produtividade-form-container">
-  <div class="form-header">
-    <h2 class="mb-0">{{ isEditMode ? 'Editar Item de Produtividade' : 'Novo Item de Produtividade' }}</h2>
-    <div class="ms-auto" *ngIf="idAtividade">
-      <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/item-atividade', idAtividade]">
-        <i class="mdi mdi-arrow-left me-1"></i>
-        Voltar à Atividade
-      </a>
-    </div>
-  </div>
+<div class="produtividade-form-container mt-3">
+  <div class="form-header d-flex flex-column align-items-center">
+    <h2 class="mb-0 text-center">{{ isEditMode ? 'Editar Item de Produtividade' : 'Novo Item de Produtividade' }}</h2>
+   </div>
 
   <!-- Aviso de contexto ausente -->
   <div *ngIf="!hasContext" class="alert alert-warning" role="alert">
@@ -15,25 +9,7 @@
     Volte para a lista a partir do contexto correto ou informe o parâmetro na URL (?idAtividade=...).
   </div>
 
-  <!-- Resumo do contexto -->
-  <div *ngIf="hasContext" class="mb-3 text-muted">
-    <small>
-      Contexto: Atividade #{{ idAtividade }}
-      <ng-container *ngIf="idRelatorio"> · Relatório #{{ idRelatorio }}</ng-container>
-    </small>
-  </div>
-
   <form [formGroup]="produtividadeForm" (ngSubmit)="onSubmit()" class="produtividade-form">
-    <div class="form-row">
-      <div class="form-group">
-        <label for="idAtividade">ID da Atividade</label>
-        <input type="text" id="idAtividade" class="form-control" [value]="idAtividade" readonly>
-      </div>
-      <div class="form-group" *ngIf="idRelatorio">
-        <label for="idRelatorio">ID do Relatório</label>
-        <input type="text" id="idRelatorio" class="form-control" [value]="idRelatorio" readonly>
-      </div>
-    </div>
     <div class="form-row">
       <div class="form-group">
         <label for="codProd">Código do Produto *</label>

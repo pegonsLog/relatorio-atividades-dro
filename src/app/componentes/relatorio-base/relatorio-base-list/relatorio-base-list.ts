@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RelatorioBase } from '../../../models';
 import { RouterModule } from '@angular/router';
@@ -14,7 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
   templateUrl: './relatorio-base-list.html',
   styleUrls: ['./relatorio-base-list.scss']
 })
-export class RelatorioBaseList implements OnInit {
+export class RelatorioBaseList implements OnInit, OnDestroy {
   private readonly service = inject(RelatorioBaseService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -24,8 +24,15 @@ export class RelatorioBaseList implements OnInit {
   selected: RelatorioBase | null = null;
   saving = false;
 
-  // Filtro
+  // Filtro (texto)
   filtro = '';
+  // Filtros vindos de query params (apenas para defaults do formulário)
+  filterGerencia = '';
+  filterTurno = '';
+  // Defaults para o formulário
+  defaultGerencia = '';
+  defaultTurno = '';
+
 
   // Paginação
   page = 1;
@@ -34,7 +41,10 @@ export class RelatorioBaseList implements OnInit {
 
   // Ordenação
   sortKey: 'data' | 'gerencia' | 'turno' | 'mat1' | 'mat2' | 'coord' | 'superv' = 'data';
-  sortDir: 'asc' | 'desc' = 'asc';
+  sortDir: 'asc' | 'desc' = 'desc';
+
+  // Debounce do filtro
+  private filterDebounce?: any;
 
   // Modal de exclusão
   showDeleteModal = false;
@@ -43,38 +53,65 @@ export class RelatorioBaseList implements OnInit {
 
   // Âncora para rolar até o formulário ao editar
   @ViewChild('formTop') formTop?: ElementRef<HTMLElement>;
+  // Referência ao componente de formulário para poder resetar após salvar
+  @ViewChild(RelatorioBaseFormComponent) relForm?: RelatorioBaseFormComponent;
 
   ngOnInit(): void {
-    // Query params
-    const qp = this.route.snapshot.queryParamMap;
-    this.filtro = qp.get('q') ?? '';
-    const p = Number(qp.get('page'));
-    const ps = Number(qp.get('pageSize'));
-    this.page = Number.isFinite(p) && p > 0 ? p : 1;
-    this.pageSize = this.pageSizes.includes(ps) ? ps : this.pageSize;
-    const sk = qp.get('sortKey') as any;
-    const sd = qp.get('sortDir') as any;
-    const allowed: string[] = ['data','gerencia','turno','mat1','mat2','coord','superv'];
-    if (sk && allowed.includes(sk)) this.sortKey = sk;
-    if (sd && ['asc','desc'].includes(sd)) this.sortDir = sd;
+    // Query params (assina mudanças para refletir filtros do modal externo)
+    this.route.queryParamMap.subscribe(qp => {
+      this.filtro = qp.get('q') ?? '';
+      this.filterGerencia = qp.get('gerencia') ?? '';
+      this.filterTurno = qp.get('turno') ?? '';
+      this.defaultGerencia = this.filterGerencia;
+      this.defaultTurno = this.filterTurno;
+      const p = Number(qp.get('page'));
+      const ps = Number(qp.get('pageSize'));
+      this.page = Number.isFinite(p) && p > 0 ? p : 1;
+      this.pageSize = this.pageSizes.includes(ps) ? ps : this.pageSize;
+      const sk = qp.get('sortKey') as any;
+      const sd = qp.get('sortDir') as any;
+      const allowed: string[] = ['data','gerencia','turno','mat1','mat2','coord','superv'];
+      if (sk && allowed.includes(sk)) this.sortKey = sk;
+      if (sd && ['asc','desc'].includes(sd)) this.sortDir = sd;
+    });
 
     this.service.getRelatorios$().subscribe(list => {
       this.relatorios = list ?? [];
     });
   }
 
+  // Utilitário: formata data em dd/MM/yyyy para busca
+  private formatDateStr(d: any): string {
+    const dt = new Date(d);
+    if (Number.isNaN(dt.getTime())) return '';
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)}/${dt.getFullYear()}`;
+  }
+
+  ngOnDestroy(): void {
+    if (this.filterDebounce) clearTimeout(this.filterDebounce);
+  }
+
   // Filtrados
   get filtrados(): RelatorioBase[] {
     const f = this.filtro.trim().toLowerCase();
-    if (!f) return this.relatorios;
-    return this.relatorios.filter(r =>
-      (r.gerencia?.toLowerCase().includes(f)) ||
-      (r.turno?.toLowerCase().includes(f)) ||
-      String(r.mat1 ?? '').includes(f) ||
-      String(r.mat2 ?? '').includes(f) ||
-      String(r.coord ?? '').includes(f) ||
-      String(r.superv ?? '').includes(f)
-    );
+    // Aplica filtros de gerência/turno vindos do modal externo (query params)
+    const byFixed = this.relatorios.filter(r => {
+      const okGer = this.filterGerencia ? (r.gerencia === this.filterGerencia) : true;
+      const okTur = this.filterTurno ? (r.turno === this.filterTurno) : true;
+      return okGer && okTur;
+    });
+    if (!f) return byFixed;
+    return byFixed.filter(r => {
+      const dateStr = this.formatDateStr(r.data).toLowerCase();
+      return (
+        dateStr.includes(f) ||
+        String(r.mat1 ?? '').toLowerCase().includes(f) ||
+        String(r.mat2 ?? '').toLowerCase().includes(f) ||
+        String(r.coord ?? '').toLowerCase().includes(f) ||
+        String(r.superv ?? '').toLowerCase().includes(f)
+      );
+    });
   }
 
   // Derivados
@@ -130,10 +167,6 @@ export class RelatorioBaseList implements OnInit {
     return this.sorted.slice(start, start + this.pageSize);
   }
 
-  startCreate(): void {
-    this.selected = null;
-  }
-
   startEdit(item: RelatorioBase): void {
     this.selected = { ...item };
     // Rola a tela até o formulário para tornar a edição visível
@@ -152,6 +185,8 @@ export class RelatorioBaseList implements OnInit {
       this.service.update(this.selected.idRelatorio, payload);
     } else {
       this.service.create(payload);
+      // Após criar, limpa o formulário para novos lançamentos
+      this.relForm?.resetToDefaults();
     }
     this.saving = false;
     this.cancel();
@@ -176,22 +211,30 @@ export class RelatorioBaseList implements OnInit {
   }
 
   onFilterChange() {
-    this.goTo(1);
+    if (this.filterDebounce) clearTimeout(this.filterDebounce);
+    this.filterDebounce = setTimeout(() => {
+      this.goTo(1);
+    }, 250);
   }
 
   clearFilter() {
     if (!this.filtro) return;
     this.filtro = '';
-    this.onFilterChange();
+    if (this.filterDebounce) clearTimeout(this.filterDebounce);
+    // Aplica imediatamente sem debounce
+    this.goTo(1);
   }
 
   private syncQuery() {
     const queryParams = {
-      q: this.filtro || undefined,
+      q: this.filtro?.trim() ? this.filtro.trim() : undefined,
       page: this.page !== 1 ? this.page : undefined,
       pageSize: this.pageSize !== 10 ? this.pageSize : undefined,
       sortKey: this.sortKey !== 'data' ? this.sortKey : undefined,
-      sortDir: this.sortDir !== 'asc' ? this.sortDir : undefined,
+      // 'desc' é o padrão inicial; só grava se diferente disso
+      sortDir: this.sortDir !== 'desc' ? this.sortDir : undefined,
+      gerencia: this.filterGerencia || undefined,
+      turno: this.filterTurno || undefined,
     } as any;
     this.router.navigate([], {
       relativeTo: this.route,
@@ -200,6 +243,7 @@ export class RelatorioBaseList implements OnInit {
       replaceUrl: true,
     });
   }
+
 
   // Modal de exclusão
   openDelete(id: string | number) {

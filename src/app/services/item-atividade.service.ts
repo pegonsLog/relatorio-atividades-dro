@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, from } from 'rxjs';
 import { ItemAtividade } from '../models';
 import { CrudStore } from './crud-store';
 import { Firestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where } from '@angular/fire/firestore';
+import { ItemProdutividadeService } from './item-produtividade.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ import { Firestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, quer
 export class ItemAtividadeService extends CrudStore<ItemAtividade> {
   private injector = inject(Injector);
 
-  constructor(private firestore: Firestore) {
+  constructor(private firestore: Firestore, private itemProdService: ItemProdutividadeService) {
     super('idAtividade');
     // console removido
     // console removido
@@ -93,24 +94,53 @@ export class ItemAtividadeService extends CrudStore<ItemAtividade> {
   }
 
   // DELETE
-  delete(id: number | string): void {
-    const docRef = doc(this.firestore, 'item-atividade', String(id));
-    from(deleteDoc(docRef)).subscribe({
-      next: () => {
+  delete(id: number | string): Promise<void> {
+    // Deleção em cascata: primeiro apaga produtividades da atividade, depois a atividade
+    return runInInjectionContext(this.injector, async () => {
+      try {
+        await this.itemProdService.deleteByAtividade(String(id));
+      } catch (err) {
+        console.error('Erro ao deletar produtividades vinculadas à atividade:', err);
+      }
+      try {
+        const docRef = doc(this.firestore, 'item-atividade', String(id));
+        await deleteDoc(docRef);
         const currentItems = this.subject.value;
         const filteredItems = currentItems.filter((item: ItemAtividade) => item.idAtividade !== id);
         this.subject.next(filteredItems);
-      },
-      error: (error) => console.error('Erro ao deletar atividade:', error)
+      } catch (error) {
+        console.error('Erro ao deletar atividade:', error);
+      }
     });
   }
 
-  deleteByRelatorio(idRelatorio: number): number {
-    const before = this.getAll();
-    const toRemove = before.filter(a => a.idRelatorio === idRelatorio);
-    const remain = before.filter(a => a.idRelatorio !== idRelatorio);
-    this.setItems(remain);
-    return toRemove.length;
+  async deleteByRelatorioCascade(idRelatorio: string | number): Promise<number> {
+    const alvo = String(idRelatorio);
+    let count = 0;
+    await runInInjectionContext(this.injector, async () => {
+      try {
+        const atividadesRef = collection(this.firestore, 'item-atividade');
+        const qAtv = query(atividadesRef, where('idRelatorio', '==', alvo));
+        const snap = await getDocs(qAtv);
+        for (const d of snap.docs) {
+          const atvId = d.id;
+          try {
+            await this.itemProdService.deleteByAtividade(atvId);
+          } catch (err) {
+            console.error('Erro ao deletar produtividades da atividade', atvId, err);
+          }
+          await deleteDoc(doc(this.firestore, 'item-atividade', atvId));
+          count++;
+        }
+        // Atualiza memória removendo as atividades do relatório
+        const before = this.subject.value;
+        const remain = before.filter(a => String(a.idRelatorio) !== alvo);
+        this.subject.next(remain);
+      } catch (err) {
+        console.error('Erro ao deletar atividades por relatório no Firestore:', err);
+      }
+    });
+    return count;
   }
 
   // Filtros e buscas
@@ -149,7 +179,7 @@ export class ItemAtividadeService extends CrudStore<ItemAtividade> {
             item: data['item'] || 0,
             acionamento: data['acionamento'] || '',
             chegada: data['chegada']?.toDate() || new Date(),
-            solucao: data['solucao']?.toDate() || new Date(),
+            solucao: data['solucao']?.toDate?.() ?? null,
             saida: data['saida']?.toDate() || new Date(),
             codAtv: data['codAtv'] || 0,
             codOcor: data['codOcor'] || 0,

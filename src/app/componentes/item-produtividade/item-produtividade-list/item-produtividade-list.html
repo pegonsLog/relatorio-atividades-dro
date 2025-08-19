@@ -33,7 +33,7 @@
   </div>
     </div>
     <div class="col-12 col-md-6 text-md-end">
-      <a *ngIf="contextRelatorioId" class="btn btn-outline-secondary me-2" [routerLink]="['/relatorio-base', contextRelatorioId]"><i class="mdi mdi-arrow-left me-1"></i>Voltar ao Relatório</a>
+      <a *ngIf="contextRelatorioId" class="btn btn-outline-secondary me-2" [routerLink]="['/relatorio-base', contextRelatorioId]" [queryParamsHandling]="'preserve'"><i class="mdi mdi-arrow-left me-1"></i>Voltar ao Relatório</a>
       <a class="btn btn-outline-secondary me-2" [routerLink]="['/menu']"><i class="mdi mdi-arrow-left me-1"></i>Voltar ao Menu</a>
       <button
         type="button"
@@ -100,7 +100,7 @@
           <td>{{ i.idAtividade }}</td>
           <td *ngIf="!contextRelatorioId">{{ i.idRelatorio }}</td>
           <td class="text-end">
-            <a class="btn btn-sm btn-outline-secondary me-1" [routerLink]="['/item-produtividade', i.idProdutividade, 'editar']" [queryParams]="novoQueryParams"><i class="mdi mdi-pencil-outline"></i></a>
+            <a class="btn btn-sm btn-outline-secondary me-1" [routerLink]="['/item-produtividade', i.idProdutividade, 'editar']" [queryParams]="novoQueryParams" [queryParamsHandling]="'merge'"><i class="mdi mdi-pencil-outline"></i></a>
             <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDelete(i.idProdutividade)"><i class="mdi mdi-trash-can-outline"></i></button>
           </td>
         </tr>

@@ -26,12 +26,16 @@ export class RelatorioBaseDetalhe implements OnInit {
   showForm = false;
   loading = true;
   editAtividade: ItemAtividade | null = null;
+  // Modal de exclusão
+  showDeleteModal = false;
+  toDelete: string | number | null = null;
+  deleting = false;
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(pm => {
       const id = pm.get('id');
       if (!id) {
-        this.router.navigate(['/relatorio-base']);
+        this.router.navigate(['/relatorio-base'], { queryParamsHandling: 'preserve' });
         return;
       }
       this.idRelatorio = id;
@@ -80,5 +84,29 @@ export class RelatorioBaseDetalhe implements OnInit {
   toNumber(value: any): number {
     const n = Number(value);
     return Number.isFinite(n) ? n : 0;
+  }
+
+  // Modal de exclusão de atividade
+  openDelete(id: string | number): void {
+    this.toDelete = id;
+    this.showDeleteModal = true;
+  }
+
+  closeDelete(): void {
+    this.showDeleteModal = false;
+    this.toDelete = null;
+    this.deleting = false;
+  }
+
+  async confirmDelete(): Promise<void> {
+    if (this.toDelete == null) return;
+    this.deleting = true;
+    try {
+      await Promise.resolve(this.atividadeService.delete(this.toDelete));
+      this.closeDelete();
+    } catch (e) {
+      console.error(e);
+      this.deleting = false;
+    }
   }
 }

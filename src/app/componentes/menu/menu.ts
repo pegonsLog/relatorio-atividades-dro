@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 interface MenuItem {
   icon: string;
@@ -10,11 +11,13 @@ interface MenuItem {
 
 @Component({
   selector: 'app-menu',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './menu.html',
   styleUrls: ['./menu.scss']
 })
 export class Menu {
+  constructor(private router: Router) {}
+
   protected readonly menuItems = signal<MenuItem[]>([
     {
       icon: 'mdi-file-document',
@@ -51,4 +54,39 @@ export class Menu {
       route: '/tabela-produtividade'
     }
   ]);
+
+  // Modal de filtros para Relatório Base
+  showFilterModal = false;
+  selectedGerencia = '';
+  selectedTurno = '';
+
+  readonly gerencias = ['GARBO', 'GARNE', 'GARNP', 'GARVN', 'GEACE', 'GAOPE'];
+  readonly turnos = ['Manhã', 'Tarde', 'Madrugada'];
+
+  onMenuClick(event: Event, item: MenuItem) {
+    if (item.route === '/relatorio-base') {
+      event.preventDefault();
+      this.openRelatorioBaseModal();
+    }
+  }
+
+  openRelatorioBaseModal() {
+    this.showFilterModal = true;
+  }
+
+  closeRelatorioBaseModal() {
+    this.showFilterModal = false;
+  }
+
+  confirmRelatorioBaseFilters() {
+    const queryParams: any = {
+      gerencia: this.selectedGerencia || undefined,
+      turno: this.selectedTurno || undefined,
+    };
+    this.showFilterModal = false;
+    this.router.navigate(['/relatorio-base'], { queryParams });
+    // Limpeza opcional
+    // this.selectedGerencia = '';
+    // this.selectedTurno = '';
+  }
 }

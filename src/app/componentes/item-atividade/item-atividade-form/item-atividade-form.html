@@ -2,7 +2,7 @@
   <div class="form-header">
     <h2>{{ isEditMode ? 'Editar Atividade' : 'Nova Atividade' }}</h2>
     <div class="small text-muted" *ngIf="dataRelatorio as d">
-      Data do relatório: <strong>{{ d | date:'EEE, dd/MM/yyyy' }}</strong>
+      Data do relatório: <strong>{{ d | date:'dd/MM/yyyy'}}</strong>
     </div>
   </div>
 
@@ -41,7 +41,7 @@
       </div>
 
       <div class="form-group">
-        <label for="solucao">Horário da Solução *</label>
+        <label for="solucao">Horário da Solução</label>
         <input type="time" id="solucao" formControlName="solucao" class="form-control"
                [class.is-invalid]="isFieldInvalid('solucao')" (change)="validateHorarios()">
         <div class="invalid-feedback" *ngIf="isFieldInvalid('solucao')">
@@ -87,7 +87,7 @@
       </div>
 
       <div class="form-group">
-        <label for="codOcor">Código da Ocorrência *</label>
+        <label for="codOcor">Código da Ocorrência</label>
         <input type="number" id="codOcor" formControlName="codOcor" class="form-control"
                [class.is-invalid]="isFieldInvalid('codOcor')" placeholder="Código da ocorrência">
         <div class="invalid-feedback" *ngIf="isFieldInvalid('codOcor')">
@@ -98,7 +98,7 @@
 
     <div class="form-row full-width">
       <div class="form-group">
-        <label for="local">Local *</label>
+        <label for="local">Local</label>
         <input type="text" id="local" formControlName="local" class="form-control"
                [class.is-invalid]="isFieldInvalid('local')" placeholder="Descrição do local da atividade">
         <div class="invalid-feedback" *ngIf="isFieldInvalid('local')">

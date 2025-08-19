@@ -1,7 +1,10 @@
 <div class="container-fluid py-3" *ngIf="relatorio; else carregando">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="h5 mb-0">Relatório Diário nº #{{ relatorio.idRelatorio }}</h2>
-    <a class="btn btn-outline-secondary" [routerLink]="['/relatorio-base']"><i class="mdi mdi-arrow-left"></i> Voltar para o relatório</a>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" [routerLink]="['/relatorio-base']" [queryParamsHandling]="'preserve'"><i class="mdi mdi-arrow-left"></i> Voltar para o relatório</a>
+      <a class="btn btn-outline-secondary" [routerLink]="['/menu']"><i class="mdi mdi-home-outline"></i> Voltar para o menu</a>
+    </div>
   </div>
 
   <!-- Resumo do Relatório -->
@@ -83,48 +86,77 @@
           <div class="d-flex justify-content-between align-items-start mb-2">
             <div>
               <div class="text-muted small">Item</div>
-              <div class="h6 mb-0">#{{ a.item }}</div>
+              <div class="h6 mb-0">{{ a.item }}</div>
             </div>
             <span class="badge text-bg-info">{{ a.codAtv }}</span>
           </div>
-          <div class="mb-2">
-            <div class="text-muted small">Local</div>
-            <div class="fw-semibold">{{ a.local }}</div>
-          </div>
           <div class="mb-2 small">
-            <span class="text-muted">Data:</span>
-            <span class="fw-semibold">{{ a.data | date:'EEE, dd/MM/yyyy' }}</span>
+            <span class="text-muted">Data: </span>
+            <span class="fw-semibold">{{ a.data | date:'dd/MM/yyyy' }}</span>
           </div>
           <div class="row g-2 small text-muted">
-            <div class="col-6">
+            <div class="col-3">
               <div>Chegada: {{ a.chegada | date:'HH:mm' }}</div>
             </div>
-            <div class="col-6">
-              <div>Solução: {{ a.solucao | date:'HH:mm' }}</div>
+            <div class="col-3">
+              <div>Solução: {{ a.solucao ? (a.solucao | date:'HH:mm') : '-' }}</div>
             </div>
-            <div class="col-6">
+            <div class="col-3">
               <div>Saída: {{ a.saida | date:'HH:mm' }}</div>
             </div>
-            <div class="col-6">
+            <div class="col-3">
               <div>Agentes: {{ a.qtdAgentes }}</div>
             </div>
           </div>
+          <div class="mt-2 mb-2 small">
+            <span class="text-muted">Local: </span>
+            <span class="fw-semibold text-break">{{ a.local }}</span>
+          </div>
           <div class="small mt-2" *ngIf="a.observacoes">
-            <div class="text-muted">Obs.:</div>
-            <div>{{ a.observacoes }}</div>
+            <span class="text-muted">Obs.: </span>
+            <span class="text-break">{{ a.observacoes }}</span>
           </div>
           <div class="d-flex justify-content-end gap-2 mt-3">
             <a class="btn btn-sm btn-outline-success"
-               [routerLink]="['/item-atividade', a.idAtividade]">
+               [routerLink]="['/item-atividade', a.idAtividade]" [queryParamsHandling]="'preserve'">
               <i class="mdi mdi-eye-outline"></i> Produtividade
             </a>
             <button class="btn btn-sm btn-outline-primary" (click)="editarAtividade(a)">
               <i class="mdi mdi-pencil"></i> Editar
             </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="openDelete(a.idAtividade)">
+              <i class="mdi mdi-delete"></i> Excluir
+            </button>
           </div>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Modal de confirmação de exclusão -->
+  <div *ngIf="showDeleteModal">
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirmar exclusão</h5>
+            <button type="button" class="btn-close" aria-label="Close" (click)="closeDelete()" [disabled]="deleting"></button>
+          </div>
+          <div class="modal-body">
+            <p>Tem certeza que deseja excluir a atividade <strong>{{ toDelete }}</strong>? Esta ação removerá também as produtividades vinculadas.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeDelete()" [disabled]="deleting">Cancelar</button>
+            <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleting">
+              <span *ngIf="!deleting">Excluir</span>
+              <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <span *ngIf="deleting" class="ms-2">Excluindo...</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
   </div>
 </div>
 

@@ -1,7 +1,10 @@
 <div class="container-fluid py-3" *ngIf="atividade as a; else carregando">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="h5 mb-0">Atividade Item: {{ a.item }}</h2>
-    <a class="btn btn-outline-secondary" (click)="voltarRelatorio()"><i class="mdi mdi-arrow-left"></i> Voltar para Atividade</a>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" (click)="voltarRelatorio()"><i class="mdi mdi-arrow-left"></i> Voltar para Atividade</a>
+      <a class="btn btn-outline-secondary" [routerLink]="['/menu']"><i class="mdi mdi-home-outline"></i> Voltar para o menu</a>
+    </div>
   </div>
 
   <!-- Resumo da Atividade -->
@@ -26,7 +29,7 @@
         </div>
         <div class="col-auto">
           <div class="text-muted small">Solução</div>
-          <div class="fw-semibold">{{ a.solucao | date:'HH:mm' }}</div>
+          <div class="fw-semibold">{{ a.solucao ? (a.solucao | date:'HH:mm') : '-' }}</div>
         </div>
         <div class="col-auto">
           <div class="text-muted small">Saída</div>
@@ -48,7 +51,7 @@
   <div class="d-flex justify-content-end mb-3">
     <a class="btn btn-primary me-2"
        [routerLink]="['/item-produtividade/novo']"
-       [queryParams]="{ idRelatorio: strIdRelatorio, idAtividade: strIdAtividade }">
+       [queryParams]="{ idRelatorio: strIdRelatorio, idAtividade: strIdAtividade }" [queryParamsHandling]="'merge'">
       <i class="mdi mdi-plus"></i> Adicionar item de produtividade
     </a>
   </div>
@@ -87,7 +90,7 @@
             <div>Data: <span class="fw-semibold">{{ i.data | date:'dd/MM/yyyy' }}</span></div>
           </div>
           <div class="d-flex justify-content-end gap-2 mt-3">
-            <a class="btn btn-sm btn-outline-primary" [routerLink]="['/item-produtividade', i.idProdutividade, 'editar']"><i class="mdi mdi-pencil"></i> Editar</a>
+            <a class="btn btn-sm btn-outline-primary" [routerLink]="['/item-produtividade', i.idProdutividade, 'editar']" [queryParamsHandling]="'preserve'"><i class="mdi mdi-pencil"></i> Editar</a>
           </div>
         </div>
       </div>

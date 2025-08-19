@@ -41,18 +41,18 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const qp = this.route.snapshot.queryParamMap;
-    this.filtro = qp.get('q') ?? '';
+    this.filtro = qp.get('qProd') ?? '';
     // Contexto de navegação: pertencem a uma atividade (e relatório) - IDs alfanuméricos
     const ir = (qp.get('idRelatorio') || '').trim();
     const ia = (qp.get('idAtividade') || '').trim();
     this.contextRelatorioId = ir || null;
     this.contextAtividadeId = ia || null;
-    const p = Number(qp.get('page'));
-    const ps = Number(qp.get('pageSize'));
+    const p = Number(qp.get('pageProd'));
+    const ps = Number(qp.get('pageSizeProd'));
     this.page = Number.isFinite(p) && p > 0 ? p : 1;
     this.pageSize = this.pageSizes.includes(ps) ? ps : this.pageSize;
-    const sk = qp.get('sortKey') as any;
-    const sd = qp.get('sortDir') as any;
+    const sk = qp.get('prodSortKey') as any;
+    const sd = qp.get('prodSortDir') as any;
     const validKeys = ['idProdutividade','codProd','qtdProd','idAtividade','idRelatorio'];
     if (sk && validKeys.includes(sk)) this.sortKey = sk;
     if (sd && ['asc','desc'].includes(sd)) this.sortDir = sd;
@@ -196,11 +196,11 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
 
   private syncQuery() {
     const queryParams = {
-      q: this.filtro || undefined,
-      page: this.page !== 1 ? this.page : undefined,
-      pageSize: this.pageSize !== 10 ? this.pageSize : undefined,
-      sortKey: this.sortKey !== 'idProdutividade' ? this.sortKey : undefined,
-      sortDir: this.sortDir !== 'asc' ? this.sortDir : undefined,
+      qProd: this.filtro || undefined,
+      pageProd: this.page !== 1 ? this.page : undefined,
+      pageSizeProd: this.pageSize !== 10 ? this.pageSize : undefined,
+      prodSortKey: this.sortKey !== 'idProdutividade' ? this.sortKey : undefined,
+      prodSortDir: this.sortDir !== 'asc' ? this.sortDir : undefined,
       idRelatorio: this.contextRelatorioId || undefined,
       idAtividade: this.contextAtividadeId || undefined,
     } as any;
@@ -240,6 +240,7 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
     }
     this.router.navigate(['/item-produtividade/novo'], {
       queryParams: this.novoQueryParams,
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -263,10 +264,15 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
     return this.selectedItemId;
   }
 
-  confirmDelete(): void {
-    if (this.selectedItemId !== null) {
-      this.service.delete(this.selectedItemId);
+  async confirmDelete(): Promise<void> {
+    if (this.selectedItemId === null) return;
+    this.deleting = true;
+    try {
+      await Promise.resolve(this.service.delete(this.selectedItemId));
       this.closeDeleteModal();
+    } catch (e) {
+      console.error(e);
+      this.deleting = false;
     }
   }
 }

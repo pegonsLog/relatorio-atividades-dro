@@ -16,6 +16,32 @@ export class ItemProdutividadeService {
     this.loadItensFromFirestore();
   }
 
+  private async deleteOnFirestoreByAtividade(idAtividade: string): Promise<void> {
+    try {
+      const ref = collection(this.firestore, 'item-produtividade');
+      const q = query(ref, where('idAtividade', '==', idAtividade));
+      const snapshot = await getDocs(q);
+      for (const d of snapshot.docs) {
+        await deleteDoc(doc(this.firestore, 'item-produtividade', d.id));
+      }
+    } catch (err) {
+      console.error('Erro ao deletar itens de produtividade por atividade no Firestore:', err);
+    }
+  }
+
+  private async deleteOnFirestoreByRelatorio(idRelatorio: string): Promise<void> {
+    try {
+      const ref = collection(this.firestore, 'item-produtividade');
+      const q = query(ref, where('idRelatorio', '==', idRelatorio));
+      const snapshot = await getDocs(q);
+      for (const d of snapshot.docs) {
+        await deleteDoc(doc(this.firestore, 'item-produtividade', d.id));
+      }
+    } catch (err) {
+      console.error('Erro ao deletar itens de produtividade por relatório no Firestore:', err);
+    }
+  }
+
   // Observables
   getItens(): Observable<ItemProdutividade[]> {
     return this.itensSubject.asObservable();
@@ -86,28 +112,38 @@ export class ItemProdutividadeService {
   }
 
   // DELETE
-  delete(id: number): boolean {
+  async delete(id: number): Promise<boolean> {
     const index = this.itens.findIndex(i => i.idProdutividade === id);
     if (index === -1) return false;
 
-    // Remover no Firestore
-    this.deleteOnFirestoreByItemId(id);
+    // Remover no Firestore e aguardar conclusão
+    try {
+      await this.deleteOnFirestoreByItemId(id);
+    } catch (err) {
+      console.error('Erro ao deletar item de produtividade no Firestore:', err);
+    }
 
     this.itens.splice(index, 1);
     this.itensSubject.next([...this.itens]);
     return true;
   }
 
-  deleteByAtividade(idAtividade: string | number): number {
+  async deleteByAtividade(idAtividade: string | number): Promise<number> {
     const alvo = String(idAtividade);
+    // Deletar no Firestore todos os itens vinculados à atividade
+    await this.deleteOnFirestoreByAtividade(alvo);
+    // Atualizar memória
     const itensRemovidos = this.itens.filter(i => String(i.idAtividade) === alvo);
     this.itens = this.itens.filter(i => String(i.idAtividade) !== alvo);
     this.itensSubject.next([...this.itens]);
     return itensRemovidos.length;
   }
 
-  deleteByRelatorio(idRelatorio: string | number): number {
+  async deleteByRelatorio(idRelatorio: string | number): Promise<number> {
     const alvo = String(idRelatorio);
+    // Deletar no Firestore todos os itens vinculados ao relatório
+    await this.deleteOnFirestoreByRelatorio(alvo);
+    // Atualizar memória
     const itensRemovidos = this.itens.filter(i => String(i.idRelatorio) === alvo);
     this.itens = this.itens.filter(i => String(i.idRelatorio) !== alvo);
     this.itensSubject.next([...this.itens]);

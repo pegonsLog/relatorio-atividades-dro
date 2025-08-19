@@ -60,6 +60,7 @@
     color: #333;
     text-decoration: none;
     display: block; // empilhamento vertical dos itens
+    cursor: pointer !important;
     
     // Bootstrap já provê hover/active; ajustes sutis opcionais
     &:hover {

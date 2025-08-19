@@ -1,14 +1,16 @@
 import { Injectable, Injector, inject, runInInjectionContext } from '@angular/core';
 import { BehaviorSubject, Observable, from } from 'rxjs';
 import { RelatorioBase } from '../models';
-import { Firestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from '@angular/fire/firestore';
+import { ItemAtividadeService } from './item-atividade.service';
+import { ItemProdutividadeService } from './item-produtividade.service';
 
 @Injectable({ providedIn: 'root' })
 export class RelatorioBaseService {
   private readonly subject = new BehaviorSubject<RelatorioBase[]>([]);
   private injector = inject(Injector);
 
-  constructor(private firestore: Firestore) {
+  constructor(private firestore: Firestore, private atvService: ItemAtividadeService, private prodService: ItemProdutividadeService) {
     this.loadFromFirestore();
   }
 
@@ -67,14 +69,30 @@ export class RelatorioBaseService {
     });
   }
 
-  // DELETE
-  delete(id: string | number): void {
-    const ref = doc(this.firestore, 'relatorio-base', String(id));
-    from(deleteDoc(ref)).subscribe({
-      next: () => {
+  // DELETE com cascata
+  delete(id: string | number): Promise<void> {
+    return runInInjectionContext(this.injector, async () => {
+      const alvo = String(id);
+      try {
+        // 1) Deleta itens de produtividade do relatório
+        await this.prodService.deleteByRelatorio(alvo);
+      } catch (err) {
+        console.error('Erro ao deletar itens de produtividade do relatório:', err);
+      }
+      try {
+        // 2) Deleta atividades do relatório (cada uma também deleta suas produtividades vinculadas por segurança)
+        await this.atvService.deleteByRelatorioCascade(alvo);
+      } catch (err) {
+        console.error('Erro ao deletar atividades do relatório:', err);
+      }
+      try {
+        // 3) Finalmente, deleta o relatório
+        const ref = doc(this.firestore, 'relatorio-base', alvo);
+        await deleteDoc(ref);
         this.subject.next(this.subject.value.filter(r => r.idRelatorio !== id));
-      },
-      error: (error) => console.error('Erro ao deletar relatório base:', error),
+      } catch (error) {
+        console.error('Erro ao deletar relatório base:', error);
+      }
     });
   }
 

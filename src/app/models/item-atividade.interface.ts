@@ -4,7 +4,7 @@ export interface ItemAtividade {
   item: number;
   acionamento: string;
   chegada: Date;
-  solucao: Date;
+  solucao: Date | null;
   saida: Date;
   codAtv: number;
   codOcor: number;
