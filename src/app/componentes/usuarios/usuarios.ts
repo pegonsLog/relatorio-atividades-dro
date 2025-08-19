@@ -16,6 +16,8 @@ import { Usuario } from '../../models/usuario.interface';
 export class Usuarios implements OnInit {
   filtro = '';
   usuarios: Usuario[] = [];
+  // Loading
+  loading = true;
   // Paginação
   page = 1;
   pageSize = 10;
@@ -45,10 +47,15 @@ export class Usuarios implements OnInit {
     if (sd && ['asc','desc'].includes(sd)) this.sortDir = sd;
 
     // Carregar lista do Firestore
-    this.usuariosService.list().subscribe(list => {
-      this.usuarios = list ?? [];
-      // Garantir que matrícula seja número
-      this.usuarios = this.usuarios.map(u => ({ ...u, matricula: Number(u.matricula) }));
+    this.usuariosService.list().subscribe({
+      next: (list) => {
+        this.usuarios = (list ?? []).map(u => ({ ...u, matricula: Number(u.matricula) }));
+        this.loading = false;
+      },
+      error: (e) => {
+        console.error(e);
+        this.loading = false;
+      }
     });
   }
 

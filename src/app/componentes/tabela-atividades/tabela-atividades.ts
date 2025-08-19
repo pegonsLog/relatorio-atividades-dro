@@ -15,6 +15,8 @@ import { TabelaAtividade } from '../../models/tabela-atividade.interface';
 export class TabelaAtividadesComponent implements OnInit {
   itens: TabelaAtividade[] = [];
   filtro = '';
+  // Loading
+  loading = true;
   // Paginação
   page = 1;
   pageSize = 10;
@@ -30,9 +32,16 @@ export class TabelaAtividadesComponent implements OnInit {
   constructor(private service: TabelaAtividadesService) {}
 
   ngOnInit(): void {
-    this.service.list().subscribe(list => {
-      // garantir numericidade de codigo
-      this.itens = (list ?? []).map(i => ({ ...i, codigo: Number(i.codigo) }));
+    this.service.list().subscribe({
+      next: (list) => {
+        // garantir numericidade de codigo
+        this.itens = (list ?? []).map(i => ({ ...i, codigo: Number(i.codigo) }));
+        this.loading = false;
+      },
+      error: (e) => {
+        console.error(e);
+        this.loading = false;
+      }
     });
   }
 

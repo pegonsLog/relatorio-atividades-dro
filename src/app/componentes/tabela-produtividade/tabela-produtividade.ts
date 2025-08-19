@@ -15,6 +15,8 @@ import { TabelaProdutividade } from '../../models/tabela-produtividade.interface
 export class TabelaProdutividadeComponent implements OnInit {
   itens: TabelaProdutividade[] = [];
   filtro = '';
+  // Loading
+  loading = true;
   // Paginação
   page = 1;
   pageSize = 10;
@@ -30,8 +32,15 @@ export class TabelaProdutividadeComponent implements OnInit {
   constructor(private service: TabelaProdutividadeService) {}
 
   ngOnInit(): void {
-    this.service.list().subscribe(list => {
-      this.itens = (list ?? []).map(i => ({ ...i, codigo: Number(i.codigo) }));
+    this.service.list().subscribe({
+      next: (list) => {
+        this.itens = (list ?? []).map(i => ({ ...i, codigo: Number(i.codigo) }));
+        this.loading = false;
+      },
+      error: (e) => {
+        console.error(e);
+        this.loading = false;
+      }
     });
   }
 

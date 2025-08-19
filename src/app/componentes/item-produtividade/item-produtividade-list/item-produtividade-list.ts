@@ -15,6 +15,8 @@ import { ItemProdutividade } from '../../../models';
 export class ItemProdutividadeList implements OnInit, OnDestroy {
   filtro = '';
   itens: ItemProdutividade[] = [];
+  // Loading
+  loading = true;
   // Contexto
   contextRelatorioId: string | null = null;
   contextAtividadeId: string | null = null;
@@ -67,8 +69,15 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
     }
     
     // Carregar itens da lista
-    this.service.getItens().subscribe(list => {
-      this.itens = list ?? [];
+    this.service.getItens().subscribe({
+      next: (list) => {
+        this.itens = list ?? [];
+        this.loading = false;
+      },
+      error: (e) => {
+        console.error(e);
+        this.loading = false;
+      }
     });
   }
 

@@ -47,6 +47,14 @@
     </div>
   </div>
 
+  <!-- Spinner de carregamento -->
+  <div *ngIf="loading" class="d-flex justify-content-center align-items-center py-5" role="status" aria-live="polite">
+    <div class="spinner-border text-primary me-2" role="status" aria-hidden="true"></div>
+    <span>Carregando...</span>
+  </div>
+
+  <ng-container *ngIf="!loading">
+
   <div class="table-responsive shadow-sm">
     <table class="table table-striped table-hover align-middle mb-0">
       <colgroup>
@@ -138,6 +146,8 @@
       </nav>
     </div>
   </div>
+
+  </ng-container>
 
   <!-- Modal de confirmação de exclusão -->
   <div *ngIf="showDeleteModal">

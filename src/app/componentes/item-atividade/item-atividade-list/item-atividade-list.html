@@ -10,6 +10,7 @@
           <i class="mdi mdi-close-circle-outline"></i>
         </button>
       </div>
+ 
     </div>
     <div class="col-12 col-md-6 text-md-end">
       <a class="btn btn-outline-secondary me-2" [routerLink]="['/menu']"><i class="mdi mdi-arrow-left me-1"></i>Voltar ao Menu</a>
@@ -17,81 +18,88 @@
     </div>
   </div>
 
-  <div class="table-responsive shadow-sm">
-    <table class="table table-striped table-hover align-middle mb-0">
-      <colgroup>
-        <col class="col-id" />
-        <col class="col-item" />
-        <col />
-        <col class="col-codigo" />
-        <col class="col-chegada" />
-        <col class="col-acoes" />
-      </colgroup>
-      <thead class="table-light">
-        <tr>
-          <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('idAtividade')">
-              <span [class.fw-semibold]="sortKey==='idAtividade'">ID</span>
-              <i class="mdi" [ngClass]="sortKey==='idAtividade' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
-            </button>
-          </th>
-          <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('item')">
-              <span [class.fw-semibold]="sortKey==='item'">Item</span>
-              <i class="mdi" [ngClass]="sortKey==='item' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
-            </button>
-          </th>
-          <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('local')">
-              <span [class.fw-semibold]="sortKey==='local'">Local</span>
-              <i class="mdi" [ngClass]="sortKey==='local' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
-            </button>
-          </th>
-          <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('codAtv')">
-              <span [class.fw-semibold]="sortKey==='codAtv'">Cód. Atividade</span>
-              <i class="mdi" [ngClass]="sortKey==='codAtv' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
-            </button>
-          </th>
-          <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('chegada')">
-              <span [class.fw-semibold]="sortKey==='chegada'">Chegada</span>
-              <i class="mdi" [ngClass]="sortKey==='chegada' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
-            </button>
-          </th>
-          <th class="th-nowrap text-end">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let a of pageItems">
-          <td>{{ a.idAtividade }}</td>
-          <td>{{ a.item }}</td>
-          <td>
-            <div class="fw-medium">{{ a.local }}</div>
-            <small class="text-muted">{{ a.acionamento }}</small>
-          </td>
-          <td>
-            <span class="badge text-bg-info">{{ a.codAtv }}</span>
-          </td>
-          <td>
-            <small>{{ formatDateTime(a.chegada) }}</small>
-          </td>
-          <td class="text-end">
-            <a class="btn btn-sm btn-outline-info me-1" [routerLink]="['/item-atividade', a.idAtividade]" aria-label="Detalhe da atividade">
-              <i class="mdi mdi-eye-outline"></i>
-            </a>
-            <a class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/item-produtividade']" [queryParams]="{ idRelatorio: a.idRelatorio, idAtividade: a.idAtividade }" aria-label="Ver produtividade">
-              <i class="mdi mdi-clipboard-text-outline"></i>
-            </a>
-            <a class="btn btn-sm btn-outline-secondary me-1" [routerLink]="['/item-atividade', a.idAtividade, 'editar']"><i class="mdi mdi-pencil-outline"></i></a>
-            <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDelete(a.idAtividade)"><i class="mdi mdi-trash-can-outline"></i></button>
-          </td>
-        </tr>
-        <tr *ngIf="filtrados.length === 0">
-          <td colspan="6" class="empty-state">Nenhuma atividade encontrada</td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Spinner de carregamento -->
+  <div *ngIf="loading" class="d-flex justify-content-center align-items-center py-5" role="status" aria-live="polite">
+    <div class="spinner-border text-primary me-2" role="status" aria-hidden="true"></div>
+    <span>Carregando...</span>
+  </div>
+
+  <ng-container *ngIf="!loading">
+    <div class="table-responsive shadow-sm">
+      <table class="table table-striped table-hover align-middle mb-0">
+        <colgroup>
+          <col class="col-id" />
+          <col class="col-item" />
+          <col />
+          <col class="col-codigo" />
+          <col class="col-chegada" />
+          <col class="col-acoes" />
+        </colgroup>
+        <thead class="table-light">
+          <tr>
+            <th class="th-nowrap">
+              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('idAtividade')">
+                <span [class.fw-semibold]="sortKey==='idAtividade'">ID</span>
+                <i class="mdi" [ngClass]="sortKey==='idAtividade' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+              </button>
+            </th>
+            <th class="th-nowrap">
+              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('item')">
+                <span [class.fw-semibold]="sortKey==='item'">Item</span>
+                <i class="mdi" [ngClass]="sortKey==='item' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+              </button>
+            </th>
+            <th class="th-nowrap">
+              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('local')">
+                <span [class.fw-semibold]="sortKey==='local'">Local</span>
+                <i class="mdi" [ngClass]="sortKey==='local' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+              </button>
+            </th>
+            <th class="th-nowrap">
+              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('codAtv')">
+                <span [class.fw-semibold]="sortKey==='codAtv'">Cód. Atividade</span>
+                <i class="mdi" [ngClass]="sortKey==='codAtv' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+              </button>
+            </th>
+            <th class="th-nowrap">
+              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('chegada')">
+                <span [class.fw-semibold]="sortKey==='chegada'">Chegada</span>
+                <i class="mdi" [ngClass]="sortKey==='chegada' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+              </button>
+            </th>
+            <th class="th-nowrap text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of pageItems">
+            <td>{{ a.idAtividade }}</td>
+            <td>{{ a.item }}</td>
+            <td>
+              <div class="fw-medium">{{ a.local }}</div>
+              <small class="text-muted">{{ a.acionamento }}</small>
+            </td>
+            <td>
+              <span class="badge text-bg-info">{{ a.codAtv }}</span>
+            </td>
+            <td>
+              <small>{{ formatDateTime(a.chegada) }}</small>
+            </td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-outline-info me-1" [routerLink]="['/item-atividade', a.idAtividade]" aria-label="Detalhe da atividade">
+                <i class="mdi mdi-eye-outline"></i>
+              </a>
+              <a class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/item-produtividade']" [queryParams]="{ idRelatorio: a.idRelatorio, idAtividade: a.idAtividade }" aria-label="Ver produtividade">
+                <i class="mdi mdi-clipboard-text-outline"></i>
+              </a>
+              <a class="btn btn-sm btn-outline-secondary me-1" [routerLink]="['/item-atividade', a.idAtividade, 'editar']"><i class="mdi mdi-pencil-outline"></i></a>
+              <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDelete(a.idAtividade)"><i class="mdi mdi-trash-can-outline"></i></button>
+            </td>
+          </tr>
+          <tr *ngIf="filtrados.length === 0">
+            <td colspan="6" class="empty-state">Nenhuma atividade encontrada</td>
+          </tr>
+        </tbody>
+      </table>
   </div>
 
   <!-- Controles de paginação -->
@@ -121,6 +129,8 @@
       </nav>
     </div>
   </div>
+
+  </ng-container>
 
   <!-- Modal de confirmação de exclusão -->
   <div *ngIf="showDeleteModal">

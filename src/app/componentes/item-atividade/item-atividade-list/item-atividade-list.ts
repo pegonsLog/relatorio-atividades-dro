@@ -16,6 +16,8 @@ import { ItemAtividade } from '../../../models';
 export class ItemAtividadeList implements OnInit {
   filtro = '';
   atividades: ItemAtividade[] = [];
+  // Loading
+  loading = true;
   // Paginação
   page = 1;
   pageSize = 10;
@@ -45,8 +47,15 @@ export class ItemAtividadeList implements OnInit {
     if (sd && ['asc','desc'].includes(sd)) this.sortDir = sd;
 
     // Carregar lista do service
-    this.atividadeService.getAtividades().subscribe(list => {
-      this.atividades = list ?? [];
+    this.atividadeService.getAtividades().subscribe({
+      next: (list) => {
+        this.atividades = list ?? [];
+        this.loading = false;
+      },
+      error: (e) => {
+        console.error(e);
+        this.loading = false;
+      }
     });
   }
 
