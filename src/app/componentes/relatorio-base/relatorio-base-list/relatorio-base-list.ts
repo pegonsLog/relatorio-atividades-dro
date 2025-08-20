@@ -97,8 +97,12 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
     const f = this.filtro.trim().toLowerCase();
     // Aplica filtros de gerência/turno vindos do modal externo (query params)
     const byFixed = this.relatorios.filter(r => {
-      const okGer = this.filterGerencia ? (r.gerencia === this.filterGerencia) : true;
-      const okTur = this.filterTurno ? (r.turno === this.filterTurno) : true;
+      const okGer = this.filterGerencia
+        ? String(r.gerencia || '').toLowerCase() === String(this.filterGerencia || '').toLowerCase()
+        : true;
+      const okTur = this.filterTurno
+        ? String(r.turno || '').toLowerCase() === String(this.filterTurno || '').toLowerCase()
+        : true;
       return okGer && okTur;
     });
     if (!f) return byFixed;

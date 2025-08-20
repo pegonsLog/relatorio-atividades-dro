@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ItemProdutividadeService, RelatorioBaseService, ExportExcelService } from '../../../services';
 import { ItemProdutividade } from '../../../models';
+import { GraficosProdutividadeComponent } from '../../graficos-produtividade/graficos-produtividade';
 
 @Component({
   selector: 'app-item-produtividade-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, GraficosProdutividadeComponent],
   templateUrl: './item-produtividade-list.html',
   styleUrls: ['./item-produtividade-list.scss']
 })
@@ -31,7 +32,7 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
   private relatorioMap = new Map<string | number, { gerencia: string; turno: string }>();
   // Paginação
   page = 1;
-  pageSize = 10;
+  pageSize = 5;
   readonly pageSizes = [5, 10, 20, 50];
   // Ordenação
   sortKey: 'idProdutividade' | 'codProd' | 'nomeProdutividade' | 'qtdProd' | 'idAtividade' | 'idRelatorio' = 'idProdutividade';
@@ -158,13 +159,13 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
     if (this.filtroGerencia) {
       base = base.filter(i => {
         const meta = this.relatorioMap.get(i.idRelatorio);
-        return meta ? meta.gerencia === this.filtroGerencia : false;
+        return meta ? String(meta.gerencia || '').toLowerCase() === String(this.filtroGerencia || '').toLowerCase() : false;
       });
     }
     if (this.filtroTurno) {
       base = base.filter(i => {
         const meta = this.relatorioMap.get(i.idRelatorio);
-        return meta ? meta.turno === this.filtroTurno : false;
+        return meta ? String(meta.turno || '').toLowerCase() === String(this.filtroTurno || '').toLowerCase() : false;
       });
     }
     // Texto: considerar apenas colunas aparentes
@@ -260,7 +261,7 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
     const queryParams = {
       qProd: this.filtro || undefined,
       pageProd: this.page !== 1 ? this.page : undefined,
-      pageSizeProd: this.pageSize !== 10 ? this.pageSize : undefined,
+      pageSizeProd: this.pageSize !== 5 ? this.pageSize : undefined,
       prodSortKey: this.sortKey !== 'idProdutividade' ? this.sortKey : undefined,
       prodSortDir: this.sortDir !== 'asc' ? this.sortDir : undefined,
       idRelatorio: this.contextRelatorioId || undefined,
@@ -303,7 +304,7 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
     return parts.filter(Boolean).join('_');
   }
 
-  private formatDateSafe(d: any): string {
+  formatDateSafe(d: any): string {
     if (!d) return '';
     const dt = new Date(d);
     if (isNaN(dt.getTime())) return '';

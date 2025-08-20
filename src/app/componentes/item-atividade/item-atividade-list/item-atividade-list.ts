@@ -5,11 +5,12 @@ import { RouterModule } from '@angular/router';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ItemAtividadeService, RelatorioBaseService, ExportExcelService } from '../../../services';
 import { ItemAtividade } from '../../../models';
+import { GraficosAtividadesComponent } from '../../graficos-atividades/graficos-atividades';
 
 @Component({
   selector: 'app-item-atividade-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, GraficosAtividadesComponent],
   templateUrl: './item-atividade-list.html',
   styleUrls: ['./item-atividade-list.scss']
 })
@@ -29,7 +30,7 @@ export class ItemAtividadeList implements OnInit {
   private relatorioMap = new Map<string | number, { gerencia: string; turno: string }>();
   // Paginação
   page = 1;
-  pageSize = 10;
+  pageSize = 5;
   readonly pageSizes = [5, 10, 20, 50];
   // Ordenação
   sortKey: 'idAtividade' | 'item' | 'local' | 'codAtv' | 'chegada' | 'nomeAtividade' | 'solucao' | 'saida' | 'qtdAgentes' = 'idAtividade';
@@ -45,6 +46,8 @@ export class ItemAtividadeList implements OnInit {
   private readonly relService = inject(RelatorioBaseService);
   private readonly exportService = inject(ExportExcelService);
 
+  
+
   ngOnInit(): void {
     const qp = this.route.snapshot.queryParamMap;
     this.filtro = qp.get('q') ?? '';
@@ -58,6 +61,7 @@ export class ItemAtividadeList implements OnInit {
     if (this.dataInicioStr) {
       this.dataInicioDate = new Date(`${this.dataInicioStr}T00:00:00`);
     }
+
     if (this.dataFimStr) {
       this.dataFimDate = new Date(`${this.dataFimStr}T23:59:59.999`);
     }
@@ -91,6 +95,8 @@ export class ItemAtividadeList implements OnInit {
     });
   }
 
+  
+
   get filtrados(): ItemAtividade[] {
     const f = this.filtro.trim().toLowerCase();
     let base = this.atividades;
@@ -105,13 +111,13 @@ export class ItemAtividadeList implements OnInit {
     if (this.filtroGerencia) {
       base = base.filter(a => {
         const meta = this.relatorioMap.get(a.idRelatorio);
-        return meta ? meta.gerencia === this.filtroGerencia : false;
+        return meta ? String(meta.gerencia || '').toLowerCase() === String(this.filtroGerencia || '').toLowerCase() : false;
       });
     }
     if (this.filtroTurno) {
       base = base.filter(a => {
         const meta = this.relatorioMap.get(a.idRelatorio);
-        return meta ? meta.turno === this.filtroTurno : false;
+        return meta ? String(meta.turno || '').toLowerCase() === String(this.filtroTurno || '').toLowerCase() : false;
       });
     }
     // Filtro textual considerando colunas aparentes
@@ -207,7 +213,7 @@ export class ItemAtividadeList implements OnInit {
     const queryParams = {
       q: this.filtro || undefined,
       page: this.page !== 1 ? this.page : undefined,
-      pageSize: this.pageSize !== 10 ? this.pageSize : undefined,
+      pageSize: this.pageSize !== 5 ? this.pageSize : undefined,
       sortKey: this.sortKey !== 'idAtividade' ? this.sortKey : undefined,
       sortDir: this.sortDir !== 'asc' ? this.sortDir : undefined,
       // Preserva filtros vindos do menu

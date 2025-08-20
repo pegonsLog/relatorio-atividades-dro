@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { AutoFocusDirective } from '../../shared/auto-focus.directive';
 
 interface MenuItem {
   icon: string;
@@ -11,7 +12,7 @@ interface MenuItem {
 
 @Component({
   selector: 'app-menu',
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, AutoFocusDirective],
   templateUrl: './menu.html',
   styleUrls: ['./menu.scss']
 })
@@ -76,7 +77,7 @@ export class Menu {
   selectedTurno = '';
 
   readonly gerencias = ['GARBO', 'GARNE', 'GARNP', 'GARVN', 'GEACE', 'GAOPE'];
-  readonly turnos = ['Manhã', 'Tarde', 'Madrugada'];
+  readonly turnos = ['MANHÃ', 'TARDE', 'MADRUGADA'];
 
   onMenuClick(event: Event, item: MenuItem) {
     if (item.route === '/relatorio-base') {

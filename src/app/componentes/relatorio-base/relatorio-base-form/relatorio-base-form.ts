@@ -165,8 +165,8 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
     const [y, m, d] = parts.map(Number);
     if (!y || !m || !d) return '';
     const date = new Date(y, m - 1, d); // Data local para evitar timezone offset
-    const names = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-    return names[date.getDay()] ?? '';
+    const names = ['DOMINGO', 'SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'];
+    return (names[date.getDay()] ?? '').toLocaleUpperCase('pt-BR');
   }
 
   private parseLocalDate(val?: string): Date {

@@ -1,0 +1,14 @@
+<div class="chart-stack">
+  <div class="chart-card mb-4" *ngFor="let g of chartGroups; trackBy: trackByKey">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0">Cód. {{ g.title }}</h5>
+    </div>
+
+    <div class="chart-wrapper">
+      <canvas #chartCanvas width="900" height="420" aria-label="Gráfico de barras por mês (Produtividade por Código)" role="img"></canvas>
+    </div>
+    <div class="small text-muted mt-2" *ngIf="g.labels.length === 0">Sem dados para exibir.</div>
+  </div>
+
+  <div class="small text-muted" *ngIf="chartGroups.length === 0">Sem dados para exibir.</div>
+</div>

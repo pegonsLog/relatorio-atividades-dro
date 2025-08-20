@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ItemOcorrencia } from '../../../models';
 import { ItemOcorrenciaService, RelatorioBaseService, ExportExcelService } from '../../../services';
+import { GraficosOcorrenciaComponent } from '../../graficos-ocorrencia/graficos-ocorrencia';
 
 @Component({
   selector: 'app-item-ocorrencia-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, GraficosOcorrenciaComponent],
   templateUrl: './item-ocorrencia-list.html',
   styleUrls: ['./item-ocorrencia-list.scss']
 })
@@ -31,7 +32,7 @@ export class ItemOcorrenciaList implements OnInit, OnDestroy {
   private relatorioMap = new Map<string | number, { gerencia: string; turno: string }>();
   // Paginação
   page = 1;
-  pageSize = 10;
+  pageSize = 5;
   readonly pageSizes = [5, 10, 20, 50];
   // Ordenação
   sortKey: 'idOcorrencia' | 'codOcor' | 'nomeOcorrencia' | 'qtdOcor' | 'idAtividade' | 'idRelatorio' = 'idOcorrencia';
@@ -154,13 +155,13 @@ export class ItemOcorrenciaList implements OnInit, OnDestroy {
     if (this.filtroGerencia) {
       base = base.filter(i => {
         const meta = this.relatorioMap.get(i.idRelatorio);
-        return meta ? meta.gerencia === this.filtroGerencia : false;
+        return meta ? String(meta.gerencia || '').toLowerCase() === String(this.filtroGerencia || '').toLowerCase() : false;
       });
     }
     if (this.filtroTurno) {
       base = base.filter(i => {
         const meta = this.relatorioMap.get(i.idRelatorio);
-        return meta ? meta.turno === this.filtroTurno : false;
+        return meta ? String(meta.turno || '').toLowerCase() === String(this.filtroTurno || '').toLowerCase() : false;
       });
     }
 
@@ -247,7 +248,7 @@ export class ItemOcorrenciaList implements OnInit, OnDestroy {
     const queryParams = {
       qOcor: this.filtro || undefined,
       pageOcor: this.page !== 1 ? this.page : undefined,
-      pageSizeOcor: this.pageSize !== 10 ? this.pageSize : undefined,
+      pageSizeOcor: this.pageSize !== 5 ? this.pageSize : undefined,
       ocorSortKey: this.sortKey !== 'idOcorrencia' ? this.sortKey : undefined,
       ocorSortDir: this.sortDir !== 'asc' ? this.sortDir : undefined,
       idRelatorio: this.contextRelatorioId || undefined,
@@ -290,7 +291,7 @@ export class ItemOcorrenciaList implements OnInit, OnDestroy {
     return parts.filter(Boolean).join('_');
   }
 
-  private formatDateSafe(d: any): string {
+  formatDateSafe(d: any): string {
     if (!d) return '';
     const dt = new Date(d);
     if (isNaN(dt.getTime())) return '';
