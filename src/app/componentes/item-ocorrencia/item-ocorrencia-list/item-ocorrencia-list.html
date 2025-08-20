@@ -1,5 +1,5 @@
 <div class="container py-3">
-  <h2 class="h4 mb-3">Produtividade</h2>
+  <h2 class="h4 mb-3">Ocorrências</h2>
 
   <!-- Toast de navegação/guarda -->
   <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;" *ngIf="showAlert">
@@ -24,24 +24,24 @@
           (ngModelChange)="onFilterChange()"
           name="filtro"
           [attr.placeholder]="isFromMenu
-            ? 'Buscar por código, nome da produtividade ou quantidade'
+            ? 'Buscar por código, nome da ocorrência ou quantidade'
             : (contextRelatorioId
-                ? 'Buscar por ID, código, nome da produtividade, quantidade ou atividade'
-                : 'Buscar por ID, código, nome da produtividade, quantidade, atividade ou relatório')"
+                ? 'Buscar por ID, código, nome da ocorrência, quantidade ou atividade'
+                : 'Buscar por ID, código, nome da ocorrência, quantidade, atividade ou relatório')"
         />
         <button class="btn btn-header" type="button" (click)="clearFilter()" [disabled]="!filtro" aria-label="Limpar filtro">
           <i class="mdi mdi-close-circle-outline"></i>
         </button>
       </div>
 
-  <!-- Resumo do contexto -->
-  <div *ngIf="contextRelatorioId || contextAtividadeId" class="mb-2 text-muted">
-    <small>
-      Contexto:
-      <span *ngIf="contextRelatorioId">Relatório #{{ contextRelatorioId }}</span>
-      <span *ngIf="contextAtividadeId"> · Atividade #{{ contextAtividadeId }}</span>
-    </small>
-  </div>
+      <!-- Resumo do contexto -->
+      <div *ngIf="contextRelatorioId || contextAtividadeId" class="mb-2 text-muted">
+        <small>
+          Contexto:
+          <span *ngIf="contextRelatorioId">Relatório #{{ contextRelatorioId }}</span>
+          <span *ngIf="contextAtividadeId"> · Atividade #{{ contextAtividadeId }}</span>
+        </small>
+      </div>
     </div>
     <div class="col-12 col-md-6 text-md-end">
       <a *ngIf="contextRelatorioId" class="btn btn-outline-secondary me-2" [routerLink]="['/relatorio-base', contextRelatorioId]" [queryParamsHandling]="'preserve'"><i class="mdi mdi-arrow-left me-1"></i>Voltar ao Relatório</a>
@@ -49,14 +49,7 @@
       <button type="button" class="btn btn-success me-2" (click)="exportExcel()" [disabled]="filtrados.length === 0">
         <i class="mdi mdi-file-excel"></i> Exportar Excel
       </button>
-      <button
-        type="button"
-        class="btn btn-primary"
-        *ngIf="!isFromMenu"
-        (click)="newItem()"
-        [disabled]="!(contextRelatorioId && contextAtividadeId)"
-        [attr.title]="!(contextRelatorioId && contextAtividadeId) ? 'Abra a lista a partir de uma Atividade para criar um item' : null"
-      >
+      <button type="button" class="btn btn-primary" *ngIf="!isFromMenu" (click)="newItem()" [disabled]="!(contextRelatorioId && contextAtividadeId)" [attr.title]="!(contextRelatorioId && contextAtividadeId) ? 'Abra a lista a partir de uma Atividade para criar um item' : null">
         <i class="mdi mdi-clipboard-plus-outline me-1"></i>Novo Item
       </button>
     </div>
@@ -73,37 +66,38 @@
   <div class="table-responsive shadow-sm">
     <table class="table table-striped table-hover align-middle mb-0">
       <colgroup>
-        <col class="col-id" />
+        <col class="col-id" *ngIf="!isFromMenu" />
         <col class="col-codigo" />
+        <col class="col-nome" />
         <col class="col-qtd" />
-        <col class="col-atividade" />
-        <col class="col-relatorio" />
-        <col class="col-acoes" />
+        <col class="col-atividade" *ngIf="!isFromMenu" />
+        <col class="col-relatorio" *ngIf="!contextRelatorioId && !isFromMenu" />
+        <col class="col-acoes" *ngIf="!isFromMenu" />
       </colgroup>
       <thead class="table-light">
         <tr>
           <th class="th-nowrap" *ngIf="!isFromMenu">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('idProdutividade')">
-              <span [class.fw-semibold]="sortKey==='idProdutividade'">ID</span>
-              <i class="mdi" [ngClass]="sortKey==='idProdutividade' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('idOcorrencia')">
+              <span [class.fw-semibold]="sortKey==='idOcorrencia'">ID</span>
+              <i class="mdi" [ngClass]="sortKey==='idOcorrencia' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
             </button>
           </th>
           <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('codProd')">
-              <span [class.fw-semibold]="sortKey==='codProd'">Cód. Prod.</span>
-              <i class="mdi" [ngClass]="sortKey==='codProd' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('codOcor')">
+              <span [class.fw-semibold]="sortKey==='codOcor'">Cód. Ocor.</span>
+              <i class="mdi" [ngClass]="sortKey==='codOcor' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
             </button>
           </th>
           <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('nomeProdutividade')">
-              <span [class.fw-semibold]="sortKey==='nomeProdutividade'">Nome</span>
-              <i class="mdi" [ngClass]="sortKey==='nomeProdutividade' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('nomeOcorrencia')">
+              <span [class.fw-semibold]="sortKey==='nomeOcorrencia'">Nome</span>
+              <i class="mdi" [ngClass]="sortKey==='nomeOcorrencia' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
             </button>
           </th>
           <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('qtdProd')">
-              <span [class.fw-semibold]="sortKey==='qtdProd'">Quantidade</span>
-              <i class="mdi" [ngClass]="sortKey==='qtdProd' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('qtdOcor')">
+              <span [class.fw-semibold]="sortKey==='qtdOcor'">Quantidade</span>
+              <i class="mdi" [ngClass]="sortKey==='qtdOcor' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
             </button>
           </th>
           <th class="th-nowrap" *ngIf="!isFromMenu">
@@ -123,23 +117,23 @@
       </thead>
       <tbody>
         <tr *ngFor="let i of pageItems">
-          <td *ngIf="!isFromMenu">{{ i.idProdutividade }}</td>
+          <td *ngIf="!isFromMenu">{{ i.idOcorrencia }}</td>
           <td>
-            <span class="badge text-bg-info">{{ i.codProd }}</span>
+            <span class="badge text-bg-info">{{ i.codOcor }}</span>
           </td>
           <td>
-            <span class="small text-muted" *ngIf="i.nomeProdutividade">{{ i.nomeProdutividade }}</span>
+            <span class="small text-muted" *ngIf="i.nomeOcorrencia">{{ i.nomeOcorrencia }}</span>
           </td>
-          <td>{{ i.qtdProd }}</td>
+          <td>{{ i.qtdOcor }}</td>
           <td *ngIf="!isFromMenu">{{ i.idAtividade }}</td>
           <td *ngIf="!contextRelatorioId && !isFromMenu">{{ i.idRelatorio }}</td>
           <td class="text-end" *ngIf="!isFromMenu">
-            <a class="btn btn-sm btn-outline-secondary me-1" [routerLink]="['/item-produtividade', i.idProdutividade, 'editar']" [queryParams]="novoQueryParams" [queryParamsHandling]="'merge'"><i class="mdi mdi-pencil-outline"></i></a>
-            <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDelete(i.idProdutividade)"><i class="mdi mdi-trash-can-outline"></i></button>
+            <a class="btn btn-sm btn-outline-secondary me-1" [routerLink]="['/item-ocorrencia', i.idOcorrencia, 'editar']" [queryParams]="novoQueryParams" [queryParamsHandling]="'merge'"><i class="mdi mdi-pencil-outline"></i></a>
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDelete(i.idOcorrencia)"><i class="mdi mdi-trash-can-outline"></i></button>
           </td>
         </tr>
         <tr *ngIf="filtrados.length === 0">
-          <td [attr.colspan]="3 + (!isFromMenu ? 1 : 0) + (!isFromMenu ? 1 : 0) + ((!contextRelatorioId && !isFromMenu) ? 1 : 0) + (!isFromMenu ? 1 : 0)" class="empty-state">Nenhum item de produtividade encontrado</td>
+          <td [attr.colspan]="3 + (!isFromMenu ? 1 : 0) + (!isFromMenu ? 1 : 0) + ((!contextRelatorioId && !isFromMenu) ? 1 : 0) + (!isFromMenu ? 1 : 0)" class="empty-state">Nenhuma ocorrência encontrada</td>
         </tr>
       </tbody>
     </table>
@@ -185,7 +179,7 @@
             <button type="button" class="btn-close" aria-label="Close" (click)="closeDelete()" [disabled]="deleting"></button>
           </div>
           <div class="modal-body">
-            <p>Tem certeza que deseja excluir o item de produtividade <strong>#{{ toDelete }}</strong>?</p>
+            <p>Tem certeza que deseja excluir o item de ocorrência <strong>#{{ toDelete }}</strong>?</p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" (click)="closeDelete()" [disabled]="deleting">Cancelar</button>

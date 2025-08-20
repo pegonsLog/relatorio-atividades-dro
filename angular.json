@@ -28,10 +28,18 @@
                 "glob": "**/*",
                 "input": "public",
                 "ignore": ["**/index.html"]
+              },
+              {
+                "glob": "**/*",
+                "input": "src/app/assets",
+                "output": "assets"
               }
             ],
             "styles": [
               "src/styles.scss"
+            ],
+            "allowedCommonJsDependencies": [
+              "exceljs"
             ]
           },
           "configurations": {

@@ -1,0 +1,26 @@
+<div class="container py-3">
+  <h2 class="h4 mb-3">{{ editing ? 'Editar Ocorrência' : 'Nova Ocorrência' }}</h2>
+
+  <form [formGroup]="form" (ngSubmit)="salvar()" class="row g-3">
+    <div class="col-12 col-md-4">
+      <label class="form-label">Código</label>
+      <input type="number" class="form-control" formControlName="codigo" />
+      <div class="invalid-feedback d-block" *ngIf="form.get('codigo')?.touched && form.get('codigo')?.invalid">
+        Informe um código válido.
+      </div>
+    </div>
+
+    <div class="col-12 col-md-8">
+      <label class="form-label">Nome</label>
+      <input type="text" class="form-control" formControlName="nome" />
+      <div class="invalid-feedback d-block" *ngIf="form.get('nome')?.touched && form.get('nome')?.invalid">
+        Informe um nome válido.
+      </div>
+    </div>
+
+    <div class="col-12 d-flex gap-2">
+      <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Salvar</button>
+      <button class="btn btn-secondary" type="button" (click)="cancelar()">Cancelar</button>
+    </div>
+  </form>
+</div>

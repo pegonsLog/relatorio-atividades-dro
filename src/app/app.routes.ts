@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { requireProdContextGuard } from './guards/require-prod-context.guard';
+import { requireOcorContextGuard } from './guards/require-ocor-context.guard';
 
 export const routes: Routes = [
   {
@@ -53,6 +54,19 @@ export const routes: Routes = [
     loadComponent: () => import('./componentes/item-produtividade/item-produtividade-form/item-produtividade-form').then(m => m.ItemProdutividadeForm)
   },
   {
+    path: 'item-ocorrencia',
+    loadComponent: () => import('./componentes/item-ocorrencia/item-ocorrencia-list/item-ocorrencia-list').then(m => m.ItemOcorrenciaList)
+  },
+  {
+    path: 'item-ocorrencia/novo',
+    loadComponent: () => import('./componentes/item-ocorrencia/item-ocorrencia-form/item-ocorrencia-form').then(m => m.ItemOcorrenciaForm),
+    canActivate: [requireOcorContextGuard]
+  },
+  {
+    path: 'item-ocorrencia/:id/editar',
+    loadComponent: () => import('./componentes/item-ocorrencia/item-ocorrencia-form/item-ocorrencia-form').then(m => m.ItemOcorrenciaForm)
+  },
+  {
     path: 'usuarios',
     loadComponent: () => import('./componentes/usuarios/usuarios').then(m => m.Usuarios)
   },
@@ -93,6 +107,18 @@ export const routes: Routes = [
     loadComponent: () => import('./componentes/tabela-produtividade/tabela-produtividade-form').then(m => m.TabelaProdutividadeForm)
   },
   {
+    path: 'tabela-ocorrencias',
+    loadComponent: () => import('./componentes/tabela-ocorrencias/tabela-ocorrencias').then(m => m.TabelaOcorrenciasComponent)
+  },
+  {
+    path: 'tabela-ocorrencias/novo',
+    loadComponent: () => import('./componentes/tabela-ocorrencias/tabela-ocorrencia-form').then(m => m.TabelaOcorrenciaForm)
+  },
+  {
+    path: 'tabela-ocorrencias/:codigo/editar',
+    loadComponent: () => import('./componentes/tabela-ocorrencias/tabela-ocorrencia-form').then(m => m.TabelaOcorrenciaForm)
+  },
+  {
     path: 'agente/novo',
     loadComponent: () => import('./componentes/agente/agente-form').then(m => m.AgenteForm)
   },
@@ -105,4 +131,3 @@ export const routes: Routes = [
     redirectTo: '/dashboard'
   }
 ];
-

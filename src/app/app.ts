@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './app.scss'
 })
 export class App implements OnInit {
-  protected readonly title = signal('Sistema de Relatório DRO');
+  protected readonly title = signal('Sistema de Relatório de Atividades - DRO');
   protected readonly isMenuOpen = signal(true);
 
   ngOnInit() {

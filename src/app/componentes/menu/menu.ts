@@ -24,10 +24,20 @@ export class Menu {
       label: 'Relatório Base',
       route: '/relatorio-base'
     },
-   {
-    icon: 'mdi-view-dashboard',
-      label: 'Relatórios',
-      route: '/relatorios'
+    {
+      icon: 'mdi-clipboard-text-outline',
+      label: 'Relatório de Atividade',
+      route: '/item-atividade'
+    },
+    {
+      icon: 'mdi-clipboard-check-outline',
+      label: 'Relatório de Produtividade',
+      route: '/item-produtividade'
+    },
+    {
+      icon: 'mdi-alert-outline',
+      label: 'Relatório de Ocorrências',
+      route: '/item-ocorrencia'
     },
     
   ]);
@@ -44,7 +54,7 @@ export class Menu {
       route: '/usuarios'
     },
     {
-      icon: 'mdi-table',
+      icon: 'mdi-table-large',
       label: 'Tabela de Atividades',
       route: '/tabela-atividades'
     },
@@ -52,6 +62,11 @@ export class Menu {
       icon: 'mdi-table-large',
       label: 'Tabela de Produtividade',
       route: '/tabela-produtividade'
+    },
+    {
+      icon: 'mdi-table-large',
+      label: 'Tabela de Ocorrências',
+      route: '/tabela-ocorrencias'
     }
   ]);
 
@@ -67,6 +82,13 @@ export class Menu {
     if (item.route === '/relatorio-base') {
       event.preventDefault();
       this.openRelatorioBaseModal();
+      return;
+    }
+    // Abrir modal de filtros para relatórios específicos
+    if (['/item-atividade', '/item-produtividade', '/item-ocorrencia'].includes(item.route)) {
+      event.preventDefault();
+      this.openReportFilterModal(item.route);
+      return;
     }
   }
 
@@ -88,5 +110,49 @@ export class Menu {
     // Limpeza opcional
     // this.selectedGerencia = '';
     // this.selectedTurno = '';
+  }
+
+  // ===== Novo modal para relatórios (Atividade/Produtividade/Ocorrências) =====
+  showReportFilterModal = false;
+  selectedReportRoute: string | null = null;
+  reportFilter = {
+    dataInicio: '',
+    dataFim: '',
+    gerencia: '', // '' = Todos
+    turno: '',    // '' = Todos
+  };
+
+  get reportFiltersValid(): boolean {
+    const { dataInicio, dataFim } = this.reportFilter;
+    if (!dataInicio || !dataFim) return false;
+    return dataInicio <= dataFim;
+  }
+
+  openReportFilterModal(route: string) {
+    this.selectedReportRoute = route;
+    this.showReportFilterModal = true;
+  }
+
+  closeReportFilterModal() {
+    this.showReportFilterModal = false;
+  }
+
+  confirmReportFilters() {
+    if (!this.selectedReportRoute || !this.reportFiltersValid) return;
+    const { dataInicio, dataFim, gerencia, turno } = this.reportFilter;
+    const queryParams: any = {
+      dataInicio,
+      dataFim,
+      gerencia: gerencia || undefined,
+      turno: turno || undefined,
+      fromMenu: 1,
+    };
+    this.showReportFilterModal = false;
+    this.router.navigate([this.selectedReportRoute], { queryParams });
+  }
+
+  // Usado no template para decidir se navega direto ou abre modal
+  requiresDirectNav(route: string): boolean {
+    return !['/relatorio-base', '/item-atividade', '/item-produtividade', '/item-ocorrencia'].includes(route);
   }
 }

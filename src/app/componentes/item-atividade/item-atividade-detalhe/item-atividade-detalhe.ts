@@ -3,8 +3,10 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ItemAtividade } from '../../../models/item-atividade.interface';
 import { ItemProdutividade } from '../../../models/item-produtividade.interface';
+import { ItemOcorrencia } from '../../../models/item-ocorrencia.interface';
 import { ItemAtividadeService } from '../../../services/item-atividade.service';
 import { ItemProdutividadeService } from '../../../services/item-produtividade.service';
+import { ItemOcorrenciaService } from '../../../services/item-ocorrencia.service';
 
 @Component({
   selector: 'app-item-atividade-detalhe',
@@ -18,16 +20,26 @@ export class ItemAtividadeDetalhe implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly atividadeService = inject(ItemAtividadeService);
   private readonly prodService = inject(ItemProdutividadeService);
+  private readonly ocorService = inject(ItemOcorrenciaService);
 
   idAtividade!: string;
   atividade: ItemAtividade | null = null;
   itens: ItemProdutividade[] = [];
+  ocorrencias: ItemOcorrencia[] = [];
 
   // UI
   loading = true;
   showAlert = false;
   alertKey: 'missingContext' | '' = '';
   private alertTimer: any = null;
+  // Modal exclusão de item de produtividade
+  showDeleteModal = false;
+  selectedItemId: number | null = null;
+  deleting = false;
+  // Modal exclusão de item de ocorrência
+  showDeleteOcorModal = false;
+  selectedOcorId: number | null = null;
+  deletingOcor = false;
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(pm => {
@@ -50,6 +62,14 @@ export class ItemAtividadeDetalhe implements OnInit, OnDestroy {
         this.itens = (list || [])
           .filter(i => String(i.idAtividade) === atvId)
           .sort((a, b) => (Number(a.idProdutividade) || 0) - (Number(b.idProdutividade) || 0));
+      });
+
+      // Carregar itens de ocorrência vinculados
+      this.ocorService.getItens().subscribe(list => {
+        const atvId = this.strIdAtividade;
+        this.ocorrencias = (list || [])
+          .filter(i => String(i.idAtividade) === atvId)
+          .sort((a, b) => (Number(a.idOcorrencia) || 0) - (Number(b.idOcorrencia) || 0));
       });
     });
   }
@@ -80,7 +100,7 @@ export class ItemAtividadeDetalhe implements OnInit, OnDestroy {
   get alertText(): string {
     switch (this.alertKey) {
       case 'missingContext':
-        return 'Para criar um item de produtividade, é necessário ter uma Atividade válida (idAtividade).';
+        return 'Para criar um item (produtividade/ocorrência), é necessário ter uma Atividade válida (idAtividade).';
       default:
         return '';
     }
@@ -117,5 +137,86 @@ export class ItemAtividadeDetalhe implements OnInit, OnDestroy {
         idAtividade: this.strIdAtividade,
       },
     });
+  }
+
+  novoItemOcorrencia(): void {
+    if (!this.hasValidContext) {
+      this.alertKey = 'missingContext';
+      this.showAlert = true;
+      if (this.alertTimer) clearTimeout(this.alertTimer);
+      this.alertTimer = setTimeout(() => this.closeAlert(), 5000);
+      return;
+    }
+    this.router.navigate(['/item-ocorrencia/novo'], {
+      queryParams: {
+        idRelatorio: this.strIdRelatorio,
+        idAtividade: this.strIdAtividade,
+      },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  // Exclusão de item de produtividade
+  get toDelete() {
+    return this.selectedItemId;
+  }
+
+  openDelete(id: number): void {
+    this.selectedItemId = id;
+    this.showDeleteModal = true;
+  }
+
+  closeDelete() {
+    this.closeDeleteModal();
+  }
+
+  closeDeleteModal() {
+    this.showDeleteModal = false;
+    this.selectedItemId = null;
+    this.deleting = false;
+  }
+
+  async confirmDelete(): Promise<void> {
+    if (this.selectedItemId === null) return;
+    this.deleting = true;
+    try {
+      await Promise.resolve(this.prodService.delete(this.selectedItemId));
+      this.closeDeleteModal();
+    } catch (e) {
+      console.error(e);
+      this.deleting = false;
+    }
+  }
+
+  // Exclusão de item de ocorrência
+  openDeleteOcor(id: number): void {
+    this.selectedOcorId = id;
+    this.showDeleteOcorModal = true;
+  }
+
+  closeDeleteOcor() {
+    this.closeDeleteOcorModal();
+  }
+
+  closeDeleteOcorModal() {
+    this.showDeleteOcorModal = false;
+    this.selectedOcorId = null;
+    this.deletingOcor = false;
+  }
+
+  get toDeleteOcor() {
+    return this.selectedOcorId;
+  }
+
+  async confirmDeleteOcor(): Promise<void> {
+    if (this.selectedOcorId === null) return;
+    this.deletingOcor = true;
+    try {
+      await Promise.resolve(this.ocorService.delete(this.selectedOcorId));
+      this.closeDeleteOcorModal();
+    } catch (e) {
+      console.error(e);
+      this.deletingOcor = false;
+    }
   }
 }

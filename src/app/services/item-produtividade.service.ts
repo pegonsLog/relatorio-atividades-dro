@@ -202,6 +202,7 @@ export class ItemProdutividadeService {
           idAtividade: data['idAtividade'] ?? '',
           idProdutividade: Number(data['idProdutividade']) || 0,
           codProd: Number(data['codProd']) || 0,
+          nomeProdutividade: data['nomeProdutividade'] ?? '',
           qtdProd: Number(data['qtdProd']) || 0,
           data: data['data']?.toDate?.() || data['data'] || new Date()
         });

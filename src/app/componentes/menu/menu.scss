@@ -4,7 +4,8 @@
   flex-direction: column;
   height: 100%;
   background-color: #fafafa;
-  width: max-content; // ocupar apenas a largura do conteúdo
+  width: 100%; // ocupar toda a largura disponível
+  box-sizing: border-box;
 }
 
 // Header do Menu
@@ -133,3 +134,45 @@
 
 // Layout otimizado exclusivamente para desktop
 // Menu com dimensões fixas para telas grandes
+
+// ===== Layout Menu (aside) + Conteúdo (main) =====
+.menu-layout {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+  align-items: stretch;
+}
+
+.menu-sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 280px; // largura fixa para o menu lateral
+  border-right: 1px solid #eee;
+  position: relative;
+  z-index: 2; // manter menu acima da logo fixa
+}
+
+.menu-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.logo-wrapper {
+  position: fixed; // ocupa a viewport inteira
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none; // não intercepta cliques do menu
+  z-index: 1;
+}
+
+.logo-img {
+  max-width: min(302px, 57.6%);
+  height: auto;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+  opacity: 0.98;
+}

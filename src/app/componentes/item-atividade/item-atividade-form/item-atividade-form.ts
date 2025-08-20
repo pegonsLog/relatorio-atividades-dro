@@ -2,6 +2,8 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ItemAtividade } from '../../../models';
 import { ItemAtividadeService } from '../../../services';
+import { TabelaAtividadesService } from '../../../services/tabela-atividades.service';
+import { TabelaAtividade } from '../../../models/tabela-atividade.interface';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -21,15 +23,18 @@ export class ItemAtividadeForm implements OnInit {
 
   atividadeForm: FormGroup;
   tiposAcionamento = ['Central/Técnico', 'Não Programado', 'Programado'];
+  atividades: TabelaAtividade[] = [];
 
   constructor(
     private fb: FormBuilder,
-    private atividadeService: ItemAtividadeService
+    private atividadeService: ItemAtividadeService,
+    private tabelaAtividadesService: TabelaAtividadesService
   ) {
     this.atividadeForm = this.createForm();
   }
 
   ngOnInit(): void {
+    this.loadAtividades();
     if (this.atividade && this.isEditMode) {
       this.loadAtividade();
     }
@@ -43,7 +48,6 @@ export class ItemAtividadeForm implements OnInit {
       solucao: [''],
       saida: ['', [Validators.required]],
       codAtv: ['', [Validators.required, Validators.min(1)]],
-      codOcor: ['', [Validators.min(1)]],
       qtdAgentes: ['', [Validators.required, Validators.min(1)]],
       local: [''],
       observacoes: ['', [Validators.maxLength(500)]]
@@ -59,12 +63,20 @@ export class ItemAtividadeForm implements OnInit {
         solucao: this.atividade.solucao ? this.formatTimeForInput(this.atividade.solucao) : '',
         saida: this.formatTimeForInput(this.atividade.saida),
         codAtv: this.atividade.codAtv,
-        codOcor: this.atividade.codOcor,
         qtdAgentes: this.atividade.qtdAgentes,
         local: this.atividade.local,
         observacoes: this.atividade.observacoes
       });
     }
+  }
+
+  private loadAtividades(): void {
+    this.tabelaAtividadesService.list().subscribe({
+      next: (itens) => {
+        this.atividades = (itens ?? []).map(i => ({ ...i, codigo: Number(i.codigo) }));
+      },
+      error: (e) => console.error('Erro ao carregar códigos de atividade', e)
+    });
   }
 
   private formatTimeForInput(date: Date): string {
@@ -91,6 +103,7 @@ export class ItemAtividadeForm implements OnInit {
       const chegadaDate = this.combineTimeWithBaseDate(formData.chegada);
       const solucaoDate = formData.solucao ? this.combineTimeWithBaseDate(formData.solucao) : null;
       const saidaDate = this.combineTimeWithBaseDate(formData.saida);
+      const atvSel = this.atividades.find(a => Number(a.codigo) === Number(formData.codAtv));
       const atividadeData: ItemAtividade = {
         ...formData,
         chegada: chegadaDate,
@@ -98,13 +111,15 @@ export class ItemAtividadeForm implements OnInit {
         saida: saidaDate,
         idRelatorio: this.idRelatorio,
         idAtividade: this.atividade?.idAtividade || 0,
+        nomeAtividade: atvSel ? atvSel.nome : '',
         // Usa sempre a data do relatório-base
         data: this.dataRelatorio instanceof Date ? this.dataRelatorio : new Date()
       };
 
       // Normalizações para campos opcionais
-      (atividadeData as any).codOcor = formData.codOcor ? Number(formData.codOcor) : 0;
       (atividadeData as any).local = formData.local ? String(formData.local) : '';
+
+      // nomeAtividade já definido acima
 
       if (this.isEditMode && this.atividade) {
         this.atividadeService.update(this.atividade.idAtividade, atividadeData);

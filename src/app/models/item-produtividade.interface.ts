@@ -3,6 +3,7 @@ export interface ItemProdutividade {
   idAtividade: string | number;
   idProdutividade: number;
   codProd: number;
+  nomeProdutividade: string;
   qtdProd: number;
   data: Date;
 }

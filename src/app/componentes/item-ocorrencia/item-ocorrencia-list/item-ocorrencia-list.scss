@@ -1,0 +1,19 @@
+.col-id { width: 80px; }
+.col-codigo { width: 180px; }
+.col-nome { width: auto; }
+.col-qtd { width: 140px; }
+.col-atividade { width: 160px; }
+.col-relatorio { width: 160px; }
+.col-acoes { width: 120px; }
+
+.th-nowrap { white-space: nowrap; }
+
+.empty-state {
+  padding: 24px;
+  text-align: center;
+  color: #6c757d;
+}
+
+.btn-header {
+  border: 1px solid #ced4da;
+}

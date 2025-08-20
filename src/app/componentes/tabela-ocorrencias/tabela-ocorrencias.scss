@@ -1,0 +1,25 @@
+/* Estilos da Tabela de Ocorrências alinhados com listas existentes */
+.input-group .btn.btn-header {
+  background-color: #3f51b5 !important;
+  border-color: #3f51b5 !important;
+  color: #fff !important;
+}
+.input-group .btn.btn-header:hover,
+.input-group .btn.btn-header:focus {
+  background-color: #3647a5 !important;
+  border-color: #3647a5 !important;
+  color: #fff !important;
+}
+.input-group .btn.btn-header:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.col-codigo { width: 160px; }
+th.th-nowrap { white-space: nowrap; }
+
+.empty-state {
+  padding: 1rem;
+  text-align: center;
+  color: #6c757d;
+}

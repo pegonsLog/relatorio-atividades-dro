@@ -5,6 +5,33 @@
       <a class="btn btn-outline-secondary" (click)="voltarRelatorio()"><i class="mdi mdi-arrow-left"></i> Voltar para Atividade</a>
       <a class="btn btn-outline-secondary" [routerLink]="['/menu']"><i class="mdi mdi-home-outline"></i> Voltar para o menu</a>
     </div>
+
+<!-- Modal de confirmação de exclusão do item de ocorrência -->
+<div *ngIf="showDeleteOcorModal">
+  <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmar exclusão</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="closeDeleteOcor()" [disabled]="deletingOcor"></button>
+        </div>
+        <div class="modal-body">
+          <p>Tem certeza que deseja excluir o item de ocorrência <strong>#{{ toDeleteOcor }}</strong>?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeDeleteOcor()" [disabled]="deletingOcor">Cancelar</button>
+          <button type="button" class="btn btn-danger" (click)="confirmDeleteOcor()" [disabled]="deletingOcor">
+            <span *ngIf="!deletingOcor">Excluir</span>
+            <span *ngIf="deletingOcor" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span *ngIf="deletingOcor" class="ms-2">Excluindo...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+  
+</div>
   </div>
 
   <!-- Resumo da Atividade -->
@@ -18,6 +45,13 @@
         <div class="col-auto">
           <div class="text-muted small">Local</div>
           <div class="fw-semibold">{{ a.local }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Atividade</div>
+          <div class="fw-semibold">
+            <span class="badge text-bg-info">{{ a.codAtv }}</span>
+            <span class="ms-2" *ngIf="a.nomeAtividade">{{ a.nomeAtividade }}</span>
+          </div>
         </div>
         <div class="col-auto">
           <div class="text-muted small">Data</div>
@@ -54,6 +88,11 @@
        [queryParams]="{ idRelatorio: strIdRelatorio, idAtividade: strIdAtividade }" [queryParamsHandling]="'merge'">
       <i class="mdi mdi-plus"></i> Adicionar item de produtividade
     </a>
+    <a class="btn btn-outline-primary"
+       [routerLink]="['/item-ocorrencia/novo']"
+       [queryParams]="{ idRelatorio: strIdRelatorio, idAtividade: strIdAtividade }" [queryParamsHandling]="'merge'">
+      <i class="mdi mdi-plus-circle-outline"></i> Adicionar item de ocorrência
+    </a>
   </div>
 
   <!-- Alert -->
@@ -80,7 +119,10 @@
               <div class="text-muted small">Produtividade</div>
               <div class="h6 mb-0">{{ i.idProdutividade }}</div>
             </div>
-            <span class="badge text-bg-info">{{ i.codProd }}</span>
+            <div class="text-end">
+              <div><span class="badge text-bg-info">{{ i.codProd }}</span></div>
+              <div class="small text-muted" *ngIf="i.nomeProdutividade">{{ i.nomeProdutividade }}</div>
+            </div>
           </div>
           <div class="mb-2">
             <div class="text-muted small">Quantidade</div>
@@ -91,11 +133,78 @@
           </div>
           <div class="d-flex justify-content-end gap-2 mt-3">
             <a class="btn btn-sm btn-outline-primary" [routerLink]="['/item-produtividade', i.idProdutividade, 'editar']" [queryParamsHandling]="'preserve'"><i class="mdi mdi-pencil"></i> Editar</a>
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDelete(i.idProdutividade)"><i class="mdi mdi-trash-can-outline"></i> Excluir</button>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Cards dos Itens de Ocorrência -->
+  <div class="row g-3 mt-4">
+    <div class="col-12">
+      <h5 class="mb-0">Ocorrências</h5>
+      <hr class="mt-2" />
+    </div>
+
+    <div class="col-12" *ngIf="!ocorrencias || ocorrencias.length === 0">
+      <div class="empty-state">Nenhuma ocorrência vinculada a esta atividade.</div>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-4" *ngFor="let o of ocorrencias">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <div class="text-muted small">Ocorrência</div>
+              <div class="h6 mb-0">{{ o.idOcorrencia }}</div>
+            </div>
+            <div class="text-end">
+              <div><span class="badge text-bg-warning">{{ o.codOcor }}</span></div>
+              <div class="small text-muted" *ngIf="o.nomeOcorrencia">{{ o.nomeOcorrencia }}</div>
+            </div>
+          </div>
+          <div class="mb-2">
+            <div class="text-muted small">Quantidade</div>
+            <div class="fw-semibold">{{ o.qtdOcor }}</div>
+          </div>
+          <div class="small text-muted">
+            <div>Data: <span class="fw-semibold">{{ o.data | date:'dd/MM/yyyy' }}</span></div>
+          </div>
+          <div class="d-flex justify-content-end gap-2 mt-3">
+            <a class="btn btn-sm btn-outline-primary" [routerLink]="['/item-ocorrencia', o.idOcorrencia, 'editar']" [queryParamsHandling]="'preserve'"><i class="mdi mdi-pencil"></i> Editar</a>
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDeleteOcor(o.idOcorrencia)"><i class="mdi mdi-trash-can-outline"></i> Excluir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmação de exclusão do item de produtividade -->
+<div *ngIf="showDeleteModal">
+  <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmar exclusão</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="closeDelete()" [disabled]="deleting"></button>
+        </div>
+        <div class="modal-body">
+          <p>Tem certeza que deseja excluir o item de produtividade <strong>#{{ toDelete }}</strong>?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeDelete()" [disabled]="deleting">Cancelar</button>
+          <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleting">
+            <span *ngIf="!deleting">Excluir</span>
+            <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span *ngIf="deleting" class="ms-2">Excluindo...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
 </div>
 
 <ng-template #carregando>

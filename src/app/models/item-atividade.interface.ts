@@ -7,7 +7,7 @@ export interface ItemAtividade {
   solucao: Date | null;
   saida: Date;
   codAtv: number;
-  codOcor: number;
+  nomeAtividade: string;
   qtdAgentes: number;
   local: string;
   observacoes: string;

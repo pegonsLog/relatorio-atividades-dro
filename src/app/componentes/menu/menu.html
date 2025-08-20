@@ -1,11 +1,13 @@
-<div class="menu-nav list-group">
+<div class="menu-layout">
+  <aside class="menu-sidebar">
+    <div class="menu-nav list-group">
   <h3 class="text-uppercase small fw-semibold px-3 pt-3 pb-2">Navegação Principal</h3>
 
   @for (item of menuItems(); track item.route) {
     <a
       class="list-group-item list-group-item-action menu-item cursor-pointer"
-      [routerLink]="item.route !== '/relatorio-base' ? item.route : undefined"
-      [attr.href]="item.route !== '/relatorio-base' ? item.route : '#'"
+      [routerLink]="requiresDirectNav(item.route) ? item.route : undefined"
+      [attr.href]="requiresDirectNav(item.route) ? item.route : '#'"
       (click)="onMenuClick($event, item)"
       routerLinkActive="active"
     >
@@ -16,7 +18,7 @@
 
   <hr class="menu-divider my-3" />
 
-  <h3 class="text-uppercase small fw-semibold px-3 pt-1 pb-2">Administração</h3>
+    <h3 class="text-uppercase small fw-semibold px-3 pt-1 pb-2">Administração</h3>
 
   @for (item of adminItems(); track item.route) {
     <a
@@ -28,18 +30,71 @@
       <span>{{ item.label }}</span>
     </a>
   }
+    </div>
+
+    <!-- Footer do Menu -->
+    <div class="menu-footer">
+      <hr class="my-0" />
+      <div class="user-info">
+        <i class="mdi mdi-account-circle"></i>
+        <div class="user-details">
+          <span class="user-name">Usuário Admin</span>
+          <span class="user-role">Administrador</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <main class="menu-content">
+    <div class="logo-wrapper">
+      <img src="assets/logo/BHTrans.png" alt="BHTrans logo" class="logo-img" />
+    </div>
+  </main>
 </div>
 
-<!-- Footer do Menu -->
-<div class="menu-footer">
-  <hr class="my-0" />
-  <div class="user-info">
-    <i class="mdi mdi-account-circle"></i>
-    <div class="user-details">
-      <span class="user-name">Usuário Admin</span>
-      <span class="user-role">Administrador</span>
+<!-- Modal de Filtros para Relatórios (Atividade/Produtividade/Ocorrências) -->
+<div *ngIf="showReportFilterModal">
+  <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Selecionar filtros do relatório</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="closeReportFilterModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Período</label>
+              <div class="d-flex gap-2">
+                <input class="form-control" type="date" [(ngModel)]="reportFilter.dataInicio" />
+                <span class="align-self-center">até</span>
+                <input class="form-control" type="date" [(ngModel)]="reportFilter.dataFim" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Gerência</label>
+              <select class="form-select" [(ngModel)]="reportFilter.gerencia">
+                <option value="">Todos</option>
+                <option *ngFor="let g of gerencias" [value]="g">{{ g }}</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Turno</label>
+              <select class="form-select" [(ngModel)]="reportFilter.turno">
+                <option value="">Todos</option>
+                <option *ngFor="let t of turnos" [value]="t">{{ t }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeReportFilterModal()">Cancelar</button>
+          <div class="me-auto text-muted small" *ngIf="!reportFiltersValid">Selecione um período válido</div>
+          <button type="button" class="btn btn-primary" (click)="confirmReportFilters()" [disabled]="!reportFiltersValid">Continuar</button>
+        </div>
+      </div>
     </div>
   </div>
+  <div class="modal-backdrop fade show"></div>
 </div>
 
 <!-- Modal de Filtros para Relatório Base -->
@@ -55,14 +110,12 @@
           <div class="mb-3">
             <label class="form-label">Gerência</label>
             <select class="form-select" [(ngModel)]="selectedGerencia">
-              <option value="">Todas</option>
               <option *ngFor="let g of gerencias" [value]="g">{{ g }}</option>
             </select>
           </div>
           <div class="mb-3">
             <label class="form-label">Turno</label>
             <select class="form-select" [(ngModel)]="selectedTurno">
-              <option value="">Todos</option>
               <option *ngFor="let t of turnos" [value]="t">{{ t }}</option>
             </select>
           </div>

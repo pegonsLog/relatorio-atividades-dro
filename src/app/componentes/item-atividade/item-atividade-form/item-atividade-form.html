@@ -79,19 +79,15 @@
     <div class="form-row">
       <div class="form-group">
         <label for="codAtv">Código da Atividade *</label>
-        <input type="number" id="codAtv" formControlName="codAtv" class="form-control"
-               [class.is-invalid]="isFieldInvalid('codAtv')" placeholder="Código da atividade">
+        <select id="codAtv" formControlName="codAtv" class="form-control"
+                [class.is-invalid]="isFieldInvalid('codAtv')">
+          <option [ngValue]="null" disabled>Selecione</option>
+          <option *ngFor="let atv of atividades" [ngValue]="atv.codigo">
+            {{ atv.codigo }} - {{ atv.nome }}
+          </option>
+        </select>
         <div class="invalid-feedback" *ngIf="isFieldInvalid('codAtv')">
           {{ getFieldError('codAtv') }}
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="codOcor">Código da Ocorrência</label>
-        <input type="number" id="codOcor" formControlName="codOcor" class="form-control"
-               [class.is-invalid]="isFieldInvalid('codOcor')" placeholder="Código da ocorrência">
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('codOcor')">
-          {{ getFieldError('codOcor') }}
         </div>
       </div>
     </div>

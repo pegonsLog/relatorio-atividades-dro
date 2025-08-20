@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ItemAtividadeService } from '../../../services';
+import { ItemAtividadeService, RelatorioBaseService, ExportExcelService } from '../../../services';
 import { ItemAtividade } from '../../../models';
 
 @Component({
@@ -18,12 +18,21 @@ export class ItemAtividadeList implements OnInit {
   atividades: ItemAtividade[] = [];
   // Loading
   loading = true;
+  // Filtros originados do menu
+  isFromMenu = false;
+  private dataInicioStr: string | null = null;
+  private dataFimStr: string | null = null;
+  private dataInicioDate: Date | null = null;
+  private dataFimDate: Date | null = null;
+  private filtroGerencia: string | null = null;
+  private filtroTurno: string | null = null;
+  private relatorioMap = new Map<string | number, { gerencia: string; turno: string }>();
   // Paginação
   page = 1;
   pageSize = 10;
   readonly pageSizes = [5, 10, 20, 50];
   // Ordenação
-  sortKey: 'idAtividade' | 'item' | 'local' | 'codAtv' | 'chegada' = 'idAtividade';
+  sortKey: 'idAtividade' | 'item' | 'local' | 'codAtv' | 'chegada' | 'nomeAtividade' | 'solucao' | 'saida' | 'qtdAgentes' = 'idAtividade';
   sortDir: 'asc' | 'desc' = 'asc';
   // Modal de exclusão
   showDeleteModal = false;
@@ -33,17 +42,32 @@ export class ItemAtividadeList implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly atividadeService = inject(ItemAtividadeService);
+  private readonly relService = inject(RelatorioBaseService);
+  private readonly exportService = inject(ExportExcelService);
 
   ngOnInit(): void {
     const qp = this.route.snapshot.queryParamMap;
     this.filtro = qp.get('q') ?? '';
+    // Filtros do menu
+    this.isFromMenu = (qp.get('fromMenu') ?? '') !== '';
+    this.dataInicioStr = qp.get('dataInicio');
+    this.dataFimStr = qp.get('dataFim');
+    this.filtroGerencia = qp.get('gerencia');
+    this.filtroTurno = qp.get('turno');
+    // Parse datas (considerando YYYY-MM-DD)
+    if (this.dataInicioStr) {
+      this.dataInicioDate = new Date(`${this.dataInicioStr}T00:00:00`);
+    }
+    if (this.dataFimStr) {
+      this.dataFimDate = new Date(`${this.dataFimStr}T23:59:59.999`);
+    }
     const p = Number(qp.get('page'));
     const ps = Number(qp.get('pageSize'));
     this.page = Number.isFinite(p) && p > 0 ? p : 1;
     this.pageSize = this.pageSizes.includes(ps) ? ps : this.pageSize;
     const sk = qp.get('sortKey') as any;
     const sd = qp.get('sortDir') as any;
-    if (sk && ['idAtividade','item','local','codAtv','chegada'].includes(sk)) this.sortKey = sk;
+    if (sk && ['idAtividade','item','local','codAtv','chegada','nomeAtividade','solucao','saida','qtdAgentes'].includes(sk)) this.sortKey = sk;
     if (sd && ['asc','desc'].includes(sd)) this.sortDir = sd;
 
     // Carregar lista do service
@@ -57,16 +81,53 @@ export class ItemAtividadeList implements OnInit {
         this.loading = false;
       }
     });
+
+    // Carregar mapa de relatórios para filtros de gerência/turno
+    this.relService.getRelatorios$().subscribe(relatorios => {
+      this.relatorioMap.clear();
+      for (const r of relatorios) {
+        this.relatorioMap.set(r.idRelatorio!, { gerencia: r.gerencia || '', turno: r.turno || '' });
+      }
+    });
   }
 
   get filtrados(): ItemAtividade[] {
     const f = this.filtro.trim().toLowerCase();
-    return this.atividades.filter(a => !f || 
-      a.local.toLowerCase().includes(f) || 
-      a.acionamento.toLowerCase().includes(f) ||
-      String(a.codAtv).includes(f) ||
-      String(a.item).includes(f)
-    );
+    let base = this.atividades;
+    // Filtro por período
+    if (this.dataInicioDate) {
+      base = base.filter(a => a.data && new Date(a.data).getTime() >= this.dataInicioDate!.getTime());
+    }
+    if (this.dataFimDate) {
+      base = base.filter(a => a.data && new Date(a.data).getTime() <= this.dataFimDate!.getTime());
+    }
+    // Filtro por gerência/turno via idRelatorio
+    if (this.filtroGerencia) {
+      base = base.filter(a => {
+        const meta = this.relatorioMap.get(a.idRelatorio);
+        return meta ? meta.gerencia === this.filtroGerencia : false;
+      });
+    }
+    if (this.filtroTurno) {
+      base = base.filter(a => {
+        const meta = this.relatorioMap.get(a.idRelatorio);
+        return meta ? meta.turno === this.filtroTurno : false;
+      });
+    }
+    // Filtro textual considerando colunas aparentes
+    return base.filter(a => {
+      if (!f) return true;
+      const matchAlways =
+        String(a.codAtv).includes(f) ||
+        (a.nomeAtividade || '').toLowerCase().includes(f) ||
+        String(a.item).includes(f) ||
+        String(a.qtdAgentes ?? '').includes(f);
+      const matchWhenVisible = !this.isFromMenu && (
+        a.local.toLowerCase().includes(f) ||
+        a.acionamento.toLowerCase().includes(f)
+      );
+      return matchAlways || matchWhenVisible;
+    });
   }
 
   // Itens da página atual
@@ -105,6 +166,14 @@ export class ItemAtividadeList implements OnInit {
           va = a.codAtv; vb = b.codAtv; break;
         case 'chegada':
           va = a.chegada; vb = b.chegada; break;
+        case 'nomeAtividade':
+          va = (a.nomeAtividade || '').toLowerCase(); vb = (b.nomeAtividade || '').toLowerCase(); break;
+        case 'solucao':
+          va = a.solucao ? new Date(a.solucao) : new Date(0); vb = b.solucao ? new Date(b.solucao) : new Date(0); break;
+        case 'saida':
+          va = a.saida ? new Date(a.saida) : new Date(0); vb = b.saida ? new Date(b.saida) : new Date(0); break;
+        case 'qtdAgentes':
+          va = a.qtdAgentes ?? 0; vb = b.qtdAgentes ?? 0; break;
       }
       if (va < vb) return -1 * dir;
       if (va > vb) return 1 * dir;
@@ -113,7 +182,7 @@ export class ItemAtividadeList implements OnInit {
     return arr;
   }
 
-  setSort(key: 'idAtividade' | 'item' | 'local' | 'codAtv' | 'chegada') {
+  setSort(key: 'idAtividade' | 'item' | 'local' | 'codAtv' | 'chegada' | 'nomeAtividade' | 'solucao' | 'saida' | 'qtdAgentes') {
     if (this.sortKey === key) {
       this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
     } else {
@@ -141,6 +210,12 @@ export class ItemAtividadeList implements OnInit {
       pageSize: this.pageSize !== 10 ? this.pageSize : undefined,
       sortKey: this.sortKey !== 'idAtividade' ? this.sortKey : undefined,
       sortDir: this.sortDir !== 'asc' ? this.sortDir : undefined,
+      // Preserva filtros vindos do menu
+      dataInicio: this.dataInicioStr || undefined,
+      dataFim: this.dataFimStr || undefined,
+      gerencia: this.filtroGerencia || undefined,
+      turno: this.filtroTurno || undefined,
+      fromMenu: this.isFromMenu ? 1 : undefined,
     } as any;
     this.router.navigate([], {
       relativeTo: this.route,
@@ -148,6 +223,48 @@ export class ItemAtividadeList implements OnInit {
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });
+  }
+
+  exportExcel(): void {
+    const rows = this.sorted.map(a => ({
+      'Item': a.item,
+      'Local': a.local,
+      'Acionamento': a.acionamento,
+      'Código Atividade': a.codAtv,
+      'Nome Atividade': a.nomeAtividade,
+      'Chegada': this.formatDateTimeSafe(a.chegada),
+      'Solução': this.formatDateTimeSafe(a.solucao),
+      'Saída': this.formatDateTimeSafe(a.saida),
+      'Data': this.formatDateSafe(a.data),
+    }));
+    const name = this.buildFileName('Atividades');
+    this.exportService.exportAsExcel(rows, name, 'Atividades');
+  }
+
+  private buildFileName(prefix: string): string {
+    const parts: string[] = [prefix];
+    if (this.dataInicioStr || this.dataFimStr) {
+      const di = (this.dataInicioStr || '').replaceAll('-', '');
+      const df = (this.dataFimStr || '').replaceAll('-', '');
+      parts.push([di, df].filter(Boolean).join('-'));
+    }
+    if (this.filtroGerencia) parts.push(`GER_${this.filtroGerencia}`);
+    if (this.filtroTurno) parts.push(`TUR_${this.filtroTurno}`);
+    return parts.filter(Boolean).join('_');
+  }
+
+  private formatDateTimeSafe(d: any): string {
+    if (!d) return '';
+    const dt = new Date(d);
+    if (isNaN(dt.getTime())) return '';
+    return dt.toLocaleString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  private formatDateSafe(d: any): string {
+    if (!d) return '';
+    const dt = new Date(d);
+    if (isNaN(dt.getTime())) return '';
+    return dt.toLocaleDateString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit' });
   }
 
   // Abertura/fechamento do modal de exclusão

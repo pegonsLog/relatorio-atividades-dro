@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ItemProdutividade } from '../../../models';
-import { ItemProdutividadeService, RelatorioBaseService } from '../../../services';
+import { ItemProdutividadeService, RelatorioBaseService, TabelaProdutividadeService } from '../../../services';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
@@ -22,18 +22,13 @@ export class ItemProdutividadeForm implements OnInit {
   @Output() formCancel = new EventEmitter<void>();
 
   produtividadeForm: FormGroup;
-  codigosProdutos = [
-    { codigo: 301, descricao: 'Peças Montadas' },
-    { codigo: 302, descricao: 'Inspeções Realizadas' },
-    { codigo: 303, descricao: 'Reparos Executados' },
-    { codigo: 304, descricao: 'Testes Concluídos' },
-    { codigo: 305, descricao: 'Calibrações Feitas' }
-  ];
+  codigosProdutos: Array<{ codigo: number; descricao: string }> = [];
 
   constructor(
     private fb: FormBuilder,
     private produtividadeService: ItemProdutividadeService,
     private relatorioBaseService: RelatorioBaseService,
+    private tabelaService: TabelaProdutividadeService,
     private route: ActivatedRoute,
     private router: Router,
   ) {
@@ -79,6 +74,17 @@ export class ItemProdutividadeForm implements OnInit {
       const rel = this.relatorioBaseService.getById(this.idRelatorio);
       if (rel?.data) this.dataRelatorio = rel.data instanceof Date ? rel.data : new Date(rel.data);
     }
+
+    // Carregar lista de produtos (código e nome) da tabela central
+    this.tabelaService.list().subscribe({
+      next: (lista) => {
+        this.codigosProdutos = (lista || []).map(p => ({ codigo: p.codigo, descricao: p.nome }));
+      },
+      error: (e) => {
+        console.error('Erro ao carregar tabela de produtividade:', e);
+        this.codigosProdutos = [];
+      }
+    });
   }
 
   private createForm(): FormGroup {
@@ -100,11 +106,13 @@ export class ItemProdutividadeForm implements OnInit {
   onSubmit(): void {
     if (this.produtividadeForm.valid) {
       const formData = this.produtividadeForm.value;
+      const nomeProdutividade = this.getDescricaoProduto(formData.codProd);
       const produtividadeData: ItemProdutividade = {
         ...formData,
         idRelatorio: this.idRelatorio,
         idAtividade: this.idAtividade,
         idProdutividade: this.itemProdutividade?.idProdutividade || 0,
+        nomeProdutividade: nomeProdutividade || '',
         // Usa a data do relatório-base
         data: this.dataRelatorio instanceof Date ? this.dataRelatorio : new Date()
       };

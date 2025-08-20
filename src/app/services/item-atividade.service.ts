@@ -182,7 +182,7 @@ export class ItemAtividadeService extends CrudStore<ItemAtividade> {
             solucao: data['solucao']?.toDate?.() ?? null,
             saida: data['saida']?.toDate() || new Date(),
             codAtv: data['codAtv'] || 0,
-            codOcor: data['codOcor'] || 0,
+            nomeAtividade: data['nomeAtividade'] || '',
             qtdAgentes: data['qtdAgentes'] || 0,
             local: data['local'] || '',
             observacoes: data['observacoes'] || '',

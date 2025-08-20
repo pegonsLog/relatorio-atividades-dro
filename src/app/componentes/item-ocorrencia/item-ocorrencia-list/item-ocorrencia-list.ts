@@ -2,19 +2,19 @@ import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { ItemProdutividadeService, RelatorioBaseService, ExportExcelService } from '../../../services';
-import { ItemProdutividade } from '../../../models';
+import { ItemOcorrencia } from '../../../models';
+import { ItemOcorrenciaService, RelatorioBaseService, ExportExcelService } from '../../../services';
 
 @Component({
-  selector: 'app-item-produtividade-list',
+  selector: 'app-item-ocorrencia-list',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './item-produtividade-list.html',
-  styleUrls: ['./item-produtividade-list.scss']
+  templateUrl: './item-ocorrencia-list.html',
+  styleUrls: ['./item-ocorrencia-list.scss']
 })
-export class ItemProdutividadeList implements OnInit, OnDestroy {
+export class ItemOcorrenciaList implements OnInit, OnDestroy {
   filtro = '';
-  itens: ItemProdutividade[] = [];
+  itens: ItemOcorrencia[] = [];
   // Loading
   loading = true;
   // Contexto
@@ -34,7 +34,7 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
   pageSize = 10;
   readonly pageSizes = [5, 10, 20, 50];
   // Ordenação
-  sortKey: 'idProdutividade' | 'codProd' | 'nomeProdutividade' | 'qtdProd' | 'idAtividade' | 'idRelatorio' = 'idProdutividade';
+  sortKey: 'idOcorrencia' | 'codOcor' | 'nomeOcorrencia' | 'qtdOcor' | 'idAtividade' | 'idRelatorio' = 'idOcorrencia';
   sortDir: 'asc' | 'desc' = 'asc';
   // Modal de exclusão
   showDeleteModal = false;
@@ -48,14 +48,14 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly service = inject(ItemProdutividadeService);
+  private readonly service = inject(ItemOcorrenciaService);
   private readonly relService = inject(RelatorioBaseService);
   private readonly exportService = inject(ExportExcelService);
 
   ngOnInit(): void {
     const qp = this.route.snapshot.queryParamMap;
-    this.filtro = qp.get('qProd') ?? '';
-    // Contexto de navegação: pertencem a uma atividade (e relatório) - IDs alfanuméricos
+    this.filtro = qp.get('qOcor') ?? '';
+    // Contexto de navegação (pertence a uma atividade e relatório)
     const ir = (qp.get('idRelatorio') || '').trim();
     const ia = (qp.get('idAtividade') || '').trim();
     this.contextRelatorioId = ir || null;
@@ -68,26 +68,23 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
     this.filtroTurno = qp.get('turno');
     if (this.dataInicioStr) this.dataInicioDate = new Date(`${this.dataInicioStr}T00:00:00`);
     if (this.dataFimStr) this.dataFimDate = new Date(`${this.dataFimStr}T23:59:59.999`);
-    const p = Number(qp.get('pageProd'));
-    const ps = Number(qp.get('pageSizeProd'));
+    const p = Number(qp.get('pageOcor'));
+    const ps = Number(qp.get('pageSizeOcor'));
     this.page = Number.isFinite(p) && p > 0 ? p : 1;
     this.pageSize = this.pageSizes.includes(ps) ? ps : this.pageSize;
-    const sk = qp.get('prodSortKey') as any;
-    const sd = qp.get('prodSortDir') as any;
-    const validKeys = ['idProdutividade','codProd','nomeProdutividade','qtdProd','idAtividade','idRelatorio'];
+    const sk = qp.get('ocorSortKey') as any;
+    const sd = qp.get('ocorSortDir') as any;
+    const validKeys = ['idOcorrencia','codOcor','nomeOcorrencia','qtdOcor','idAtividade','idRelatorio'];
     if (sk && validKeys.includes(sk)) this.sortKey = sk;
     if (sd && ['asc','desc'].includes(sd)) this.sortDir = sd;
 
-    // Alertas vindos de redirecionamentos (ex.: guard)
     const alert = qp.get('alert');
     if (alert) {
       this.alertKey = alert;
       this.showAlert = true;
-      // auto-hide após 5s
       this.alertTimer = setTimeout(() => this.closeAlert(), 5000);
     }
-    
-    // Carregar itens da lista
+
     this.service.getItens().subscribe({
       next: (list) => {
         this.itens = list ?? [];
@@ -99,7 +96,7 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
       }
     });
 
-    // Carregar mapa de relatórios
+    // Carregar mapa de relatórios para aplicar filtros de gerência/turno
     this.relService.getRelatorios$().subscribe(relatorios => {
       this.relatorioMap.clear();
       for (const r of relatorios) {
@@ -118,7 +115,7 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
   get alertText(): string {
     switch (this.alertKey) {
       case 'missingContext':
-        return 'Para criar um item de produtividade, selecione uma Atividade a partir da lista (contexto obrigatório).';
+        return 'Para criar um item de ocorrência, selecione uma Atividade a partir da lista (contexto obrigatório).';
       default:
         return '';
     }
@@ -138,9 +135,8 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
     });
   }
 
-  get filtrados(): ItemProdutividade[] {
+  get filtrados(): ItemOcorrencia[] {
     const f = this.filtro.trim().toLowerCase();
-    // Aplica contexto (atividade > relatório)
     let base = [...this.itens];
     if (this.contextAtividadeId) {
       base = base.filter(i => String(i.idAtividade) === this.contextAtividadeId);
@@ -167,30 +163,28 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
         return meta ? meta.turno === this.filtroTurno : false;
       });
     }
-    // Texto: considerar apenas colunas aparentes
+
     return base.filter(i => {
       if (!f) return true;
       const common =
-        String(i.codProd).includes(f) ||
-        String(i.nomeProdutividade || '').toLowerCase().includes(f) ||
-        String(i.qtdProd).includes(f);
+        String(i.codOcor).includes(f) ||
+        String(i.nomeOcorrencia || '').toLowerCase().includes(f) ||
+        String(i.qtdOcor).includes(f);
       const includeId = !this.isFromMenu;
       const includeAtividade = !this.isFromMenu;
       const includeRelatorio = !this.isFromMenu && !this.contextRelatorioId;
-      const idMatch = includeId && String(i.idProdutividade).includes(f);
+      const idMatch = includeId && String(i.idOcorrencia).includes(f);
       const ativMatch = includeAtividade && String(i.idAtividade).includes(f);
       const relMatch = includeRelatorio && String(i.idRelatorio).includes(f);
       return common || idMatch || ativMatch || relMatch;
     });
   }
 
-  // Itens da página atual
-  get pageItems(): ItemProdutividade[] {
+  get pageItems(): ItemOcorrencia[] {
     const start = (this.page - 1) * this.pageSize;
     return this.sorted.slice(start, start + this.pageSize);
   }
 
-  // Helpers
   get total(): number { return this.filtrados.length; }
   get totalPages(): number { return Math.max(1, Math.ceil(this.total / this.pageSize)); }
   get startIndex(): number { return this.total ? (this.page - 1) * this.pageSize + 1 : 0; }
@@ -202,8 +196,7 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
     this.syncQuery();
   }
 
-  // Lista filtrada e ordenada
-  get sorted(): ItemProdutividade[] {
+  get sorted(): ItemOcorrencia[] {
     const arr = [...this.filtrados];
     const dir = this.sortDir === 'asc' ? 1 : -1;
     arr.sort((a, b) => {
@@ -211,18 +204,12 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
       let vaS = '', vbS = '';
       let isString = false;
       switch (this.sortKey) {
-        case 'idProdutividade':
-          vaN = a.idProdutividade; vbN = b.idProdutividade; break;
-        case 'codProd':
-          vaN = a.codProd; vbN = b.codProd; break;
-        case 'nomeProdutividade':
-          vaS = String(a.nomeProdutividade || ''); vbS = String(b.nomeProdutividade || ''); isString = true; break;
-        case 'qtdProd':
-          vaN = a.qtdProd; vbN = b.qtdProd; break;
-        case 'idAtividade':
-          vaS = String(a.idAtividade); vbS = String(b.idAtividade); isString = true; break;
-        case 'idRelatorio':
-          vaS = String(a.idRelatorio); vbS = String(b.idRelatorio); isString = true; break;
+        case 'idOcorrencia': vaN = a.idOcorrencia; vbN = b.idOcorrencia; break;
+        case 'codOcor': vaN = a.codOcor; vbN = b.codOcor; break;
+        case 'nomeOcorrencia': vaS = String(a.nomeOcorrencia || ''); vbS = String(b.nomeOcorrencia || ''); isString = true; break;
+        case 'qtdOcor': vaN = a.qtdOcor; vbN = b.qtdOcor; break;
+        case 'idAtividade': vaS = String(a.idAtividade); vbS = String(b.idAtividade); isString = true; break;
+        case 'idRelatorio': vaS = String(a.idRelatorio); vbS = String(b.idRelatorio); isString = true; break;
       }
       if (isString) {
         const cmp = vaS.localeCompare(vbS);
@@ -235,7 +222,7 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
     return arr;
   }
 
-  setSort(key: 'idProdutividade' | 'codProd' | 'nomeProdutividade' | 'qtdProd' | 'idAtividade' | 'idRelatorio') {
+  setSort(key: 'idOcorrencia' | 'codOcor' | 'nomeOcorrencia' | 'qtdOcor' | 'idAtividade' | 'idRelatorio') {
     if (this.sortKey === key) {
       this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
     } else {
@@ -258,11 +245,11 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
 
   private syncQuery() {
     const queryParams = {
-      qProd: this.filtro || undefined,
-      pageProd: this.page !== 1 ? this.page : undefined,
-      pageSizeProd: this.pageSize !== 10 ? this.pageSize : undefined,
-      prodSortKey: this.sortKey !== 'idProdutividade' ? this.sortKey : undefined,
-      prodSortDir: this.sortDir !== 'asc' ? this.sortDir : undefined,
+      qOcor: this.filtro || undefined,
+      pageOcor: this.page !== 1 ? this.page : undefined,
+      pageSizeOcor: this.pageSize !== 10 ? this.pageSize : undefined,
+      ocorSortKey: this.sortKey !== 'idOcorrencia' ? this.sortKey : undefined,
+      ocorSortDir: this.sortDir !== 'asc' ? this.sortDir : undefined,
       idRelatorio: this.contextRelatorioId || undefined,
       idAtividade: this.contextAtividadeId || undefined,
       // Preserva filtros do menu
@@ -282,13 +269,13 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
 
   exportExcel(): void {
     const rows = this.sorted.map(i => ({
-      'Código Prod.': i.codProd,
-      'Nome Produtividade': i.nomeProdutividade,
-      'Quantidade': i.qtdProd,
+      'Código Ocor.': i.codOcor,
+      'Nome Ocorrência': i.nomeOcorrencia,
+      'Quantidade': i.qtdOcor,
       'Data': this.formatDateSafe(i.data),
     }));
-    const name = this.buildFileName('Produtividade');
-    this.exportService.exportAsExcel(rows, name, 'Produtividade');
+    const name = this.buildFileName('Ocorrencias');
+    this.exportService.exportAsExcel(rows, name, 'Ocorrências');
   }
 
   private buildFileName(prefix: string): string {
@@ -310,7 +297,6 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
     return dt.toLocaleDateString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit' });
   }
 
-  // Query params para o botão "Novo"
   get novoQueryParams() {
     return {
       idRelatorio: this.contextRelatorioId || undefined,
@@ -319,15 +305,12 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
   }
 
   newItem(): void {
-    // Para criar um item de produtividade, o obrigatório é ter idAtividade (FK)
     const hasContext = !!this.contextAtividadeId;
     if (!hasContext) {
-      // Mostra alerta de contexto ausente
       this.alertKey = 'missingContext';
       this.showAlert = true;
       if (this.alertTimer) clearTimeout(this.alertTimer);
       this.alertTimer = setTimeout(() => this.closeAlert(), 5000);
-      // Mantém a URL sincronizada com o alerta para consistência
       this.router.navigate([], {
         relativeTo: this.route,
         queryParams: { alert: 'missingContext' },
@@ -336,7 +319,7 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
       });
       return;
     }
-    this.router.navigate(['/item-produtividade/novo'], {
+    this.router.navigate(['/item-ocorrencia/novo'], {
       queryParams: this.novoQueryParams,
       queryParamsHandling: 'merge',
     });

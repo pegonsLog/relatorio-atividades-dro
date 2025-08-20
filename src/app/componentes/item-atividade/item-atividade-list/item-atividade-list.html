@@ -5,16 +5,26 @@
     <div class="col-12 col-md-6">
       <div class="input-group">
         <span class="input-group-text"><i class="mdi mdi-magnify"></i></span>
-        <input type="text" class="form-control" [(ngModel)]="filtro" (ngModelChange)="onFilterChange()" name="filtro" placeholder="Buscar por local, acionamento ou código" />
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="filtro"
+          (ngModelChange)="onFilterChange()"
+          name="filtro"
+          [attr.placeholder]="isFromMenu ? 'Buscar por código, nome da atividade, item ou qtd. agentes' : 'Buscar por local, acionamento, código, nome da atividade ou item'"
+        />
         <button class="btn btn-header" type="button" (click)="clearFilter()" [disabled]="!filtro" aria-label="Limpar filtro">
           <i class="mdi mdi-close-circle-outline"></i>
         </button>
       </div>
- 
+
     </div>
     <div class="col-12 col-md-6 text-md-end">
       <a class="btn btn-outline-secondary me-2" [routerLink]="['/menu']"><i class="mdi mdi-arrow-left me-1"></i>Voltar ao Menu</a>
-      <a class="btn btn-primary" [routerLink]="['/item-atividade/novo']"><i class="mdi mdi-clipboard-plus-outline me-1"></i>Nova Atividade</a>
+      <button type="button" class="btn btn-success me-2" (click)="exportExcel()" [disabled]="filtrados.length === 0">
+        <i class="mdi mdi-file-excel"></i> Exportar Excel
+      </button>
+      <a class="btn btn-primary" *ngIf="!isFromMenu" [routerLink]="['/item-atividade/novo']"><i class="mdi mdi-clipboard-plus-outline me-1"></i>Nova Atividade</a>
     </div>
   </div>
 
@@ -28,16 +38,20 @@
     <div class="table-responsive shadow-sm">
       <table class="table table-striped table-hover align-middle mb-0">
         <colgroup>
-          <col class="col-id" />
+          <col class="col-id" *ngIf="!isFromMenu" />
           <col class="col-item" />
-          <col />
+          <col class="col-local" *ngIf="!isFromMenu" />
           <col class="col-codigo" />
+          <col class="col-nome" />
           <col class="col-chegada" />
-          <col class="col-acoes" />
+          <col class="col-solucao" />
+          <col class="col-saida" />
+          <col class="col-agentes" />
+          <col class="col-acoes" *ngIf="!isFromMenu" />
         </colgroup>
         <thead class="table-light">
           <tr>
-            <th class="th-nowrap">
+            <th class="th-nowrap" *ngIf="!isFromMenu">
               <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('idAtividade')">
                 <span [class.fw-semibold]="sortKey==='idAtividade'">ID</span>
                 <i class="mdi" [ngClass]="sortKey==='idAtividade' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
@@ -49,7 +63,7 @@
                 <i class="mdi" [ngClass]="sortKey==='item' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
               </button>
             </th>
-            <th class="th-nowrap">
+            <th class="th-nowrap" *ngIf="!isFromMenu">
               <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('local')">
                 <span [class.fw-semibold]="sortKey==='local'">Local</span>
                 <i class="mdi" [ngClass]="sortKey==='local' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
@@ -62,19 +76,43 @@
               </button>
             </th>
             <th class="th-nowrap">
+              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('nomeAtividade')">
+                <span [class.fw-semibold]="sortKey==='nomeAtividade'">Nome</span>
+                <i class="mdi" [ngClass]="sortKey==='nomeAtividade' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+              </button>
+            </th>
+            <th class="th-nowrap">
               <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('chegada')">
                 <span [class.fw-semibold]="sortKey==='chegada'">Chegada</span>
                 <i class="mdi" [ngClass]="sortKey==='chegada' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
               </button>
             </th>
-            <th class="th-nowrap text-end">Ações</th>
+            <th class="th-nowrap">
+              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('solucao')">
+                <span [class.fw-semibold]="sortKey==='solucao'">Solução</span>
+                <i class="mdi" [ngClass]="sortKey==='solucao' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+              </button>
+            </th>
+            <th class="th-nowrap">
+              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('saida')">
+                <span [class.fw-semibold]="sortKey==='saida'">Saída</span>
+                <i class="mdi" [ngClass]="sortKey==='saida' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+              </button>
+            </th>
+            <th class="th-nowrap">
+              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('qtdAgentes')">
+                <span [class.fw-semibold]="sortKey==='qtdAgentes'">Qtd. Agentes</span>
+                <i class="mdi" [ngClass]="sortKey==='qtdAgentes' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+              </button>
+            </th>
+            <th class="th-nowrap text-end" *ngIf="!isFromMenu">Ações</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let a of pageItems">
-            <td>{{ a.idAtividade }}</td>
+            <td *ngIf="!isFromMenu">{{ a.idAtividade }}</td>
             <td>{{ a.item }}</td>
-            <td>
+            <td *ngIf="!isFromMenu">
               <div class="fw-medium">{{ a.local }}</div>
               <small class="text-muted">{{ a.acionamento }}</small>
             </td>
@@ -82,9 +120,19 @@
               <span class="badge text-bg-info">{{ a.codAtv }}</span>
             </td>
             <td>
+              <span class="text-muted" *ngIf="a.nomeAtividade">{{ a.nomeAtividade }}</span>
+            </td>
+            <td>
               <small>{{ formatDateTime(a.chegada) }}</small>
             </td>
-            <td class="text-end">
+            <td>
+              <small>{{ a.solucao ? formatDateTime(a.solucao) : '-' }}</small>
+            </td>
+            <td>
+              <small>{{ formatDateTime(a.saida) }}</small>
+            </td>
+            <td>{{ a.qtdAgentes }}</td>
+            <td class="text-end" *ngIf="!isFromMenu">
               <a class="btn btn-sm btn-outline-info me-1" [routerLink]="['/item-atividade', a.idAtividade]" aria-label="Detalhe da atividade">
                 <i class="mdi mdi-eye-outline"></i>
               </a>
@@ -96,7 +144,7 @@
             </td>
           </tr>
           <tr *ngIf="filtrados.length === 0">
-            <td colspan="6" class="empty-state">Nenhuma atividade encontrada</td>
+            <td [attr.colspan]="isFromMenu ? 7 : 10" class="empty-state">Nenhuma atividade encontrada</td>
           </tr>
         </tbody>
       </table>
