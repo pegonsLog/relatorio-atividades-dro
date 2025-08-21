@@ -131,6 +131,11 @@
             <span class="text-muted">Obs.: </span>
             <span class="text-break">{{ a.observacoes }}</span>
           </div>
+          <!-- Contagens de itens vinculados -->
+          <div class="d-flex gap-2 flex-wrap mt-2 small">
+            <span class="badge badge-roxo">Produtividades: {{ getQtdProd(a) }}</span>
+            <span class="badge badge-amarelo">Ocorrências: {{ getQtdOcor(a) }}</span>
+          </div>
           <div class="d-flex justify-content-end gap-2 mt-3">
             <a class="btn btn-sm btn-outline-success"
                [routerLink]="['/item-atividade', a.idAtividade]" [queryParamsHandling]="'preserve'">

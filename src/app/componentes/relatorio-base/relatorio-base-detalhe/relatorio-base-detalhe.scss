@@ -13,3 +13,16 @@
   background-color: #e9f5ff;
   color: #0366d6;
 }
+
+/* Badges personalizados */
+.badge.badge-roxo {
+  background-color: transparent;
+  color: #6f42c1; /* roxo */
+  border: 1px solid #6f42c1;
+}
+
+.badge.badge-amarelo {
+  background-color: transparent !important;
+  color: #8a6d00; /* amarelo escuro p/ contraste */
+  border: 1px solid #ffeb3b; /* amarelo */
+}

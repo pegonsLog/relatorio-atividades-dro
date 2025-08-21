@@ -6,6 +6,8 @@ import { RelatorioBaseService } from '../../../services/relatorio-base.service';
 import { ItemAtividade } from '../../../models/item-atividade.interface';
 import { ItemAtividadeService } from '../../../services/item-atividade.service';
 import { ItemAtividadeForm } from '../../item-atividade/item-atividade-form/item-atividade-form';
+import { ItemProdutividadeService } from '../../../services/item-produtividade.service';
+import { ItemOcorrenciaService } from '../../../services/item-ocorrencia.service';
 
 @Component({
   selector: 'app-relatorio-base-detalhe',
@@ -19,6 +21,8 @@ export class RelatorioBaseDetalhe implements OnInit {
   private readonly router = inject(Router);
   private readonly relatorioService = inject(RelatorioBaseService);
   private readonly atividadeService = inject(ItemAtividadeService);
+  private readonly produtividadeService = inject(ItemProdutividadeService);
+  private readonly ocorrenciaService = inject(ItemOcorrenciaService);
 
   idRelatorio!: string;
   relatorio: RelatorioBase | null = null;
@@ -30,6 +34,9 @@ export class RelatorioBaseDetalhe implements OnInit {
   showDeleteModal = false;
   toDelete: string | number | null = null;
   deleting = false;
+  // Contagens por atividade
+  contagemProd: { [idAtividade: string]: number } = {};
+  contagemOcor: { [idAtividade: string]: number } = {};
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(pm => {
@@ -47,6 +54,25 @@ export class RelatorioBaseDetalhe implements OnInit {
 
       this.atividadeService.getAtividades().subscribe(list => {
         this.atividades = (list || []).filter(a => String(a.idRelatorio) === id);
+      });
+
+      // Subscrever itens de produtividade e ocorrência para manter contagens atualizadas
+      this.produtividadeService.getItens().subscribe(itens => {
+        const map: { [k: string]: number } = {};
+        for (const it of itens || []) {
+          const key = String((it as any).idAtividade ?? '');
+          if (key) map[key] = (map[key] || 0) + 1;
+        }
+        this.contagemProd = map;
+      });
+
+      this.ocorrenciaService.getItens().subscribe(itens => {
+        const map: { [k: string]: number } = {};
+        for (const it of itens || []) {
+          const key = String((it as any).idAtividade ?? '');
+          if (key) map[key] = (map[key] || 0) + 1;
+        }
+        this.contagemOcor = map;
       });
     });
   }
@@ -89,6 +115,17 @@ export class RelatorioBaseDetalhe implements OnInit {
   toNumber(value: any): number {
     const n = Number(value);
     return Number.isFinite(n) ? n : 0;
+  }
+
+  // Quantidades por atividade
+  getQtdProd(a: ItemAtividade): number {
+    const key = String(a?.idAtividade ?? '');
+    return this.contagemProd[key] || 0;
+  }
+
+  getQtdOcor(a: ItemAtividade): number {
+    const key = String(a?.idAtividade ?? '');
+    return this.contagemOcor[key] || 0;
   }
 
   // Modal de exclusão de atividade
