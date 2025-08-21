@@ -25,7 +25,13 @@
 
     <div class="col-12 col-md-4">
       <label class="form-label">Turno</label>
-      <input type="text" class="form-control" formControlName="turno" />
+      <select class="form-select" formControlName="turno">
+        <option value="" disabled>Selecione...</option>
+        <option value="MANHÃ">MANHÃ</option>
+        <option value="TARDE">TARDE</option>
+        <option value="MADRUGADA">MADRUGADA</option>
+        <option value="ADMINISTRATIVO">ADMINISTRATIVO</option>
+      </select>
     </div>
 
     <div class="col-12 col-md-4">
