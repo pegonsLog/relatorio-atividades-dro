@@ -67,3 +67,30 @@
 .link:hover {
   text-decoration: underline;
 }
+
+/* Cabeçalho responsivo (título e botões) */
+.page-header {
+  width: 100%;
+}
+
+.page-header .page-title {
+  flex: 1 1 auto;
+  min-width: 0; /* habilita text-truncate */
+}
+
+.page-header .btn {
+  white-space: nowrap;
+}
+
+/* Botões menores no mobile */
+@media (max-width: 576px) {
+  .btn--responsive {
+    padding: .25rem .5rem;
+    font-size: .875rem;
+    line-height: 1.25;
+  }
+
+  .btn--responsive i {
+    font-size: 1rem;
+  }
+}

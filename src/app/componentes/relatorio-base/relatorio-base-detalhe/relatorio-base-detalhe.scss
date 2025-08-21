@@ -26,3 +26,31 @@
   color: #8a6d00; /* amarelo escuro p/ contraste */
   border: 1px solid #ffeb3b; /* amarelo */
 }
+
+/* Cabeçalho responsivo do detalhe */
+.page-header {
+  width: 100%;
+}
+
+.page-header .page-title {
+  /* Permite que o título encolha e aplique ellipsis */
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.page-header .btn {
+  white-space: nowrap; /* evita quebra de linha dentro do botão */
+}
+
+/* Redução de tamanho dos botões no mobile */
+@media (max-width: 576px) {
+  .btn--responsive {
+    padding: .25rem .5rem;
+    font-size: .875rem; /* ~14px */
+    line-height: 1.25;
+  }
+
+  .btn--responsive i {
+    font-size: 1rem; /* ícone um pouco menor */
+  }
+}
