@@ -72,9 +72,9 @@
             <div class="col-12">
               <label class="form-label">Período</label>
               <div class="d-flex gap-2">
-                <input class="form-control" type="date" [(ngModel)]="reportFilter.dataInicio" appAutoFocus />
+                <input class="form-control" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" pattern="\d{2}/\d{2}/\d{4}" title="Formato: dd/mm/aaaa" [(ngModel)]="reportFilter.dataInicio" (input)="onDateInput('dataInicio', $event)" appAutoFocus />
                 <span class="align-self-center">até</span>
-                <input class="form-control" type="date" [(ngModel)]="reportFilter.dataFim" />
+                <input class="form-control" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" pattern="\d{2}/\d{2}/\d{4}" title="Formato: dd/mm/aaaa" [(ngModel)]="reportFilter.dataFim" (input)="onDateInput('dataFim', $event)" />
               </div>
             </div>
             <div class="col-md-6">

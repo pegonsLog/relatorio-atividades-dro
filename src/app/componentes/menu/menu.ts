@@ -136,10 +136,53 @@ export class Menu implements OnInit {
     turno: '',    // '' = Todos
   };
 
+  private isValidBRDate(s: string): boolean {
+    if (!s) return false;
+    const str = s.trim();
+    const re = /^\d{2}\/\d{2}\/\d{4}$/;
+    if (!re.test(str)) return false;
+    const [dd, mm, yyyy] = str.split('/').map(n => Number(n));
+    const d = new Date(yyyy, mm - 1, dd);
+    if (Number.isNaN(d.getTime())) return false;
+    return d.getFullYear() === yyyy && (d.getMonth() + 1) === mm && d.getDate() === dd;
+  }
+
+  private brToDate(s: string): Date | null {
+    if (!this.isValidBRDate(s)) return null;
+    const [dd, mm, yyyy] = s.split('/').map(n => Number(n));
+    return new Date(yyyy, mm - 1, dd);
+  }
+
+  private brToISO(s: string): string | null {
+    const d = this.brToDate(s);
+    if (!d) return null;
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  onDateInput(field: 'dataInicio' | 'dataFim', event: Event) {
+    const input = event.target as HTMLInputElement;
+    let v = (input.value || '').replace(/\D/g, '');
+    // limita a 8 dígitos (ddMMyyyy)
+    if (v.length > 8) v = v.slice(0, 8);
+    // insere barras
+    if (v.length > 4) {
+      v = v.replace(/(\d{2})(\d{2})(\d{0,4}).*/, '$1/$2/$3');
+    } else if (v.length > 2) {
+      v = v.replace(/(\d{2})(\d{0,2}).*/, '$1/$2');
+    }
+    input.value = v;
+    this.reportFilter[field] = v;
+  }
+
   get reportFiltersValid(): boolean {
     const { dataInicio, dataFim } = this.reportFilter;
-    if (!dataInicio || !dataFim) return false;
-    return dataInicio <= dataFim;
+    if (!this.isValidBRDate(dataInicio) || !this.isValidBRDate(dataFim)) return false;
+    const di = this.brToDate(dataInicio)!;
+    const df = this.brToDate(dataFim)!;
+    return di.getTime() <= df.getTime();
   }
 
   openReportFilterModal(route: string) {
@@ -154,9 +197,11 @@ export class Menu implements OnInit {
   confirmReportFilters() {
     if (!this.selectedReportRoute || !this.reportFiltersValid) return;
     const { dataInicio, dataFim, gerencia, turno } = this.reportFilter;
+    const dataInicioISO = this.brToISO(dataInicio)!;
+    const dataFimISO = this.brToISO(dataFim)!;
     const queryParams: any = {
-      dataInicio,
-      dataFim,
+      dataInicio: dataInicioISO,
+      dataFim: dataFimISO,
       gerencia: gerencia || undefined,
       turno: turno || undefined,
       fromMenu: 1,
