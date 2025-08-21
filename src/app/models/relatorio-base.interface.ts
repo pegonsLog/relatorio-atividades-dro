@@ -9,4 +9,7 @@ export interface RelatorioBase {
   coord: number;
   superv: number;
   createdAt?: Date;
+  updatedAt?: Date;
+  criadoPor?: string;
+  modificadoPor?: string;
 }

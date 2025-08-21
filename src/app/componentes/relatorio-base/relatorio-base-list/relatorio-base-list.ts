@@ -40,7 +40,7 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
   readonly pageSizes = [5, 10, 20, 50];
 
   // Ordenação
-  sortKey: 'data' | 'gerencia' | 'turno' | 'mat1' | 'mat2' | 'coord' | 'superv' = 'data';
+  sortKey: 'createdAt' | 'data' | 'gerencia' | 'turno' | 'mat1' | 'mat2' | 'coord' | 'superv' = 'createdAt';
   sortDir: 'asc' | 'desc' = 'desc';
 
   // Debounce do filtro
@@ -70,7 +70,7 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
       this.pageSize = this.pageSizes.includes(ps) ? ps : this.pageSize;
       const sk = qp.get('sortKey') as any;
       const sd = qp.get('sortDir') as any;
-      const allowed: string[] = ['data','gerencia','turno','mat1','mat2','coord','superv'];
+      const allowed: string[] = ['createdAt','data','gerencia','turno','mat1','mat2','coord','superv'];
       if (sk && allowed.includes(sk)) this.sortKey = sk;
       if (sd && ['asc','desc'].includes(sd)) this.sortDir = sd;
     });
@@ -137,6 +137,10 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
       let va: any;
       let vb: any;
       switch (this.sortKey) {
+        case 'createdAt':
+          va = new Date(a.createdAt as any).getTime() || 0;
+          vb = new Date(b.createdAt as any).getTime() || 0;
+          break;
         case 'data':
           va = new Date(a.data).getTime();
           vb = new Date(b.data).getTime();
@@ -234,7 +238,8 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
       q: this.filtro?.trim() ? this.filtro.trim() : undefined,
       page: this.page !== 1 ? this.page : undefined,
       pageSize: this.pageSize !== 10 ? this.pageSize : undefined,
-      sortKey: this.sortKey !== 'data' ? this.sortKey : undefined,
+      // 'createdAt' é o padrão inicial; só grava se diferente disso
+      sortKey: this.sortKey !== 'createdAt' ? this.sortKey : undefined,
       // 'desc' é o padrão inicial; só grava se diferente disso
       sortDir: this.sortDir !== 'desc' ? this.sortDir : undefined,
       gerencia: this.filterGerencia || undefined,

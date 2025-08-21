@@ -159,3 +159,43 @@ app-root {
   color: #6c757d; // text-muted
   padding: 1.5rem; // py-4
 }
+
+// Ocultar botões/ícones de calendário dos inputs de data (global)
+// Chrome/Edge/Safari (WebKit/Chromium)
+input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none;
+}
+input[type="date"]::-webkit-clear-button,
+input[type="date"]::-webkit-inner-spin-button {
+  display: none !important;
+}
+input[type="date"] {
+  appearance: textfield;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+
+// Firefox
+input[type="date"]::-moz-focus-inner { border: 0; }
+input[type="date"]::-moz-calendar-picker-indicator { display: none !important; }
+
+// Ocultar ícones/botões de relógio dos inputs de hora (global)
+// Chrome/Edge/Safari (WebKit/Chromium)
+input[type="time"]::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none;
+}
+input[type="time"]::-webkit-clear-button,
+input[type="time"]::-webkit-inner-spin-button {
+  display: none !important;
+}
+input[type="time"] {
+  appearance: textfield;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+
+// Firefox
+input[type="time"]::-moz-focus-inner { border: 0; }
+input[type="time"]::-moz-calendar-picker-indicator { display: none !important; }

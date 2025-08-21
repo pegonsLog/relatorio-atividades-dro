@@ -4,11 +4,13 @@ import { RelatorioBase } from '../models';
 import { Firestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from '@angular/fire/firestore';
 import { ItemAtividadeService } from './item-atividade.service';
 import { ItemProdutividadeService } from './item-produtividade.service';
+import { UserContextService } from './user-context.service';
 
 @Injectable({ providedIn: 'root' })
 export class RelatorioBaseService {
   private readonly subject = new BehaviorSubject<RelatorioBase[]>([]);
   private injector = inject(Injector);
+  private readonly userCtx = inject(UserContextService);
 
   constructor(private firestore: Firestore, private atvService: ItemAtividadeService, private prodService: ItemProdutividadeService) {
     this.loadFromFirestore();
@@ -30,17 +32,27 @@ export class RelatorioBaseService {
 
   // CREATE
   create(relatorio: RelatorioBase): void {
+    const userId = this.userCtx.getCurrentUserId() || undefined;
     const relatorioData = {
       ...relatorio,
       idRelatorio: (relatorio as any)?.idRelatorio ?? '',
       createdAt: new Date(),
       updatedAt: new Date(),
+      criadoPor: userId,
+      modificadoPor: userId,
     } as any;
 
     const relatoriosRef = collection(this.firestore, 'relatorio-base');
     from(addDoc(relatoriosRef, relatorioData)).subscribe({
       next: (docRef) => {
-        const novo: RelatorioBase = { ...relatorio, idRelatorio: docRef.id, createdAt: relatorioData.createdAt };
+        const novo: RelatorioBase = {
+          ...relatorio,
+          idRelatorio: docRef.id,
+          createdAt: relatorioData.createdAt,
+          updatedAt: relatorioData.updatedAt,
+          criadoPor: relatorioData.criadoPor,
+          modificadoPor: relatorioData.modificadoPor,
+        };
         this.subject.next([...this.subject.value, novo]);
       },
       error: (error) => console.error('Erro ao criar relatório base:', error),
@@ -49,10 +61,12 @@ export class RelatorioBaseService {
 
   // UPDATE
   update(id: string | number, relatorio: RelatorioBase): void {
+    const userId = this.userCtx.getCurrentUserId() || undefined;
     const data = {
       ...relatorio,
       idRelatorio: (relatorio as any)?.idRelatorio ?? '',
       updatedAt: new Date(),
+      modificadoPor: userId,
     } as any;
 
     const ref = doc(this.firestore, 'relatorio-base', String(id));
@@ -61,7 +75,7 @@ export class RelatorioBaseService {
         const arr = [...this.subject.value];
         const i = arr.findIndex(r => r.idRelatorio === id);
         if (i !== -1) {
-          arr[i] = { ...relatorio, idRelatorio: id };
+          arr[i] = { ...arr[i], ...relatorio, idRelatorio: id, updatedAt: data.updatedAt, modificadoPor: data.modificadoPor } as RelatorioBase;
           this.subject.next(arr);
         }
       },
@@ -123,6 +137,9 @@ export class RelatorioBaseService {
             coord: data['coord'] || 0,
             superv: data['superv'] || 0,
             createdAt: data['createdAt']?.toDate?.() || data['createdAt'] || undefined,
+            updatedAt: data['updatedAt']?.toDate?.() || data['updatedAt'] || undefined,
+            criadoPor: data['criadoPor'] || undefined,
+            modificadoPor: data['modificadoPor'] || undefined,
           });
         });
 

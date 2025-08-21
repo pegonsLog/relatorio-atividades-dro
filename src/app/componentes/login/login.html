@@ -1,0 +1,21 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-sm-8 col-md-5 col-lg-4">
+      <h1 class="h4 mb-3">Entrar</h1>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="vstack gap-3">
+        <div>
+          <label class="form-label">Matrícula</label>
+          <input type="number" class="form-control" formControlName="matricula" placeholder="Digite sua matrícula" />
+        </div>
+        <div>
+          <label class="form-label">Senha</label>
+          <input type="password" class="form-control" formControlName="senha" placeholder="Digite sua senha" />
+        </div>
+        <div *ngIf="errorMsg" class="alert alert-danger py-2">{{ errorMsg }}</div>
+        <button type="submit" class="btn btn-primary w-100" [disabled]="loading || form.invalid">
+          {{ loading ? 'Entrando...' : 'Entrar' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

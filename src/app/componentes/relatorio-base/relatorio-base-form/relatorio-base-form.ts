@@ -28,7 +28,7 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
     diaSemana: ['', [Validators.required]],
     turno: ['', [Validators.required]],
     mat1: [null, [Validators.required]],
-    mat2: [null, [Validators.required]],
+    mat2: [null],
     coord: [null, [Validators.required]],
     superv: [null, [Validators.required]],
   });

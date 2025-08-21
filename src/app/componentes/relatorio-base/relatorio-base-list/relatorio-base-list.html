@@ -66,6 +66,7 @@
                       <i class="mdi" [ngClass]="sortKey==='superv' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
                     </button>
                   </th>
+                  <th class="text-nowrap">Criado por</th>
                   <th class="text-end text-nowrap">Ações</th>
                 </tr>
               </thead>
@@ -78,14 +79,20 @@
                   <td class="text-nowrap">{{ r.mat2 }}</td>
                   <td class="text-nowrap">{{ r.coord }}</td>
                   <td class="text-nowrap">{{ r.superv }}</td>
-                  <td class="text-end">
-                    <a class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/relatorio-base', r.idRelatorio!]" [queryParamsHandling]="'preserve'"><i class="mdi mdi-eye"></i></a>
-                    <button class="btn btn-sm btn-outline-secondary me-1" (click)="startEdit(r)"><i class="mdi mdi-pencil"></i></button>
-                    <button class="btn btn-sm btn-outline-danger" (click)="openDelete(r.idRelatorio!)"><i class="mdi mdi-delete"></i></button>
+                  <td class="text-nowrap">{{ r.criadoPor || '-' }}</td>
+                  <td class="text-end actions-cell">
+                    <a class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/relatorio-base', r.idRelatorio!]" [queryParamsHandling]="'preserve'" title="Detalhe">
+                      <i class="mdi mdi-eye"></i>
+                    </a>
+                    <a class="btn btn-sm btn-outline-success me-1" [routerLink]="['/relatorio-base', r.idRelatorio!, 'documento']" [queryParamsHandling]="'preserve'" title="Documento">
+                      <i class="mdi mdi-file-document-outline"></i>
+                    </a>
+                    <button class="btn btn-sm btn-outline-secondary me-1" (click)="startEdit(r)" title="Editar"><i class="mdi mdi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="openDelete(r.idRelatorio!)" title="Excluir"><i class="mdi mdi-delete"></i></button>
                   </td>
                 </tr>
                 <tr *ngIf="filtrados.length === 0">
-                  <td colspan="8" class="text-center text-muted p-3">Nenhum relatório encontrado</td>
+                  <td colspan="9" class="text-center text-muted p-3">Nenhum relatório encontrado</td>
                 </tr>
               </tbody>
             </table>

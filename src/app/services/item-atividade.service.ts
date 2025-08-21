@@ -50,7 +50,12 @@ export class ItemAtividadeService extends CrudStore<ItemAtividade> {
     const atividadesRef = collection(this.firestore, 'item-atividade');
     from(addDoc(atividadesRef, atividadeData)).subscribe({
       next: (docRef) => {
-        const newItem = { ...item, idAtividade: docRef.id } as ItemAtividade;
+        const newItem = {
+          ...item,
+          idAtividade: docRef.id,
+          createdAt: atividadeData.createdAt,
+          updatedAt: atividadeData.updatedAt
+        } as ItemAtividade;
         const currentItems = this.subject.value;
         this.subject.next([...currentItems, newItem]);
       },
@@ -85,7 +90,12 @@ export class ItemAtividadeService extends CrudStore<ItemAtividade> {
         const currentItems = this.subject.value;
         const index = currentItems.findIndex((item: ItemAtividade) => item.idAtividade === id);
         if (index !== -1) {
-          currentItems[index] = { ...item, idAtividade: id };
+          currentItems[index] = {
+            ...currentItems[index],
+            ...item,
+            idAtividade: id,
+            updatedAt: atividadeData.updatedAt
+          } as ItemAtividade;
           this.subject.next([...currentItems]);
         }
       },
@@ -186,7 +196,9 @@ export class ItemAtividadeService extends CrudStore<ItemAtividade> {
             qtdAgentes: data['qtdAgentes'] || 0,
             local: data['local'] || '',
             observacoes: data['observacoes'] || '',
-            data: data['data']?.toDate?.() || data['data'] || new Date()
+            data: data['data']?.toDate?.() || data['data'] || new Date(),
+            createdAt: data['createdAt']?.toDate?.() || data['createdAt'] || undefined,
+            updatedAt: data['updatedAt']?.toDate?.() || data['updatedAt'] || undefined
           } as ItemAtividade);
         });
         // console removido

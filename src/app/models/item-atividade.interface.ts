@@ -12,4 +12,6 @@ export interface ItemAtividade {
   local: string;
   observacoes: string;
   data: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

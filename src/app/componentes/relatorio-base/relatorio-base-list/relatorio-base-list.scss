@@ -8,3 +8,17 @@
 button.btn i { vertical-align: middle; }
 
 /* Layout empilhado: form e lista 100% (sem regras adicionais) */
+
+/* Ações na horizontal no mobile */
+@media (max-width: 767.98px) {
+  td.actions-cell {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* compatível com .text-end */
+    gap: .25rem; /* ~ me-1 */
+    white-space: nowrap; /* não quebrar linha */
+  }
+  td.actions-cell .btn {
+    flex: 0 0 auto;
+  }
+}

@@ -1,8 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AutoFocusDirective } from '../../shared/auto-focus.directive';
+import { AuthService } from '../../services/auth.service';
+import { UserContextService } from '../../services/user-context.service';
+import { UsuariosService } from '../../services/usuarios.service';
+import { firstValueFrom } from 'rxjs';
 
 interface MenuItem {
   icon: string;
@@ -16,8 +20,16 @@ interface MenuItem {
   templateUrl: './menu.html',
   styleUrls: ['./menu.scss']
 })
-export class Menu {
-  constructor(private router: Router) {}
+export class Menu implements OnInit {
+  constructor(
+    private router: Router,
+    private auth: AuthService,
+    private userContext: UserContextService,
+    private usuarios: UsuariosService,
+  ) {}
+
+  displayName = '';
+  displayPerfil = '';
 
   protected readonly menuItems = signal<MenuItem[]>([
     {
@@ -91,6 +103,7 @@ export class Menu {
       this.openReportFilterModal(item.route);
       return;
     }
+    // Demais itens não precisam de ação extra aqui
   }
 
   openRelatorioBaseModal() {
@@ -155,5 +168,36 @@ export class Menu {
   // Usado no template para decidir se navega direto ou abre modal
   requiresDirectNav(route: string): boolean {
     return !['/relatorio-base', '/item-atividade', '/item-produtividade', '/item-ocorrencia'].includes(route);
+  }
+
+  logout(): void {
+    this.auth.logout();
+    this.router.navigate(['/login']);
+  }
+
+  async ngOnInit(): Promise<void> {
+    await this.loadUserInfo();
+  }
+
+  private async loadUserInfo(): Promise<void> {
+    try {
+      const name = (localStorage.getItem('dro.currentUserName') || '').trim();
+      const perfil = (localStorage.getItem('dro.currentUserPerfil') || '').trim();
+      if (name || perfil) {
+        this.displayName = name || 'Usuário';
+        this.displayPerfil = perfil || '';
+        return;
+      }
+
+      const id = this.userContext.getCurrentUserId();
+      if (!id) return;
+      const usuario = await firstValueFrom(this.usuarios.getByMatricula(Number(id)));
+      if (usuario) {
+        this.displayName = (usuario.nome || 'Usuário').trim();
+        this.displayPerfil = (usuario.perfil || '').trim();
+      }
+    } catch {
+      // silencioso
+    }
   }
 }

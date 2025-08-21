@@ -67,17 +67,6 @@
       </div>
 
       <div class="form-group">
-        <label for="qtdAgentes">Quantidade de Agentes *</label>
-        <input type="number" id="qtdAgentes" formControlName="qtdAgentes" class="form-control"
-               [class.is-invalid]="isFieldInvalid('qtdAgentes')" placeholder="Número de agentes">
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('qtdAgentes')">
-          {{ getFieldError('qtdAgentes') }}
-        </div>
-      </div>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
         <label for="codAtv">Código da Atividade *</label>
         <select id="codAtv" formControlName="codAtv" class="form-control"
                 [class.is-invalid]="isFieldInvalid('codAtv')">
@@ -88,6 +77,17 @@
         </select>
         <div class="invalid-feedback" *ngIf="isFieldInvalid('codAtv')">
           {{ getFieldError('codAtv') }}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="qtdAgentes">Quantidade de Agentes *</label>
+        <input type="number" id="qtdAgentes" formControlName="qtdAgentes" class="form-control"
+               [class.is-invalid]="isFieldInvalid('qtdAgentes')" placeholder="Número de agentes">
+        <div class="invalid-feedback" *ngIf="isFieldInvalid('qtdAgentes')">
+          {{ getFieldError('qtdAgentes') }}
         </div>
       </div>
     </div>

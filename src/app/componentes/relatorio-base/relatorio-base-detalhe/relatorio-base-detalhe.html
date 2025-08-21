@@ -32,6 +32,10 @@
           <div class="fw-semibold">{{ relatorio!.createdAt ? (relatorio!.createdAt | date:'dd/MM/yyyy HH:mm') : '-' }}</div>
         </div>
         <div class="col-auto">
+          <div class="text-muted small">Atualizado em</div>
+          <div class="fw-semibold">{{ relatorio!.updatedAt ? (relatorio!.updatedAt | date:'dd/MM/yyyy HH:mm') : '-' }}</div>
+        </div>
+        <div class="col-auto">
           <div class="text-muted small">Mat. 1</div>
           <div class="fw-semibold">{{ relatorio!.mat1 }}</div>
         </div>
@@ -46,6 +50,14 @@
         <div class="col-auto">
           <div class="text-muted small">Superv.</div>
           <div class="fw-semibold">{{ relatorio!.superv }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Criado por</div>
+          <div class="fw-semibold">{{ relatorio!.criadoPor || '-' }}</div>
+        </div>
+        <div class="col-auto">
+          <div class="text-muted small">Modificado por</div>
+          <div class="fw-semibold">{{ relatorio!.modificadoPor || '-' }}</div>
         </div>
       </div>
     </div>

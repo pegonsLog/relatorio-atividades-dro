@@ -1,0 +1,107 @@
+/* Layout geral do documento A4 */
+.document-a4 {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 16mm 14mm;
+  background: white;
+  color: #111;
+  font-size: 12px;
+}
+
+.doc-header {
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.logo {
+  height: 42px;
+}
+
+.title {
+  font-size: 18px;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #666;
+}
+
+.doc-info .row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px 12px;
+  margin-bottom: 10px;
+}
+
+.doc-section {
+  margin-top: 14px;
+}
+
+.avoid-break {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.doc-section h2 {
+  font-size: 14px;
+  margin: 0 0 8px 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #ddd;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border: 1px solid #e5e5e5;
+  padding: 6px 8px;
+  vertical-align: top;
+}
+
+.table thead th {
+  background: #f6f7f9;
+}
+
+.text-end { text-align: right; }
+.text-center { text-align: center; }
+.text-muted { color: #6c757d; }
+.text-nowrap { white-space: nowrap; }
+
+.doc-footer {
+  margin-top: 18px;
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+  font-size: 11px;
+  color: #666;
+}
+
+/* Regras de impressão */
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .no-print { display: none !important; }
+  .document-a4 {
+    width: auto;
+    min-height: auto;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Evitar quebras dentro de blocos marcados */
+  .avoid-break { break-inside: avoid; page-break-inside: avoid; }
+
+  /* Garantir repetição de cabeçalho/rodapé de tabela ao imprimir */
+  table { page-break-inside: auto; }
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+  tr { page-break-inside: avoid; page-break-after: auto; }
+}

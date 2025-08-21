@@ -33,8 +33,8 @@ export class ItemAtividadeList implements OnInit {
   pageSize = 5;
   readonly pageSizes = [5, 10, 20, 50];
   // Ordenação
-  sortKey: 'idAtividade' | 'item' | 'local' | 'codAtv' | 'chegada' | 'nomeAtividade' | 'solucao' | 'saida' | 'qtdAgentes' = 'idAtividade';
-  sortDir: 'asc' | 'desc' = 'asc';
+  sortKey: 'idAtividade' | 'item' | 'local' | 'codAtv' | 'chegada' | 'nomeAtividade' | 'solucao' | 'saida' | 'qtdAgentes' | 'createdAt' = 'createdAt';
+  sortDir: 'asc' | 'desc' = 'desc';
   // Modal de exclusão
   showDeleteModal = false;
   selectedItemId: string | number | null = null;
@@ -71,7 +71,7 @@ export class ItemAtividadeList implements OnInit {
     this.pageSize = this.pageSizes.includes(ps) ? ps : this.pageSize;
     const sk = qp.get('sortKey') as any;
     const sd = qp.get('sortDir') as any;
-    if (sk && ['idAtividade','item','local','codAtv','chegada','nomeAtividade','solucao','saida','qtdAgentes'].includes(sk)) this.sortKey = sk;
+    if (sk && ['idAtividade','item','local','codAtv','chegada','nomeAtividade','solucao','saida','qtdAgentes','createdAt'].includes(sk)) this.sortKey = sk;
     if (sd && ['asc','desc'].includes(sd)) this.sortDir = sd;
 
     // Carregar lista do service
@@ -180,6 +180,10 @@ export class ItemAtividadeList implements OnInit {
           va = a.saida ? new Date(a.saida) : new Date(0); vb = b.saida ? new Date(b.saida) : new Date(0); break;
         case 'qtdAgentes':
           va = a.qtdAgentes ?? 0; vb = b.qtdAgentes ?? 0; break;
+        case 'createdAt':
+          va = a.createdAt ? new Date(a.createdAt).getTime() : (a.chegada ? new Date(a.chegada).getTime() : 0);
+          vb = b.createdAt ? new Date(b.createdAt).getTime() : (b.chegada ? new Date(b.chegada).getTime() : 0);
+          break;
       }
       if (va < vb) return -1 * dir;
       if (va > vb) return 1 * dir;
@@ -188,12 +192,12 @@ export class ItemAtividadeList implements OnInit {
     return arr;
   }
 
-  setSort(key: 'idAtividade' | 'item' | 'local' | 'codAtv' | 'chegada' | 'nomeAtividade' | 'solucao' | 'saida' | 'qtdAgentes') {
+  setSort(key: 'idAtividade' | 'item' | 'local' | 'codAtv' | 'chegada' | 'nomeAtividade' | 'solucao' | 'saida' | 'qtdAgentes' | 'createdAt') {
     if (this.sortKey === key) {
       this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
     } else {
       this.sortKey = key;
-      this.sortDir = 'asc';
+      this.sortDir = key === 'createdAt' ? 'desc' : 'asc';
     }
     this.goTo(1);
   }
@@ -214,8 +218,8 @@ export class ItemAtividadeList implements OnInit {
       q: this.filtro || undefined,
       page: this.page !== 1 ? this.page : undefined,
       pageSize: this.pageSize !== 5 ? this.pageSize : undefined,
-      sortKey: this.sortKey !== 'idAtividade' ? this.sortKey : undefined,
-      sortDir: this.sortDir !== 'asc' ? this.sortDir : undefined,
+      sortKey: this.sortKey !== 'createdAt' ? this.sortKey : undefined,
+      sortDir: this.sortDir !== 'desc' ? this.sortDir : undefined,
       // Preserva filtros vindos do menu
       dataInicio: this.dataInicioStr || undefined,
       dataFim: this.dataFimStr || undefined,

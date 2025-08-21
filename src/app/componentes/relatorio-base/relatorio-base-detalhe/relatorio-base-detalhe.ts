@@ -52,7 +52,12 @@ export class RelatorioBaseDetalhe implements OnInit {
   }
 
   get atividadesOrdenadas(): ItemAtividade[] {
-    return [...this.atividades].sort((a, b) => (a.item || 0) - (b.item || 0));
+    return [...this.atividades].sort((a, b) => {
+      const ta = (a?.createdAt ? new Date(a.createdAt).getTime() : a?.chegada ? new Date(a.chegada).getTime() : 0);
+      const tb = (b?.createdAt ? new Date(b.createdAt).getTime() : b?.chegada ? new Date(b.chegada).getTime() : 0);
+      // Descrescente: mais recente primeiro
+      return tb - ta;
+    });
   }
 
   get numericIdRelatorio(): number {

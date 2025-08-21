@@ -5,9 +5,17 @@
     </div>
 
     <div class="chart-wrapper">
-      <canvas #chartCanvas width="900" height="420" aria-label="Gráfico de barras por mês (Atividades por Código)" role="img"></canvas>
+      <ngx-charts-bar-vertical
+        [results]="g.results"
+        [xAxis]="true"
+        [yAxis]="true"
+        [legend]="false"
+        [showDataLabel]="true"
+        [animations]="true"
+        [scheme]="colorScheme">
+      </ngx-charts-bar-vertical>
     </div>
-    <div class="small text-muted mt-2" *ngIf="g.labels.length === 0">Sem dados para exibir.</div>
+    <div class="small text-muted mt-2" *ngIf="g.results.length === 0">Sem dados para exibir.</div>
   </div>
 
   <div class="small text-muted" *ngIf="chartGroups.length === 0">Sem dados para exibir.</div>

@@ -176,3 +176,10 @@
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
   opacity: 0.98;
 }
+
+// Utilitário: esconder no mobile
+@media (max-width: 767.98px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}

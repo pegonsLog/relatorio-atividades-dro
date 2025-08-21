@@ -68,6 +68,23 @@
       <option *ngFor="let a of agentes$ | async" [ngValue]="a.matricula">{{ a.matricula }} - {{ a.nome }}</option>
     </select>
   </div>
+  <!-- Campos de auditoria (somente leitura) -->
+  <div class="col-12" *ngIf="value">
+    <div class="row g-3 small text-muted">
+      <div class="col-12 col-md-auto">
+        <div>Criado em: <span class="fw-semibold">{{ value.createdAt ? (value.createdAt | date:'dd/MM/yyyy HH:mm') : '-' }}</span></div>
+      </div>
+      <div class="col-12 col-md-auto">
+        <div>Criado por: <span class="fw-semibold">{{ value.criadoPor || '-' }}</span></div>
+      </div>
+      <div class="col-12 col-md-auto">
+        <div>Atualizado em: <span class="fw-semibold">{{ value.updatedAt ? (value.updatedAt | date:'dd/MM/yyyy HH:mm') : '-' }}</span></div>
+      </div>
+      <div class="col-12 col-md-auto">
+        <div>Modificado por: <span class="fw-semibold">{{ value.modificadoPor || '-' }}</span></div>
+      </div>
+    </div>
+  </div>
   <div class="col-12 d-flex gap-2">
     <button type="submit" class="btn btn-primary" [disabled]="saving">{{ value?.idRelatorio ? 'Salvar' : 'Salvar' }}</button>
     <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">Cancelar</button>

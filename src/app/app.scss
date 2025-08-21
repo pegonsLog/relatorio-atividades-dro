@@ -116,3 +116,23 @@
 
 // Layout otimizado para desktop apenas
 // Sem necessidade de media queries para mobile
+
+@media (max-width: 575.98px) {
+  mat-toolbar span {
+    font-size: 0.95rem; // título um pouco menor no mobile
+  }
+}
+
+// Ajustes do Navbar (Bootstrap)
+.navbar .navbar-brand {
+  white-space: normal;      // permitir quebra de linha
+  overflow-wrap: anywhere;  // quebrar palavras longas
+  word-break: break-word;   // fallback
+  line-height: 1.2;
+}
+
+@media (max-width: 575.98px) {
+  .navbar .navbar-brand {
+    font-size: 1rem;
+  }
+}
