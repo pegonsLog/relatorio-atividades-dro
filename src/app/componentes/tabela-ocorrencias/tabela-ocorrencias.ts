@@ -54,6 +54,11 @@ export class TabelaOcorrenciasComponent implements OnInit {
     this.goTo(1);
   }
 
+  onFilterChange() {
+    // Sempre que o filtro mudar, voltamos para a primeira página
+    this.goTo(1);
+  }
+
   // Lista ordenada
   get sorted(): TabelaOcorrencia[] {
     const arr = [...this.filtrados];
