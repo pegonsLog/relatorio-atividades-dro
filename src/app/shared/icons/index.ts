@@ -1,0 +1,1 @@
+export { HeroIconComponent } from './heroicons';

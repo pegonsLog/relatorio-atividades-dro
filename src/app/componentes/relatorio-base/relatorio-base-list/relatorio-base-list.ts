@@ -6,11 +6,12 @@ import { RelatorioBaseService } from '../../../services/relatorio-base.service';
 import { RelatorioBaseFormComponent } from '../relatorio-base-form/relatorio-base-form';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HeroIconComponent } from '../../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-relatorio-base-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, RelatorioBaseFormComponent],
+  imports: [CommonModule, RouterModule, FormsModule, RelatorioBaseFormComponent, HeroIconComponent],
   templateUrl: './relatorio-base-list.html',
   styleUrls: ['./relatorio-base-list.scss']
 })
@@ -70,9 +71,9 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
       this.pageSize = this.pageSizes.includes(ps) ? ps : this.pageSize;
       const sk = qp.get('sortKey') as any;
       const sd = qp.get('sortDir') as any;
-      const allowed: string[] = ['createdAt','data','gerencia','turno','mat1','mat2','coord','superv'];
+      const allowed: string[] = ['createdAt', 'data', 'gerencia', 'turno', 'mat1', 'mat2', 'coord', 'superv'];
       if (sk && allowed.includes(sk)) this.sortKey = sk;
-      if (sd && ['asc','desc'].includes(sd)) this.sortDir = sd;
+      if (sd && ['asc', 'desc'].includes(sd)) this.sortDir = sd;
     });
 
     this.service.getRelatorios$().subscribe(list => {

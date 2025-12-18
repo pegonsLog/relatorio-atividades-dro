@@ -4,13 +4,14 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UsuariosService } from '../../services/usuarios.service';
 import { Usuario } from '../../models/usuario.interface';
+import { HeroIconComponent } from '../../shared/icons/heroicons';
 import { of } from 'rxjs';
 import { switchMap, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-usuario-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, HeroIconComponent],
   templateUrl: './usuario-form.html',
   styleUrl: './usuario-form.scss'
 })
@@ -46,13 +47,11 @@ export class UsuarioForm implements OnInit {
       )
       .subscribe((u) => {
         if (u) {
-          // Normaliza perfil se vier como 'Usuario' (sem acento)
           const perfilRaw = (u as any).perfil as string;
           const perfilNorm: Usuario['perfil'] = perfilRaw === 'Usuario' ? 'Usuário' : (perfilRaw === 'Admin' ? 'Admin' : 'Usuário');
           const { matricula, nome, senha, ativo } = u as Usuario;
           this.form.patchValue({ matricula, nome, senha, perfil: perfilNorm, ativo });
         } else if (this.editing) {
-          // Registro não encontrado ao tentar editar
           this.router.navigate(['/usuarios']);
         }
       });
@@ -73,12 +72,8 @@ export class UsuarioForm implements OnInit {
         await this.service.create(value);
       }
       this.router.navigate(['/usuarios']);
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) { console.error(e); }
   }
 
-  cancelar() {
-    this.router.navigate(['/usuarios']);
-  }
+  cancelar() { this.router.navigate(['/usuarios']); }
 }

@@ -1,212 +1,239 @@
-<div class="container-fluid py-3" *ngIf="atividade as a; else carregando">
-  <div class="page-header d-flex flex-column flex-sm-row gap-2 justify-content-between align-items-start align-items-sm-center mb-3">
-    <h2 class="h5 mb-0 page-title text-truncate d-none d-sm-block" [title]="'Atividade Item: ' + a.item">Atividade Item: {{ a.item }}</h2>
-    <div class="d-flex gap-2 flex-wrap">
-      <a class="btn btn-outline-secondary btn--responsive" (click)="voltarRelatorio()"><i class="mdi mdi-arrow-left"></i><span class="d-none d-sm-inline"> Voltar para Atividade</span></a>
-      <a class="btn btn-outline-secondary btn--responsive" [routerLink]="['/menu']"><i class="mdi mdi-home-outline"></i><span class="d-none d-sm-inline"> Voltar para o menu</span></a>
+<div class="page-container" *ngIf="atividade as a; else carregando">
+  <div class="page-header">
+    <div class="page-title">
+      <h1>Atividade Item: {{ a.item }}</h1>
+      <p class="page-subtitle">Detalhes e itens vinculados</p>
     </div>
-
-<!-- Modal de confirmação de exclusão do item de ocorrência -->
-<div *ngIf="showDeleteOcorModal">
-  <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Confirmar exclusão</h5>
-          <button type="button" class="btn-close" aria-label="Close" (click)="closeDeleteOcor()" [disabled]="deletingOcor"></button>
-        </div>
-        <div class="modal-body">
-          <p>Tem certeza que deseja excluir o item de ocorrência <strong>#{{ toDeleteOcor }}</strong>?</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeDeleteOcor()" [disabled]="deletingOcor">Cancelar</button>
-          <button type="button" class="btn btn-danger" (click)="confirmDeleteOcor()" [disabled]="deletingOcor">
-            <span *ngIf="!deletingOcor">Excluir</span>
-            <span *ngIf="deletingOcor" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            <span *ngIf="deletingOcor" class="ms-2">Excluindo...</span>
-          </button>
-        </div>
-      </div>
+    <div class="page-actions">
+      <button class="btn btn-outline-secondary" (click)="voltarRelatorio()">
+        <hero-icon name="arrow-left" size="1.125rem"></hero-icon>
+        <span class="d-none d-sm-inline">Voltar</span>
+      </button>
+      <a class="btn btn-outline-secondary" [routerLink]="['/menu']">
+        <hero-icon name="home" size="1.125rem"></hero-icon>
+        <span class="d-none d-sm-inline">Menu</span>
+      </a>
     </div>
-  </div>
-  <div class="modal-backdrop fade show"></div>
-  
-</div>
   </div>
 
   <!-- Resumo da Atividade -->
-  <div class="card mb-3">
+  <div class="card summary-card">
     <div class="card-body">
-      <div class="row g-3 align-items-center flex-nowrap overflow-auto justify-content-between">
-        <div class="col-auto" hidden>
-          <div class="text-muted small">Item</div>
-          <div class="fw-semibold">{{ a.item }}</div>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-label">Local</span>
+          <span class="summary-value">{{ a.local || '-' }}</span>
         </div>
-        <div class="col-auto">
-          <div class="text-muted small">Local</div>
-          <div class="fw-semibold">{{ a.local }}</div>
+        <div class="summary-item">
+          <span class="summary-label">Atividade</span>
+          <span class="summary-value">
+            <span class="badge badge-info">{{ a.codAtv }}</span>
+            <span *ngIf="a.nomeAtividade">{{ a.nomeAtividade }}</span>
+          </span>
         </div>
-        <div class="col-auto">
-          <div class="text-muted small">Atividade</div>
-          <div class="fw-semibold">
-            <span class="badge text-bg-info">{{ a.codAtv }}</span>
-            <span class="ms-2" *ngIf="a.nomeAtividade">{{ a.nomeAtividade }}</span>
-          </div>
+        <div class="summary-item">
+          <span class="summary-label">Data</span>
+          <span class="summary-value">{{ a.data | date:'dd/MM/yyyy, EEEE' }}</span>
         </div>
-        <div class="col-auto">
-          <div class="text-muted small">Data</div>
-          <div class="fw-semibold">{{ a.data | date:'dd/MM/yyyy, EEEE' }}</div>
+        <div class="summary-item">
+          <span class="summary-label">Chegada</span>
+          <span class="summary-value">{{ a.chegada | date:'HH:mm' }}</span>
         </div>
-        <div class="col-auto">
-          <div class="text-muted small">Chegada</div>
-          <div class="fw-semibold">{{ a.chegada | date:'HH:mm' }}</div>
+        <div class="summary-item">
+          <span class="summary-label">Solução</span>
+          <span class="summary-value">{{ a.solucao ? (a.solucao | date:'HH:mm') : '-' }}</span>
         </div>
-        <div class="col-auto">
-          <div class="text-muted small">Solução</div>
-          <div class="fw-semibold">{{ a.solucao ? (a.solucao | date:'HH:mm') : '-' }}</div>
+        <div class="summary-item">
+          <span class="summary-label">Saída</span>
+          <span class="summary-value">{{ a.saida | date:'HH:mm' }}</span>
         </div>
-        <div class="col-auto">
-          <div class="text-muted small">Saída</div>
-          <div class="fw-semibold">{{ a.saida | date:'HH:mm' }}</div>
+        <div class="summary-item">
+          <span class="summary-label">Agentes</span>
+          <span class="summary-value">{{ a.qtdAgentes }}</span>
         </div>
-        <div class="col-auto">
-          <div class="text-muted small">Agentes</div>
-          <div class="fw-semibold">{{ a.qtdAgentes }}</div>
-        </div>
-        <div class="col-auto" *ngIf="a.observacoes">
-          <div class="text-muted small">Obs.</div>
-          <div class="fw-semibold">{{ a.observacoes }}</div>
+        <div class="summary-item" *ngIf="a.observacoes">
+          <span class="summary-label">Obs.</span>
+          <span class="summary-value">{{ a.observacoes }}</span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Ações -->
-  <div class="d-flex justify-content-end mb-3">
-    <a class="btn btn-primary me-2"
-       [routerLink]="['/item-produtividade/novo']"
-       [queryParams]="{ idRelatorio: strIdRelatorio, idAtividade: strIdAtividade }" [queryParamsHandling]="'merge'">
-      <i class="mdi mdi-plus"></i> Adicionar item de produtividade
+  <div class="section-actions">
+    <a class="btn btn-primary" [routerLink]="['/item-produtividade/novo']"
+      [queryParams]="{ idRelatorio: strIdRelatorio, idAtividade: strIdAtividade }" [queryParamsHandling]="'merge'">
+      <hero-icon name="plus" size="1.125rem"></hero-icon>
+      Adicionar Produtividade
     </a>
-    <a class="btn btn-outline-primary"
-       [routerLink]="['/item-ocorrencia/novo']"
-       [queryParams]="{ idRelatorio: strIdRelatorio, idAtividade: strIdAtividade }" [queryParamsHandling]="'merge'">
-      <i class="mdi mdi-plus-circle-outline"></i> Adicionar item de ocorrência
+    <a class="btn btn-outline-primary" [routerLink]="['/item-ocorrencia/novo']"
+      [queryParams]="{ idRelatorio: strIdRelatorio, idAtividade: strIdAtividade }" [queryParamsHandling]="'merge'">
+      <hero-icon name="plus-circle" size="1.125rem"></hero-icon>
+      Adicionar Ocorrência
     </a>
   </div>
 
   <!-- Alert -->
-  <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;" *ngIf="showAlert">
-    <div class="toast show align-items-center text-bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="d-flex">
-        <div class="toast-body">{{ alertText }}</div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" aria-label="Close" (click)="closeAlert()"></button>
+  <div class="toast-container" *ngIf="showAlert">
+    <div class="toast toast-warning">
+      <hero-icon name="exclamation-triangle" size="1.25rem"></hero-icon>
+      <span>{{ alertText }}</span>
+      <button class="toast-close" (click)="closeAlert()">
+        <hero-icon name="x-mark" size="1rem"></hero-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Produtividades -->
+  <div class="section-header">
+    <h3>
+      <hero-icon name="chart-bar" size="1.25rem"></hero-icon>
+      Produtividades
+    </h3>
+    <span class="badge badge-count">{{ itens.length }}</span>
+  </div>
+
+  <div class="items-grid">
+    <div class="empty-state" *ngIf="!itens || itens.length === 0">
+      <hero-icon name="document" size="3rem" class="empty-icon"></hero-icon>
+      <p>Nenhum item de produtividade vinculado</p>
+    </div>
+
+    <div class="item-card" *ngFor="let i of itens">
+      <div class="item-card-header">
+        <div class="item-id">#{{ i.idProdutividade }}</div>
+        <div class="item-badge">
+          <span class="badge badge-info">{{ i.codProd }}</span>
+          <span class="item-name" *ngIf="i.nomeProdutividade">{{ i.nomeProdutividade }}</span>
+        </div>
+      </div>
+      <div class="item-card-body">
+        <div class="item-stat">
+          <span class="stat-label">Quantidade</span>
+          <span class="stat-value">{{ i.qtdProd }}</span>
+        </div>
+        <div class="item-stat">
+          <span class="stat-label">Data</span>
+          <span class="stat-value">{{ i.data | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+      <div class="item-card-actions">
+        <a class="btn btn-sm btn-ghost" [routerLink]="['/item-produtividade', i.idProdutividade, 'editar']"
+          [queryParamsHandling]="'preserve'">
+          <hero-icon name="pencil" size="1rem"></hero-icon>
+          Editar
+        </a>
+        <button type="button" class="btn btn-sm btn-ghost-danger" (click)="openDelete(i.idProdutividade)">
+          <hero-icon name="trash" size="1rem"></hero-icon>
+          Excluir
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Cards dos Itens de Produtividade -->
-  <div class="row g-3">
-    <div class="col-12" *ngIf="!itens || itens.length === 0">
-      <div class="empty-state">Nenhum item de produtividade vinculado a esta atividade.</div>
-    </div>
-
-    <div class="col-12 col-md-6 col-lg-4" *ngFor="let i of itens">
-      <div class="card h-100">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <div>
-              <div class="text-muted small">Produtividade</div>
-              <div class="h6 mb-0">{{ i.idProdutividade }}</div>
-            </div>
-            <div class="text-end">
-              <div><span class="badge text-bg-info">{{ i.codProd }}</span></div>
-              <div class="small text-muted" *ngIf="i.nomeProdutividade">{{ i.nomeProdutividade }}</div>
-            </div>
-          </div>
-          <div class="mb-2">
-            <div class="text-muted small">Quantidade</div>
-            <div class="fw-semibold">{{ i.qtdProd }}</div>
-          </div>
-          <div class="small text-muted">
-            <div>Data: <span class="fw-semibold">{{ i.data | date:'dd/MM/yyyy' }}</span></div>
-          </div>
-          <div class="d-flex justify-content-end gap-2 mt-3">
-            <a class="btn btn-sm btn-outline-primary" [routerLink]="['/item-produtividade', i.idProdutividade, 'editar']" [queryParamsHandling]="'preserve'"><i class="mdi mdi-pencil"></i> Editar</a>
-            <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDelete(i.idProdutividade)"><i class="mdi mdi-trash-can-outline"></i> Excluir</button>
-          </div>
-        </div>
-      </div>
-    </div>
+  <!-- Ocorrências -->
+  <div class="section-header mt-4">
+    <h3>
+      <hero-icon name="exclamation-circle" size="1.25rem"></hero-icon>
+      Ocorrências
+    </h3>
+    <span class="badge badge-count badge-warning">{{ ocorrencias.length }}</span>
   </div>
 
-  <!-- Cards dos Itens de Ocorrência -->
-  <div class="row g-3 mt-4">
-    <div class="col-12">
-      <h5 class="mb-0">Ocorrências</h5>
-      <hr class="mt-2" />
+  <div class="items-grid">
+    <div class="empty-state" *ngIf="!ocorrencias || ocorrencias.length === 0">
+      <hero-icon name="document" size="3rem" class="empty-icon"></hero-icon>
+      <p>Nenhuma ocorrência vinculada</p>
     </div>
 
-    <div class="col-12" *ngIf="!ocorrencias || ocorrencias.length === 0">
-      <div class="empty-state">Nenhuma ocorrência vinculada a esta atividade.</div>
-    </div>
-
-    <div class="col-12 col-md-6 col-lg-4" *ngFor="let o of ocorrencias">
-      <div class="card h-100">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <div>
-              <div class="text-muted small">Ocorrência</div>
-              <div class="h6 mb-0">{{ o.idOcorrencia }}</div>
-            </div>
-            <div class="text-end">
-              <div><span class="badge text-bg-warning">{{ o.codOcor }}</span></div>
-              <div class="small text-muted" *ngIf="o.nomeOcorrencia">{{ o.nomeOcorrencia }}</div>
-            </div>
-          </div>
-          <div class="mb-2">
-            <div class="text-muted small">Quantidade</div>
-            <div class="fw-semibold">{{ o.qtdOcor }}</div>
-          </div>
-          <div class="small text-muted">
-            <div>Data: <span class="fw-semibold">{{ o.data | date:'dd/MM/yyyy' }}</span></div>
-          </div>
-          <div class="d-flex justify-content-end gap-2 mt-3">
-            <a class="btn btn-sm btn-outline-primary" [routerLink]="['/item-ocorrencia', o.idOcorrencia, 'editar']" [queryParamsHandling]="'preserve'"><i class="mdi mdi-pencil"></i> Editar</a>
-            <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDeleteOcor(o.idOcorrencia)"><i class="mdi mdi-trash-can-outline"></i> Excluir</button>
-          </div>
+    <div class="item-card item-card-warning" *ngFor="let o of ocorrencias">
+      <div class="item-card-header">
+        <div class="item-id">#{{ o.idOcorrencia }}</div>
+        <div class="item-badge">
+          <span class="badge badge-warning">{{ o.codOcor }}</span>
+          <span class="item-name" *ngIf="o.nomeOcorrencia">{{ o.nomeOcorrencia }}</span>
         </div>
+      </div>
+      <div class="item-card-body">
+        <div class="item-stat">
+          <span class="stat-label">Quantidade</span>
+          <span class="stat-value">{{ o.qtdOcor }}</span>
+        </div>
+        <div class="item-stat">
+          <span class="stat-label">Data</span>
+          <span class="stat-value">{{ o.data | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+      <div class="item-card-actions">
+        <a class="btn btn-sm btn-ghost" [routerLink]="['/item-ocorrencia', o.idOcorrencia, 'editar']"
+          [queryParamsHandling]="'preserve'">
+          <hero-icon name="pencil" size="1rem"></hero-icon>
+          Editar
+        </a>
+        <button type="button" class="btn btn-sm btn-ghost-danger" (click)="openDeleteOcor(o.idOcorrencia)">
+          <hero-icon name="trash" size="1rem"></hero-icon>
+          Excluir
+        </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modal de confirmação de exclusão do item de produtividade -->
-<div *ngIf="showDeleteModal">
-  <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Confirmar exclusão</h5>
-          <button type="button" class="btn-close" aria-label="Close" (click)="closeDelete()" [disabled]="deleting"></button>
-        </div>
-        <div class="modal-body">
-          <p>Tem certeza que deseja excluir o item de produtividade <strong>#{{ toDelete }}</strong>?</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeDelete()" [disabled]="deleting">Cancelar</button>
-          <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleting">
-            <span *ngIf="!deleting">Excluir</span>
-            <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            <span *ngIf="deleting" class="ms-2">Excluindo...</span>
-          </button>
-        </div>
+<!-- Modal de exclusão de produtividade -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDelete()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-icon modal-icon-danger">
+        <hero-icon name="exclamation-triangle" size="1.5rem"></hero-icon>
       </div>
+      <h3>Confirmar exclusão</h3>
+      <button type="button" class="btn btn-icon btn-ghost modal-close" (click)="closeDelete()" [disabled]="deleting">
+        <hero-icon name="x-mark" size="1.25rem"></hero-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Tem certeza que deseja excluir o item de produtividade <strong>#{{ toDelete }}</strong>?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeDelete()" [disabled]="deleting">Cancelar</button>
+      <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleting">
+        <span *ngIf="!deleting">Excluir</span>
+        <span *ngIf="deleting" class="btn-loading"><span class="spinner-sm"></span>Excluindo...</span>
+      </button>
     </div>
   </div>
-  <div class="modal-backdrop fade show"></div>
+</div>
+
+<!-- Modal de exclusão de ocorrência -->
+<div class="modal-overlay" *ngIf="showDeleteOcorModal" (click)="closeDeleteOcor()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-icon modal-icon-danger">
+        <hero-icon name="exclamation-triangle" size="1.5rem"></hero-icon>
+      </div>
+      <h3>Confirmar exclusão</h3>
+      <button type="button" class="btn btn-icon btn-ghost modal-close" (click)="closeDeleteOcor()"
+        [disabled]="deletingOcor">
+        <hero-icon name="x-mark" size="1.25rem"></hero-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Tem certeza que deseja excluir o item de ocorrência <strong>#{{ toDeleteOcor }}</strong>?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeDeleteOcor()"
+        [disabled]="deletingOcor">Cancelar</button>
+      <button type="button" class="btn btn-danger" (click)="confirmDeleteOcor()" [disabled]="deletingOcor">
+        <span *ngIf="!deletingOcor">Excluir</span>
+        <span *ngIf="deletingOcor" class="btn-loading"><span class="spinner-sm"></span>Excluindo...</span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <ng-template #carregando>
-  <div class="container py-5 text-center text-muted">Carregando...</div>
+  <div class="loading-container">
+    <div class="spinner"></div>
+    <span>Carregando...</span>
+  </div>
 </ng-template>

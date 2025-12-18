@@ -1,185 +1,200 @@
-<div class="container-fluid py-3" *ngIf="relatorio; else carregando">
-  <div class="page-header d-flex flex-column flex-sm-row gap-2 justify-content-between align-items-start align-items-sm-center mb-3">
-    <h2 class="h5 mb-0 page-title text-truncate d-none d-sm-block" [title]="'Relatório Diário nº #' + relatorio.idRelatorio">Relatório Diário nº #{{ relatorio.idRelatorio }}</h2>
-    <div class="d-flex gap-2 flex-wrap">
-      <a class="btn btn-outline-secondary btn--responsive" [routerLink]="['/relatorio-base']" [queryParamsHandling]="'preserve'"><i class="mdi mdi-arrow-left"></i><span class="d-none d-sm-inline"> Voltar para o relatório</span></a>
-      <a class="btn btn-outline-secondary btn--responsive" [routerLink]="['/menu']"><i class="mdi mdi-home-outline"></i><span class="d-none d-sm-inline"> Voltar para o menu</span></a>
+<div class="page-container" *ngIf="relatorio; else carregando">
+  <div class="page-header">
+    <div class="page-title">
+      <h1>Relatório Diário #{{ relatorio.idRelatorio }}</h1>
+      <p class="page-subtitle">Detalhes e atividades do relatório</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-outline-secondary" [routerLink]="['/relatorio-base']" [queryParamsHandling]="'preserve'">
+        <hero-icon name="arrow-left" size="1.125rem"></hero-icon>
+        <span class="d-none d-sm-inline">Voltar</span>
+      </a>
+      <a class="btn btn-outline-secondary" [routerLink]="['/menu']">
+        <hero-icon name="home" size="1.125rem"></hero-icon>
+        <span class="d-none d-sm-inline">Menu</span>
+      </a>
     </div>
   </div>
 
   <!-- Resumo do Relatório -->
-  <div class="card mb-3">
+  <div class="card summary-card">
     <div class="card-body">
-      <div class="row g-3 align-items-center flex-nowrap overflow-auto justify-content-between">
-        <div class="col-auto">
-          <div class="text-muted small">Data</div>
-          <div class="fw-semibold">{{ relatorio!.data | date:'dd/MM/yyyy' }}</div>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-label">Data</span>
+          <span class="summary-value">{{ relatorio!.data | date:'dd/MM/yyyy' }}</span>
         </div>
-        <div class="col-auto">
-          <div class="text-muted small">Dia da Semana</div>
-          <div class="fw-semibold">{{ relatorio!.diaSemana }}</div>
+        <div class="summary-item">
+          <span class="summary-label">Dia da Semana</span>
+          <span class="summary-value">{{ relatorio!.diaSemana }}</span>
         </div>
-        <div class="col-auto">
-          <div class="text-muted small">Gerência</div>
-          <div class="fw-semibold">{{ relatorio!.gerencia }}</div>
+        <div class="summary-item">
+          <span class="summary-label">Gerência</span>
+          <span class="summary-value badge badge-info">{{ relatorio!.gerencia }}</span>
         </div>
-        <div class="col-auto">
-          <div class="text-muted small">Turno</div>
-          <div class="fw-semibold">{{ relatorio!.turno }}</div>
+        <div class="summary-item">
+          <span class="summary-label">Turno</span>
+          <span class="summary-value badge badge-success">{{ relatorio!.turno }}</span>
         </div>
-        <div class="col-auto">
-          <div class="text-muted small">Criado em</div>
-          <div class="fw-semibold">{{ relatorio!.createdAt ? (relatorio!.createdAt | date:'dd/MM/yyyy HH:mm') : '-' }}</div>
+        <div class="summary-item">
+          <span class="summary-label">Mat. 1</span>
+          <span class="summary-value">{{ relatorio!.mat1 }}</span>
         </div>
-        <div class="col-auto">
-          <div class="text-muted small">Atualizado em</div>
-          <div class="fw-semibold">{{ relatorio!.updatedAt ? (relatorio!.updatedAt | date:'dd/MM/yyyy HH:mm') : '-' }}</div>
+        <div class="summary-item">
+          <span class="summary-label">Mat. 2</span>
+          <span class="summary-value">{{ relatorio!.mat2 || '-' }}</span>
         </div>
-        <div class="col-auto">
-          <div class="text-muted small">Mat. 1</div>
-          <div class="fw-semibold">{{ relatorio!.mat1 }}</div>
+        <div class="summary-item">
+          <span class="summary-label">Coord.</span>
+          <span class="summary-value">{{ relatorio!.coord }}</span>
         </div>
-        <div class="col-auto">
-          <div class="text-muted small">Mat. 2</div>
-          <div class="fw-semibold">{{ relatorio!.mat2 }}</div>
-        </div>
-        <div class="col-auto">
-          <div class="text-muted small">Coord.</div>
-          <div class="fw-semibold">{{ relatorio!.coord }}</div>
-        </div>
-        <div class="col-auto">
-          <div class="text-muted small">Superv.</div>
-          <div class="fw-semibold">{{ relatorio!.superv }}</div>
-        </div>
-        <div class="col-auto">
-          <div class="text-muted small">Criado por</div>
-          <div class="fw-semibold">{{ relatorio!.criadoPor || '-' }}</div>
-        </div>
-        <div class="col-auto">
-          <div class="text-muted small">Modificado por</div>
-          <div class="fw-semibold">{{ relatorio!.modificadoPor || '-' }}</div>
+        <div class="summary-item">
+          <span class="summary-label">Superv.</span>
+          <span class="summary-value">{{ relatorio!.superv }}</span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Ações -->
-  <div class="d-flex justify-content-end mb-3">
-    <button class="btn btn-primary" (click)="abrirForm()"><i class="mdi mdi-plus"></i> Adicionar atividade</button>
+  <div class="section-actions">
+    <button class="btn btn-primary" (click)="abrirForm()">
+      <hero-icon name="plus" size="1.125rem"></hero-icon>
+      Adicionar Atividade
+    </button>
   </div>
 
   <!-- Formulário de Item Atividade -->
-  <div class="card mb-4" *ngIf="showForm">
-    <div class="card-header d-flex justify-content-between align-items-center">
+  <div class="card form-card" *ngIf="showForm">
+    <div class="card-header">
       <span>{{ editAtividade ? 'Editar atividade' : 'Nova atividade' }}</span>
-      <button class="btn btn-sm btn-outline-secondary" (click)="fecharForm()"><i class="mdi mdi-close"></i> Fechar</button>
+      <button class="btn btn-sm btn-ghost" (click)="fecharForm()">
+        <hero-icon name="x-mark" size="1.125rem"></hero-icon>
+        Fechar
+      </button>
     </div>
     <div class="card-body">
-      <app-item-atividade-form
-        [idRelatorio]="idRelatorio"
-        [dataRelatorio]="relatorio!.data"
-        [atividade]="editAtividade || undefined"
-        [isEditMode]="!!editAtividade"
-        (formSubmit)="onAtividadeCriada($event)"
-        (formCancel)="fecharForm()"
-      ></app-item-atividade-form>
+      <app-item-atividade-form [idRelatorio]="idRelatorio" [dataRelatorio]="relatorio!.data"
+        [atividade]="editAtividade || undefined" [isEditMode]="!!editAtividade" (formSubmit)="onAtividadeCriada($event)"
+        (formCancel)="fecharForm()"></app-item-atividade-form>
     </div>
   </div>
 
   <!-- Cards das atividades -->
-  <div class="row g-3">
-    <div class="col-12" *ngIf="atividadesOrdenadas.length === 0">
-      <div class="empty-state">Nenhuma atividade adicionada ainda.</div>
+  <div class="section-header">
+    <h3>
+      <hero-icon name="table-cells" size="1.25rem"></hero-icon>
+      Atividades
+    </h3>
+    <span class="badge badge-count">{{ atividadesOrdenadas.length }}</span>
+  </div>
+
+  <div class="items-grid">
+    <div class="empty-state" *ngIf="atividadesOrdenadas.length === 0">
+      <hero-icon name="document" size="3rem" class="empty-icon"></hero-icon>
+      <p>Nenhuma atividade adicionada ainda</p>
     </div>
 
-    <div class="col-12 col-md-6 col-lg-4" *ngFor="let a of atividadesOrdenadas">
-      <div class="card h-100">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <div>
-              <div class="text-muted small">Item</div>
-              <div class="h6 mb-0">{{ a.item }}</div>
-            </div>
-            <div class="text-end">
-              <div><span class="badge text-bg-info">{{ a.codAtv }}</span></div>
-              <small class="text-muted d-block" *ngIf="a.nomeAtividade">{{ a.nomeAtividade }}</small>
-            </div>
+    <div class="item-card" *ngFor="let a of atividadesOrdenadas">
+      <div class="item-card-header">
+        <div class="item-id">Item {{ a.item }}</div>
+        <div class="item-badge">
+          <span class="badge badge-info">{{ a.codAtv }}</span>
+          <span class="item-name" *ngIf="a.nomeAtividade">{{ a.nomeAtividade }}</span>
+        </div>
+      </div>
+      <div class="item-card-body">
+        <div class="item-row">
+          <div class="item-stat">
+            <span class="stat-label">Data</span>
+            <span class="stat-value">{{ a.data | date:'dd/MM/yyyy' }}</span>
           </div>
-          <div class="mb-2 small">
-            <span class="text-muted">Data: </span>
-            <span class="fw-semibold">{{ a.data | date:'dd/MM/yyyy' }}</span>
-          </div>
-          <div class="row g-2 small text-muted">
-            <div class="col-3">
-              <div>Chegada: {{ a.chegada | date:'HH:mm' }}</div>
-            </div>
-            <div class="col-3">
-              <div>Solução: {{ a.solucao ? (a.solucao | date:'HH:mm') : '-' }}</div>
-            </div>
-            <div class="col-3">
-              <div>Saída: {{ a.saida | date:'HH:mm' }}</div>
-            </div>
-            <div class="col-3">
-              <div>Agentes: {{ a.qtdAgentes }}</div>
-            </div>
-          </div>
-          <div class="mt-2 mb-2 small">
-            <span class="text-muted">Local: </span>
-            <span class="fw-semibold text-break">{{ a.local }}</span>
-          </div>
-          <div class="small mt-2" *ngIf="a.observacoes">
-            <span class="text-muted">Obs.: </span>
-            <span class="text-break">{{ a.observacoes }}</span>
-          </div>
-          <!-- Contagens de itens vinculados -->
-          <div class="d-flex gap-2 flex-wrap mt-2 small">
-            <span class="badge badge-roxo">Produtividades: {{ getQtdProd(a) }}</span>
-            <span class="badge badge-amarelo">Ocorrências: {{ getQtdOcor(a) }}</span>
-          </div>
-          <div class="d-flex justify-content-end gap-2 mt-3">
-            <a class="btn btn-sm btn-outline-success"
-               [routerLink]="['/item-atividade', a.idAtividade]" [queryParamsHandling]="'preserve'">
-              <i class="mdi mdi-eye-outline"></i> Produtividade/Ocorrência
-            </a>
-            <button class="btn btn-sm btn-outline-primary" (click)="editarAtividade(a)">
-              <i class="mdi mdi-pencil"></i> Editar
-            </button>
-            <button class="btn btn-sm btn-outline-danger" (click)="openDelete(a.idAtividade)">
-              <i class="mdi mdi-delete"></i> Excluir
-            </button>
+          <div class="item-stat">
+            <span class="stat-label">Agentes</span>
+            <span class="stat-value">{{ a.qtdAgentes }}</span>
           </div>
         </div>
+        <div class="item-row">
+          <div class="item-stat">
+            <span class="stat-label">Chegada</span>
+            <span class="stat-value">{{ a.chegada | date:'HH:mm' }}</span>
+          </div>
+          <div class="item-stat">
+            <span class="stat-label">Solução</span>
+            <span class="stat-value">{{ a.solucao ? (a.solucao | date:'HH:mm') : '-' }}</span>
+          </div>
+          <div class="item-stat">
+            <span class="stat-label">Saída</span>
+            <span class="stat-value">{{ a.saida | date:'HH:mm' }}</span>
+          </div>
+        </div>
+        <div class="item-local" *ngIf="a.local">
+          <span class="stat-label">Local:</span>
+          <span>{{ a.local }}</span>
+        </div>
+        <div class="item-obs" *ngIf="a.observacoes">
+          <span class="stat-label">Obs.:</span>
+          <span>{{ a.observacoes }}</span>
+        </div>
+        <div class="item-badges">
+          <span class="badge badge-purple">
+            <hero-icon name="chart-bar" size="0.875rem"></hero-icon>
+            {{ getQtdProd(a) }} Produtividades
+          </span>
+          <span class="badge badge-yellow">
+            <hero-icon name="exclamation-circle" size="0.875rem"></hero-icon>
+            {{ getQtdOcor(a) }} Ocorrências
+          </span>
+        </div>
+      </div>
+      <div class="item-card-actions">
+        <a class="btn btn-sm btn-success" [routerLink]="['/item-atividade', a.idAtividade]"
+          [queryParamsHandling]="'preserve'">
+          <hero-icon name="eye" size="1rem"></hero-icon>
+          Ver Detalhes
+        </a>
+        <button class="btn btn-sm btn-ghost" (click)="editarAtividade(a)">
+          <hero-icon name="pencil" size="1rem"></hero-icon>
+          Editar
+        </button>
+        <button class="btn btn-sm btn-ghost-danger" (click)="openDelete(a.idAtividade)">
+          <hero-icon name="trash" size="1rem"></hero-icon>
+          Excluir
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Modal de confirmação de exclusão -->
-  <div *ngIf="showDeleteModal">
-    <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Confirmar exclusão</h5>
-            <button type="button" class="btn-close" aria-label="Close" (click)="closeDelete()" [disabled]="deleting"></button>
-          </div>
-          <div class="modal-body">
-            <p>Tem certeza que deseja excluir a atividade <strong>{{ toDelete }}</strong>? Esta ação removerá também as produtividades vinculadas.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeDelete()" [disabled]="deleting">Cancelar</button>
-            <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleting">
-              <span *ngIf="!deleting">Excluir</span>
-              <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              <span *ngIf="deleting" class="ms-2">Excluindo...</span>
-            </button>
-          </div>
+  <!-- Modal de exclusão -->
+  <div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDelete()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon modal-icon-danger">
+          <hero-icon name="exclamation-triangle" size="1.5rem"></hero-icon>
         </div>
+        <h3>Confirmar exclusão</h3>
+        <button type="button" class="btn btn-icon btn-ghost modal-close" (click)="closeDelete()" [disabled]="deleting">
+          <hero-icon name="x-mark" size="1.25rem"></hero-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza que deseja excluir a atividade <strong>{{ toDelete }}</strong>?</p>
+        <p class="text-muted">Esta ação removerá também as produtividades vinculadas.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDelete()" [disabled]="deleting">Cancelar</button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleting">
+          <span *ngIf="!deleting">Excluir</span>
+          <span *ngIf="deleting" class="btn-loading"><span class="spinner-sm"></span>Excluindo...</span>
+        </button>
       </div>
     </div>
-    <div class="modal-backdrop fade show"></div>
   </div>
 </div>
 
 <ng-template #carregando>
-  <div class="container py-5 text-center text-muted">Carregando...</div>
+  <div class="loading-container">
+    <div class="spinner"></div>
+    <span>Carregando...</span>
+  </div>
 </ng-template>

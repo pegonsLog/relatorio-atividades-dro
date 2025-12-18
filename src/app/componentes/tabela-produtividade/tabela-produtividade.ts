@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TabelaProdutividadeService } from '../../services/tabela-produtividade.service';
 import { TabelaProdutividade } from '../../models/tabela-produtividade.interface';
+import { HeroIconComponent } from '../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-tabela-produtividade',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, HeroIconComponent],
   templateUrl: './tabela-produtividade.html',
   styleUrl: './tabela-produtividade.scss'
 })
@@ -29,7 +30,7 @@ export class TabelaProdutividadeComponent implements OnInit {
   toDelete?: number;
   deleting = false;
 
-  constructor(private service: TabelaProdutividadeService) {}
+  constructor(private service: TabelaProdutividadeService) { }
 
   ngOnInit(): void {
     this.service.list().subscribe({

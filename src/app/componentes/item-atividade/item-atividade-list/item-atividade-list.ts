@@ -6,11 +6,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ItemAtividadeService, RelatorioBaseService, ExportExcelService } from '../../../services';
 import { ItemAtividade } from '../../../models';
 import { GraficosAtividadesComponent } from '../../graficos-atividades/graficos-atividades';
+import { HeroIconComponent } from '../../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-item-atividade-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, GraficosAtividadesComponent],
+  imports: [CommonModule, FormsModule, RouterModule, GraficosAtividadesComponent, HeroIconComponent],
   templateUrl: './item-atividade-list.html',
   styleUrls: ['./item-atividade-list.scss']
 })
@@ -46,7 +47,7 @@ export class ItemAtividadeList implements OnInit {
   private readonly relService = inject(RelatorioBaseService);
   private readonly exportService = inject(ExportExcelService);
 
-  
+
 
   ngOnInit(): void {
     const qp = this.route.snapshot.queryParamMap;
@@ -71,8 +72,8 @@ export class ItemAtividadeList implements OnInit {
     this.pageSize = this.pageSizes.includes(ps) ? ps : this.pageSize;
     const sk = qp.get('sortKey') as any;
     const sd = qp.get('sortDir') as any;
-    if (sk && ['idAtividade','item','local','codAtv','chegada','nomeAtividade','solucao','saida','qtdAgentes','createdAt'].includes(sk)) this.sortKey = sk;
-    if (sd && ['asc','desc'].includes(sd)) this.sortDir = sd;
+    if (sk && ['idAtividade', 'item', 'local', 'codAtv', 'chegada', 'nomeAtividade', 'solucao', 'saida', 'qtdAgentes', 'createdAt'].includes(sk)) this.sortKey = sk;
+    if (sd && ['asc', 'desc'].includes(sd)) this.sortDir = sd;
 
     // Carregar lista do service
     this.atividadeService.getAtividades().subscribe({
@@ -95,7 +96,7 @@ export class ItemAtividadeList implements OnInit {
     });
   }
 
-  
+
 
   get filtrados(): ItemAtividade[] {
     const f = this.filtro.trim().toLowerCase();
@@ -312,7 +313,7 @@ export class ItemAtividadeList implements OnInit {
   formatDateTime(date: Date): string {
     return date.toLocaleString('pt-BR', {
       day: '2-digit',
-      month: '2-digit', 
+      month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'

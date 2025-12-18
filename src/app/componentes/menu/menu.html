@@ -1,56 +1,58 @@
 <div class="menu-layout">
   <aside class="menu-sidebar">
-    <div class="menu-nav list-group">
-  <h3 class="text-uppercase small fw-semibold px-3 pt-3 pb-2 hide-on-mobile">Navegação Principal</h3>
+    <div class="menu-nav">
+      <div class="nav-section">
+        <h3 class="nav-title">
+          <hero-icon name="bars-3" size="1rem"></hero-icon>
+          Navegação Principal
+        </h3>
 
-  @for (item of menuItems(); track item.route) {
-    <a
-      class="list-group-item list-group-item-action menu-item cursor-pointer"
-      [class.hide-on-mobile]="item.route !== '/relatorio-base'"
-      [routerLink]="requiresDirectNav(item.route) ? item.route : undefined"
-      [attr.href]="requiresDirectNav(item.route) ? item.route : '#'"
-      (click)="onMenuClick($event, item)"
-      routerLinkActive="active"
-    >
-      <i class="mdi {{ item.icon }} me-2"></i>
-      <span>{{ item.label }}</span>
-    </a>
-  }
+        @for (item of menuItems(); track item.route) {
+        <a class="nav-item" [class.hide-on-mobile]="item.route !== '/relatorio-base'"
+          [routerLink]="requiresDirectNav(item.route) ? item.route : undefined" (click)="onMenuClick($event, item)"
+          routerLinkActive="active">
+          <hero-icon [name]="item.heroIcon" size="1.25rem"></hero-icon>
+          <span>{{ item.label }}</span>
+          <hero-icon name="chevron-right" size="1rem" class="nav-arrow"></hero-icon>
+        </a>
+        }
+      </div>
 
-  <hr class="menu-divider my-3 hide-on-mobile" />
+      <div class="nav-divider hide-on-mobile"></div>
 
-    <h3 class="text-uppercase small fw-semibold px-3 pt-1 pb-2 hide-on-mobile">Administração</h3>
+      <div class="nav-section hide-on-mobile">
+        <h3 class="nav-title">
+          <hero-icon name="cog-6-tooth" size="1rem"></hero-icon>
+          Administração
+        </h3>
 
-  @for (item of adminItems(); track item.route) {
-    <a
-      class="list-group-item list-group-item-action menu-item admin-item cursor-pointer hide-on-mobile"
-      [routerLink]="item.route"
-      routerLinkActive="active"
-    >
-      <i class="mdi {{ item.icon }} me-2"></i>
-      <span>{{ item.label }}</span>
-    </a>
-  }
+        @for (item of adminItems(); track item.route) {
+        <a class="nav-item admin" [routerLink]="item.route" routerLinkActive="active">
+          <hero-icon [name]="item.heroIcon" size="1.25rem"></hero-icon>
+          <span>{{ item.label }}</span>
+          <hero-icon name="chevron-right" size="1rem" class="nav-arrow"></hero-icon>
+        </a>
+        }
+      </div>
     </div>
 
-    <!-- Footer do Menu -->
     <div class="menu-footer hide-on-mobile">
-      <hr class="my-0" />
-      <div class="user-info">
-        <i class="mdi mdi-account-circle"></i>
-        <div class="user-details">
+      <div class="user-card">
+        <div class="user-avatar">
+          <hero-icon name="user-circle" size="2.5rem"></hero-icon>
+        </div>
+        <div class="user-info">
           <span class="user-name">{{ displayName || 'Usuário' }}</span>
           <span class="user-role">{{ displayPerfil || 'Perfil' }}</span>
         </div>
       </div>
-      <div class="px-3 py-3">
-        <button type="button" class="btn btn-outline-danger w-100" (click)="logout()">
-          <i class="mdi mdi-logout me-1"></i>
-          Sair
-        </button>
-      </div>
+      <button type="button" class="btn btn-logout" (click)="logout()">
+        <hero-icon name="arrow-left-on-rectangle" size="1.25rem"></hero-icon>
+        Sair do Sistema
+      </button>
     </div>
   </aside>
+
   <main class="menu-content">
     <div class="logo-wrapper">
       <img src="assets/logo/BHTrans.png" alt="BHTrans logo" class="logo-img" />
@@ -58,82 +60,106 @@
   </main>
 </div>
 
-<!-- Modal de Filtros para Relatórios (Atividade/Produtividade/Ocorrências) -->
-<div *ngIf="showReportFilterModal">
-  <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Selecionar filtros do relatório</h5>
-          <button type="button" class="btn-close" aria-label="Close" (click)="closeReportFilterModal()"></button>
+<!-- Modal de Filtros para Relatórios -->
+<div *ngIf="showReportFilterModal" class="modal-overlay" (click)="closeReportFilterModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-icon">
+        <hero-icon name="funnel" size="1.5rem"></hero-icon>
+      </div>
+      <div>
+        <h5 class="modal-title">Filtros do Relatório</h5>
+        <p class="modal-subtitle">Selecione o período e filtros desejados</p>
+      </div>
+      <button type="button" class="modal-close" (click)="closeReportFilterModal()">
+        <hero-icon name="x-mark" size="1.5rem"></hero-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="filter-group">
+        <label class="filter-label">
+          <hero-icon name="calendar" size="1rem"></hero-icon>
+          Período
+        </label>
+        <div class="date-range">
+          <input class="form-control" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10"
+            [(ngModel)]="reportFilter.dataInicio" (input)="onDateInput('dataInicio', $event)" appAutoFocus />
+          <span class="date-separator">até</span>
+          <input class="form-control" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10"
+            [(ngModel)]="reportFilter.dataFim" (input)="onDateInput('dataFim', $event)" />
         </div>
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label">Período</label>
-              <div class="d-flex gap-2">
-                <input class="form-control" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" pattern="\d{2}/\d{2}/\d{4}" title="Formato: dd/mm/aaaa" [(ngModel)]="reportFilter.dataInicio" (input)="onDateInput('dataInicio', $event)" appAutoFocus />
-                <span class="align-self-center">até</span>
-                <input class="form-control" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" pattern="\d{2}/\d{2}/\d{4}" title="Formato: dd/mm/aaaa" [(ngModel)]="reportFilter.dataFim" (input)="onDateInput('dataFim', $event)" />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Gerência</label>
-              <select class="form-select" [(ngModel)]="reportFilter.gerencia">
-                <option value="">Todos</option>
-                <option *ngFor="let g of gerencias" [value]="g">{{ g }}</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Turno</label>
-              <select class="form-select" [(ngModel)]="reportFilter.turno">
-                <option value="">Todos</option>
-                <option *ngFor="let t of turnos" [value]="t">{{ t }}</option>
-              </select>
-            </div>
-          </div>
+      </div>
+      <div class="filter-row">
+        <div class="filter-group">
+          <label class="filter-label">Gerência</label>
+          <select class="form-select" [(ngModel)]="reportFilter.gerencia">
+            <option value="">Todos</option>
+            <option *ngFor="let g of gerencias" [value]="g">{{ g }}</option>
+          </select>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" (click)="closeReportFilterModal()">Cancelar</button>
-          <div class="me-auto text-muted small" *ngIf="!reportFiltersValid">Selecione um período válido</div>
-          <button type="button" class="btn btn-primary" (click)="confirmReportFilters()" [disabled]="!reportFiltersValid">Continuar</button>
+        <div class="filter-group">
+          <label class="filter-label">Turno</label>
+          <select class="form-select" [(ngModel)]="reportFilter.turno">
+            <option value="">Todos</option>
+            <option *ngFor="let t of turnos" [value]="t">{{ t }}</option>
+          </select>
         </div>
       </div>
     </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="closeReportFilterModal()">Cancelar</button>
+      <div class="filter-hint" *ngIf="!reportFiltersValid">
+        <hero-icon name="exclamation-circle" size="1rem"></hero-icon>
+        Selecione um período válido
+      </div>
+      <button type="button" class="btn btn-primary" (click)="confirmReportFilters()" [disabled]="!reportFiltersValid">
+        <hero-icon name="check" size="1.25rem"></hero-icon>
+        Continuar
+      </button>
+    </div>
   </div>
-  <div class="modal-backdrop fade show"></div>
 </div>
 
 <!-- Modal de Filtros para Relatório Base -->
-<div *ngIf="showFilterModal">
-  <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Selecionar filtros</h5>
-          <button type="button" class="btn-close" aria-label="Close" (click)="closeRelatorioBaseModal()"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">Gerência</label>
-            <select class="form-select" [(ngModel)]="selectedGerencia" appAutoFocus>
-              <option *ngFor="let g of gerencias" [value]="g">{{ g }}</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Turno</label>
-            <select class="form-select" [(ngModel)]="selectedTurno">
-              <option *ngFor="let t of turnos" [value]="t">{{ t }}</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" (click)="closeRelatorioBaseModal()">Cancelar</button>
-          <div class="me-auto text-muted small" *ngIf="!selectedGerencia || !selectedTurno">Selecione Gerência e Turno</div>
-          <button type="button" class="btn btn-primary" (click)="confirmRelatorioBaseFilters()" [disabled]="!selectedGerencia || !selectedTurno">Continuar</button>
-        </div>
+<div *ngIf="showFilterModal" class="modal-overlay" (click)="closeRelatorioBaseModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-icon">
+        <hero-icon name="funnel" size="1.5rem"></hero-icon>
+      </div>
+      <div>
+        <h5 class="modal-title">Selecionar Filtros</h5>
+        <p class="modal-subtitle">Escolha a gerência e turno</p>
+      </div>
+      <button type="button" class="modal-close" (click)="closeRelatorioBaseModal()">
+        <hero-icon name="x-mark" size="1.5rem"></hero-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="filter-group">
+        <label class="filter-label">Gerência</label>
+        <select class="form-select" [(ngModel)]="selectedGerencia" appAutoFocus>
+          <option *ngFor="let g of gerencias" [value]="g">{{ g }}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Turno</label>
+        <select class="form-select" [(ngModel)]="selectedTurno">
+          <option *ngFor="let t of turnos" [value]="t">{{ t }}</option>
+        </select>
       </div>
     </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="closeRelatorioBaseModal()">Cancelar</button>
+      <div class="filter-hint" *ngIf="!selectedGerencia || !selectedTurno">
+        <hero-icon name="exclamation-circle" size="1rem"></hero-icon>
+        Selecione Gerência e Turno
+      </div>
+      <button type="button" class="btn btn-primary" (click)="confirmRelatorioBaseFilters()"
+        [disabled]="!selectedGerencia || !selectedTurno">
+        <hero-icon name="check" size="1.25rem"></hero-icon>
+        Continuar
+      </button>
+    </div>
   </div>
-  <div class="modal-backdrop fade show"></div>
 </div>

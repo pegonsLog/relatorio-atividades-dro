@@ -1,53 +1,74 @@
-<div class="ocorrencia-form-container mt-3">
-  <div class="form-header d-flex flex-column align-items-center">
-    <h2 class="mb-0 text-center">{{ isEditMode ? 'Editar Item de Ocorrência' : 'Novo Item de Ocorrência' }}</h2>
+<div class="form-container">
+  <div class="form-header">
+    <h2>{{ isEditMode ? 'Editar Item de Ocorrência' : 'Novo Item de Ocorrência' }}</h2>
   </div>
 
-  <!-- Aviso de contexto ausente -->
-  <div *ngIf="!hasContext" class="alert alert-warning" role="alert">
-    Este item precisa estar associado a uma <strong>Atividade</strong> (idAtividade).
-    Volte para a lista a partir do contexto correto ou informe o parâmetro na URL (?idAtividade=...).
+  <div *ngIf="!hasContext" class="alert alert-warning">
+    <hero-icon name="exclamation-triangle" size="1.25rem"></hero-icon>
+    <div>
+      <strong>Atenção:</strong> Este item precisa estar associado a uma Atividade (idAtividade).
+      Volte para a lista a partir do contexto correto.
+    </div>
   </div>
 
-  <form [formGroup]="ocorrenciaForm" (ngSubmit)="onSubmit()" class="ocorrencia-form">
-    <div class="form-row">
-      <div class="form-group">
-        <label for="codOcor">Código da Ocorrência *</label>
-        <select id="codOcor" formControlName="codOcor" class="form-control"
-                [class.is-invalid]="isFieldInvalid('codOcor')">
-          <option value="">Selecione uma ocorrência</option>
-          <option *ngFor="let ocor of codigosOcorrencias" [value]="ocor.codigo">
-            {{ ocor.codigo }} - {{ ocor.nome }}
-          </option>
-        </select>
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('codOcor')">
-          {{ getFieldError('codOcor') }}
+  <div class="card">
+    <div class="card-body">
+      <form [formGroup]="ocorrenciaForm" (ngSubmit)="onSubmit()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="codOcor">
+              <hero-icon name="exclamation-circle" size="1rem"></hero-icon>
+              Código da Ocorrência *
+            </label>
+            <select id="codOcor" formControlName="codOcor" class="form-select"
+              [class.is-invalid]="isFieldInvalid('codOcor')">
+              <option value="">Selecione uma ocorrência</option>
+              <option *ngFor="let ocor of codigosOcorrencias" [value]="ocor.codigo">
+                {{ ocor.codigo }} - {{ ocor.nome }}
+              </option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('codOcor')">{{ getFieldError('codOcor') }}</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="qtdOcor">
+              <hero-icon name="chart-bar" size="1rem"></hero-icon>
+              Quantidade *
+            </label>
+            <input type="number" id="qtdOcor" formControlName="qtdOcor" class="form-control"
+              [class.is-invalid]="isFieldInvalid('qtdOcor')" placeholder="Digite a quantidade" min="1">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('qtdOcor')">{{ getFieldError('qtdOcor') }}</div>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="qtdOcor">Quantidade *</label>
-        <input type="number" id="qtdOcor" formControlName="qtdOcor" class="form-control"
-               [class.is-invalid]="isFieldInvalid('qtdOcor')" placeholder="Digite a quantidade" min="1">
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('qtdOcor')">
-          {{ getFieldError('qtdOcor') }}
+        <div class="info-card" *ngIf="ocorrenciaForm.get('codOcor')?.value">
+          <div class="info-card-header">
+            <hero-icon name="information-circle" size="1.25rem"></hero-icon>
+            <h4>Ocorrência Selecionada</h4>
+          </div>
+          <div class="info-card-body">
+            <div class="info-item">
+              <span class="info-label">Código:</span>
+              <span class="info-value badge badge-warning">{{ ocorrenciaForm.get('codOcor')?.value }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Descrição:</span>
+              <span class="info-value">{{ getDescricaoOcorrencia(ocorrenciaForm.get('codOcor')?.value) }}</span>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <div class="ocor-info" *ngIf="ocorrenciaForm.get('codOcor')?.value">
-      <div class="info-card">
-        <h4>Ocorrência Selecionada</h4>
-        <p><strong>Código:</strong> {{ ocorrenciaForm.get('codOcor')?.value }}</p>
-        <p><strong>Descrição:</strong> {{ getDescricaoOcorrencia(ocorrenciaForm.get('codOcor')?.value) }}</p>
-      </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="onCancel()">
+            <hero-icon name="x-mark" size="1.125rem"></hero-icon>
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="ocorrenciaForm.invalid || !hasContext">
+            <hero-icon name="check" size="1.125rem"></hero-icon>
+            {{ isEditMode ? 'Atualizar' : 'Salvar' }}
+          </button>
+        </div>
+      </form>
     </div>
-
-    <div class="form-actions">
-      <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancelar</button>
-      <button type="submit" class="btn btn-primary" [disabled]="ocorrenciaForm.invalid || !hasContext">
-        {{ isEditMode ? 'Atualizar' : 'Salvar' }}
-      </button>
-    </div>
-  </form>
+  </div>
 </div>

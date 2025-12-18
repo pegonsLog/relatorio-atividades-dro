@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RelatorioBase } from '../../../models';
 import { AgentesService } from '../../../services/agentes.service';
+import { HeroIconComponent } from '../../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-relatorio-base-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, HeroIconComponent],
   templateUrl: './relatorio-base-form.html',
   styleUrls: ['./relatorio-base-form.scss']
 })

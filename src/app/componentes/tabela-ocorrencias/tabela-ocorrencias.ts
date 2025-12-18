@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TabelaOcorrenciasService } from '../../services/tabela-ocorrencias.service';
 import { TabelaOcorrencia } from '../../models/tabela-ocorrencia.interface';
+import { HeroIconComponent } from '../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-tabela-ocorrencias',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, HeroIconComponent],
   templateUrl: './tabela-ocorrencias.html',
   styleUrl: './tabela-ocorrencias.scss'
 })
@@ -29,7 +30,7 @@ export class TabelaOcorrenciasComponent implements OnInit {
   toDelete?: number;
   deleting = false;
 
-  constructor(private service: TabelaOcorrenciasService) {}
+  constructor(private service: TabelaOcorrenciasService) { }
 
   ngOnInit(): void {
     this.service.list().subscribe({

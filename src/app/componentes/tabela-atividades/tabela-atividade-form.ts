@@ -4,13 +4,14 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TabelaAtividadesService } from '../../services/tabela-atividades.service';
 import { TabelaAtividade } from '../../models/tabela-atividade.interface';
+import { HeroIconComponent } from '../../shared/icons/heroicons';
 import { of } from 'rxjs';
 import { switchMap, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-tabela-atividade-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, HeroIconComponent],
   templateUrl: './tabela-atividade-form.html',
   styleUrl: './tabela-atividade-form.scss'
 })

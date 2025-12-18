@@ -2,11 +2,12 @@ import { AfterViewInit, Component, Input, OnChanges, SimpleChanges } from '@angu
 import { CommonModule } from '@angular/common';
 import { ItemProdutividade } from '../../models';
 import { NgxChartsModule, ScaleType, Color } from '@swimlane/ngx-charts';
+import { HeroIconComponent } from '../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-graficos-produtividade',
   standalone: true,
-  imports: [CommonModule, NgxChartsModule],
+  imports: [CommonModule, NgxChartsModule, HeroIconComponent],
   templateUrl: './graficos-produtividade.html',
   styleUrls: ['./graficos-produtividade.scss']
 })

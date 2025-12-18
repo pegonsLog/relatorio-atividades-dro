@@ -5,11 +5,12 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ItemProdutividadeService, RelatorioBaseService, ExportExcelService } from '../../../services';
 import { ItemProdutividade } from '../../../models';
 import { GraficosProdutividadeComponent } from '../../graficos-produtividade/graficos-produtividade';
+import { HeroIconComponent } from '../../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-item-produtividade-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, GraficosProdutividadeComponent],
+  imports: [CommonModule, FormsModule, RouterModule, GraficosProdutividadeComponent, HeroIconComponent],
   templateUrl: './item-produtividade-list.html',
   styleUrls: ['./item-produtividade-list.scss']
 })
@@ -75,9 +76,9 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
     this.pageSize = this.pageSizes.includes(ps) ? ps : this.pageSize;
     const sk = qp.get('prodSortKey') as any;
     const sd = qp.get('prodSortDir') as any;
-    const validKeys = ['idProdutividade','codProd','nomeProdutividade','qtdProd','idAtividade','idRelatorio'];
+    const validKeys = ['idProdutividade', 'codProd', 'nomeProdutividade', 'qtdProd', 'idAtividade', 'idRelatorio'];
     if (sk && validKeys.includes(sk)) this.sortKey = sk;
-    if (sd && ['asc','desc'].includes(sd)) this.sortDir = sd;
+    if (sd && ['asc', 'desc'].includes(sd)) this.sortDir = sd;
 
     // Alertas vindos de redirecionamentos (ex.: guard)
     const alert = qp.get('alert');
@@ -87,7 +88,7 @@ export class ItemProdutividadeList implements OnInit, OnDestroy {
       // auto-hide após 5s
       this.alertTimer = setTimeout(() => this.closeAlert(), 5000);
     }
-    
+
     // Carregar itens da lista
     this.service.getItens().subscribe({
       next: (list) => {

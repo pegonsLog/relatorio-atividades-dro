@@ -4,13 +4,14 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TabelaProdutividadeService } from '../../services/tabela-produtividade.service';
 import { TabelaProdutividade } from '../../models/tabela-produtividade.interface';
+import { HeroIconComponent } from '../../shared/icons/heroicons';
 import { of } from 'rxjs';
 import { switchMap, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-tabela-produtividade-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, HeroIconComponent],
   templateUrl: './tabela-produtividade-form.html',
   styleUrl: './tabela-produtividade-form.scss'
 })

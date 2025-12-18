@@ -8,11 +8,12 @@ import { ItemAtividadeService } from '../../../services/item-atividade.service';
 import { ItemAtividadeForm } from '../../item-atividade/item-atividade-form/item-atividade-form';
 import { ItemProdutividadeService } from '../../../services/item-produtividade.service';
 import { ItemOcorrenciaService } from '../../../services/item-ocorrencia.service';
+import { HeroIconComponent } from '../../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-relatorio-base-detalhe',
   standalone: true,
-  imports: [CommonModule, RouterModule, ItemAtividadeForm],
+  imports: [CommonModule, RouterModule, ItemAtividadeForm, HeroIconComponent],
   templateUrl: './relatorio-base-detalhe.html',
   styleUrls: ['./relatorio-base-detalhe.scss']
 })

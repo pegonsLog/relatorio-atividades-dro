@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Agente } from '../../models/agente.interface';
 import { AgentesService } from '../../services/agentes.service';
+import { HeroIconComponent } from '../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-agente',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, HeroIconComponent],
   templateUrl: './agente.html',
   styleUrl: './agente.scss'
 })
@@ -16,37 +17,27 @@ export class AgenteComponent implements OnInit {
   agentes: Agente[] = [];
   agentesFiltrados: Agente[] = [];
   filtro = '';
-  // Loading
   loading = true;
-  // Ordenação
   sortKey: 'matricula' | 'nome' | 'cargo' | 'turno' | 'gerencia' = 'matricula';
   sortDir: 'asc' | 'desc' = 'asc';
-  // Seleção para modal de confirmação
   selectedMatricula?: number;
   selectedNome?: string;
-  // Paginação
   pageSizeOptions = [5, 10, 20, 50];
   pageSize = 10;
-  currentPage = 1; // 1-based
+  currentPage = 1;
 
-  constructor(private agentesService: AgentesService) {}
+  constructor(private agentesService: AgentesService) { }
 
   ngOnInit(): void {
-    // Restaurar pageSize salvo
     const saved = Number(localStorage.getItem('agentes_pageSize'));
-    if (this.pageSizeOptions.includes(saved)) {
-      this.pageSize = saved;
-    }
+    if (this.pageSizeOptions.includes(saved)) this.pageSize = saved;
     this.agentesService.list().subscribe({
       next: (list) => {
         this.agentes = (list ?? []).map(a => ({ ...a, matricula: Number(a.matricula) }));
         this.applyFilter();
         this.loading = false;
       },
-      error: (e) => {
-        console.error(e);
-        this.loading = false;
-      }
+      error: () => { this.loading = false; }
     });
   }
 
@@ -66,13 +57,10 @@ export class AgenteComponent implements OnInit {
   async delete(matricula: number) {
     try {
       await this.agentesService.delete(matricula);
-      // Atualiza a lista local e reaplica o filtro
       this.agentes = this.agentes.filter(a => a.matricula !== matricula);
       this.applyFilter();
       this.clampPage();
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) { console.error(e); }
   }
 
   onFilterChange() {
@@ -103,8 +91,6 @@ export class AgenteComponent implements OnInit {
     this.clampPage();
   }
 
-  
-
   setSort(key: 'matricula' | 'nome' | 'cargo' | 'turno' | 'gerencia') {
     if (this.sortKey === key) {
       this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
@@ -114,7 +100,6 @@ export class AgenteComponent implements OnInit {
     }
   }
 
-  // Ordenação existente + paginação
   get agentesOrdenados(): Agente[] {
     const arr = [...this.agentesFiltrados];
     const dir = this.sortDir === 'asc' ? 1 : -1;
@@ -135,32 +120,12 @@ export class AgenteComponent implements OnInit {
     return arr;
   }
 
-  get totalItems(): number {
-    return this.agentesFiltrados.length;
-  }
+  get totalItems(): number { return this.agentesFiltrados.length; }
+  get totalPages(): number { return Math.ceil(this.totalItems / this.pageSize) || 1; }
+  get pageStart(): number { return this.totalItems ? (this.currentPage - 1) * this.pageSize : 0; }
+  get pageEnd(): number { return this.totalItems ? Math.min(this.pageStart + this.pageSize, this.totalItems) : 0; }
+  get pagedAgentes(): Agente[] { return this.agentesOrdenados.slice(this.pageStart, this.pageEnd); }
 
-  get totalPages(): number {
-    const pages = Math.ceil(this.totalItems / this.pageSize) || 1;
-    return pages;
-  }
-
-  get pageStart(): number {
-    if (!this.totalItems) return 0;
-    return (this.currentPage - 1) * this.pageSize;
-  }
-
-  get pageEnd(): number {
-    if (!this.totalItems) return 0;
-    return Math.min(this.pageStart + this.pageSize, this.totalItems);
-  }
-
-  get pagedAgentes(): Agente[] {
-    const start = this.pageStart;
-    const end = this.pageEnd;
-    return this.agentesOrdenados.slice(start, end);
-  }
-
-  // Geração de botões numéricos (com reticências quando necessário)
   get pageNumbers(): number[] {
     const total = this.totalPages;
     const current = this.currentPage;
@@ -182,33 +147,15 @@ export class AgenteComponent implements OnInit {
   onPageSizeChange() {
     this.currentPage = 1;
     this.clampPage();
-    try {
-      localStorage.setItem('agentes_pageSize', String(this.pageSize));
-    } catch {}
+    try { localStorage.setItem('agentes_pageSize', String(this.pageSize)); } catch { }
   }
 
-  setPage(p: number) {
-    this.currentPage = p;
-    this.clampPage();
-  }
-
-  nextPage() {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage += 1;
-    }
-  }
-
-  prevPage() {
-    if (this.currentPage > 1) {
-      this.currentPage -= 1;
-    }
-  }
+  setPage(p: number) { this.currentPage = p; this.clampPage(); }
+  nextPage() { if (this.currentPage < this.totalPages) this.currentPage += 1; }
+  prevPage() { if (this.currentPage > 1) this.currentPage -= 1; }
 
   private clampPage() {
-    if (this.totalItems === 0) {
-      this.currentPage = 1;
-      return;
-    }
+    if (this.totalItems === 0) { this.currentPage = 1; return; }
     if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
     if (this.currentPage < 1) this.currentPage = 1;
   }

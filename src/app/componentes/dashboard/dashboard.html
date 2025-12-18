@@ -1,63 +1,79 @@
 <div class="dashboard-container">
-  <h1>Dashboard - Sistema DRO</h1>
-  
-  <div class="row g-3 my-3">
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="card text-center shadow-sm stat-card">
-        <div class="card-body d-flex align-items-center justify-content-center gap-3">
-          <i class="mdi mdi-file-document-multiple text-primary" style="font-size: 32px;"></i>
-          <div class="stat-info">
-            <h2 class="h3 mb-0">156</h2>
-            <small class="text-muted">Relatórios Base</small>
-          </div>
-        </div>
+  <div class="dashboard-header">
+    <h1>Dashboard</h1>
+    <p>Visão geral do Sistema DRO</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon blue">
+        <hero-icon name="document-duplicate" size="1.75rem"></hero-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">156</span>
+        <span class="stat-label">Relatórios Base</span>
       </div>
     </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="card text-center shadow-sm stat-card">
-        <div class="card-body d-flex align-items-center justify-content-center gap-3">
-          <i class="mdi mdi-clipboard-check-multiple text-success" style="font-size: 32px;"></i>
-          <div class="stat-info">
-            <h2 class="h3 mb-0">1,247</h2>
-            <small class="text-muted">Atividades</small>
-          </div>
-        </div>
+
+    <div class="stat-card">
+      <div class="stat-icon green">
+        <hero-icon name="clipboard-document-check" size="1.75rem"></hero-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">1,247</span>
+        <span class="stat-label">Atividades</span>
       </div>
     </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="card text-center shadow-sm stat-card">
-        <div class="card-body d-flex align-items-center justify-content-center gap-3">
-          <i class="mdi mdi-trending-up text-warning" style="font-size: 32px;"></i>
-          <div class="stat-info">
-            <h2 class="h3 mb-0">3,891</h2>
-            <small class="text-muted">Itens Produtividade</small>
-          </div>
-        </div>
+
+    <div class="stat-card">
+      <div class="stat-icon amber">
+        <hero-icon name="arrow-trending-up" size="1.75rem"></hero-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">3,891</span>
+        <span class="stat-label">Itens Produtividade</span>
       </div>
     </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="card text-center shadow-sm stat-card">
-        <div class="card-body d-flex align-items-center justify-content-center gap-3">
-          <i class="mdi mdi-check-circle text-info" style="font-size: 32px;"></i>
-          <div class="stat-info">
-            <h2 class="h3 mb-0">87%</h2>
-            <small class="text-muted">Taxa Conclusão</small>
-          </div>
-        </div>
+
+    <div class="stat-card">
+      <div class="stat-icon cyan">
+        <hero-icon name="check-circle" size="1.75rem"></hero-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">87%</span>
+        <span class="stat-label">Taxa Conclusão</span>
       </div>
     </div>
   </div>
-  
-  <div class="card welcome-card shadow-sm">
-    <div class="card-header">
-      <h5 class="card-title mb-0">Bem-vindo ao Sistema DRO</h5>
-      <small class="text-muted">Sistema de Digitalização de Relatórios Diários</small>
+
+  <div class="welcome-card">
+    <div class="welcome-header">
+      <div class="welcome-icon">
+        <hero-icon name="information-circle" size="1.5rem"></hero-icon>
+      </div>
+      <div>
+        <h2>Bem-vindo ao Sistema DRO</h2>
+        <p>Sistema de Digitalização de Relatórios Diários</p>
+      </div>
     </div>
-    <div class="card-body">
-      <p>Este é o dashboard principal do sistema de relatórios DRO. Use o menu lateral para navegar entre as diferentes seções:</p>
-      <ul class="mb-0">
-        <li><strong>Relatórios Base:</strong> Gerencie os relatórios principais dos funcionários</li>
-        <li><strong>Atividades:</strong> Visualize e edite as atividades realizadas</li>
+    <div class="welcome-content">
+      <p>Este é o dashboard principal do sistema de relatórios DRO. Use o menu lateral para navegar entre as diferentes
+        seções:</p>
+      <ul class="feature-list">
+        <li>
+          <hero-icon name="document-text" size="1.25rem"></hero-icon>
+          <div>
+            <strong>Relatórios Base</strong>
+            <span>Gerencie os relatórios principais dos funcionários</span>
+          </div>
+        </li>
+        <li>
+          <hero-icon name="clipboard-document" size="1.25rem"></hero-icon>
+          <div>
+            <strong>Atividades</strong>
+            <span>Visualize e edite as atividades realizadas</span>
+          </div>
+        </li>
       </ul>
     </div>
   </div>

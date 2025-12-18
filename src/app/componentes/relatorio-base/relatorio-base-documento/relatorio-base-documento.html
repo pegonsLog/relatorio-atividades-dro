@@ -1,15 +1,17 @@
-<div class="doc-toolbar no-print d-flex justify-content-between align-items-center gap-2 p-2">
-  <div class="small text-muted">
-    <a class="btn btn-sm btn-outline-secondary" (click)="voltar()"><i class="mdi mdi-arrow-left"></i> Voltar</a>
-  </div>
-  <div>
-    <button class="btn btn-sm btn-primary me-3" (click)="print()"><i class="mdi mdi-printer"></i> Imprimir / Exportar PDF</button>
-  </div>
+<div class="doc-toolbar no-print">
+  <button class="btn btn-outline-secondary" (click)="voltar()">
+    <hero-icon name="arrow-left" size="1.125rem"></hero-icon>
+    Voltar
+  </button>
+  <button class="btn btn-primary" (click)="print()">
+    <hero-icon name="document-arrow-down" size="1.125rem"></hero-icon>
+    Imprimir / Exportar PDF
+  </button>
 </div>
 
 <div class="document-a4">
-  <header class="doc-header d-flex align-items-center justify-content-between">
-    <div class="brand d-flex align-items-center gap-3">
+  <header class="doc-header">
+    <div class="brand">
       <img src="assets/logo/logo-icone-texto-preto.png" alt="Logo" class="logo" />
       <div>
         <h1 class="title">Relatório de Atividades - DRO</h1>
@@ -26,114 +28,110 @@
   <div *ngIf="loading" class="loading text-center text-muted">Carregando...</div>
 
   <ng-container *ngIf="!loading">
-  <section class="doc-info avoid-break">
-    <div class="row">
-      <div><strong>Matrícula 1:</strong> {{ relatorio?.mat1 || '-' }}</div>
-      <div><strong>Matrícula 2:</strong> {{ relatorio?.mat2 || '-' }}</div>
-      <div><strong>Coordenação:</strong> {{ relatorio?.coord || '-' }}</div>
-      <div><strong>Supervisão:</strong> {{ relatorio?.superv || '-' }}</div>
-    </div>
-  </section>
+    <section class="doc-info avoid-break">
+      <div class="info-grid">
+        <div><strong>Matrícula 1:</strong> {{ relatorio?.mat1 || '-' }}</div>
+        <div><strong>Matrícula 2:</strong> {{ relatorio?.mat2 || '-' }}</div>
+        <div><strong>Coordenação:</strong> {{ relatorio?.coord || '-' }}</div>
+        <div><strong>Supervisão:</strong> {{ relatorio?.superv || '-' }}</div>
+      </div>
+    </section>
 
-  <section class="doc-section avoid-break">
-    <h2>Atividades</h2>
-    <table class="table table-sm table-striped">
-      <thead>
-        <tr>
-          <th class="text-nowrap">Item</th>
-          <th class="text-nowrap">Chegada</th>
-          <th class="text-nowrap">Solução</th>
-          <th class="text-nowrap">Saída</th>
-          <th class="text-nowrap">Cód.</th>
-          <th>Atividade</th>
-          <th class="text-nowrap">Agentes</th>
-          <th>Local</th>
-          <th>Observações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let a of atividades | slice:0; let i = index">
-          <td class="text-nowrap">{{ a.item || (i + 1) }}</td>
-          <td class="text-nowrap">{{ a.chegada | date:'HH:mm' }}</td>
-          <td class="text-nowrap">{{ a.solucao ? (a.solucao | date:'HH:mm') : '-' }}</td>
-          <td class="text-nowrap">{{ a.saida | date:'HH:mm' }}</td>
-          <td class="text-nowrap">{{ a.codAtv }}</td>
-          <td>{{ a.nomeAtividade }}</td>
-          <td class="text-nowrap text-end">{{ a.qtdAgentes }}</td>
-          <td>{{ a.local }}</td>
-          <td>{{ a.observacoes }}</td>
-        </tr>
-        <tr *ngIf="!atividades || atividades.length === 0">
-          <td colspan="9" class="text-center text-muted">Sem registros</td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
+    <section class="doc-section avoid-break">
+      <h2>Atividades</h2>
+      <table class="table table-sm table-striped">
+        <thead>
+          <tr>
+            <th class="text-nowrap">Item</th>
+            <th class="text-nowrap">Chegada</th>
+            <th class="text-nowrap">Solução</th>
+            <th class="text-nowrap">Saída</th>
+            <th class="text-nowrap">Cód.</th>
+            <th>Atividade</th>
+            <th class="text-nowrap">Agentes</th>
+            <th>Local</th>
+            <th>Observações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of atividades | slice:0; let i = index">
+            <td class="text-nowrap">{{ a.item || (i + 1) }}</td>
+            <td class="text-nowrap">{{ a.chegada | date:'HH:mm' }}</td>
+            <td class="text-nowrap">{{ a.solucao ? (a.solucao | date:'HH:mm') : '-' }}</td>
+            <td class="text-nowrap">{{ a.saida | date:'HH:mm' }}</td>
+            <td class="text-nowrap">{{ a.codAtv }}</td>
+            <td>{{ a.nomeAtividade }}</td>
+            <td class="text-nowrap text-end">{{ a.qtdAgentes }}</td>
+            <td>{{ a.local }}</td>
+            <td>{{ a.observacoes }}</td>
+          </tr>
+          <tr *ngIf="!atividades || atividades.length === 0">
+            <td colspan="9" class="text-center text-muted">Sem registros</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
-  <section class="doc-section avoid-break">
-    <h2>Produtividades</h2>
-    <table class="table table-sm table-striped">
-      <thead>
-        <tr>
-          <th class="text-nowrap">Cód.</th>
-          <th>Produtividade</th>
-          <th class="text-end text-nowrap">Quantidade</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let p of produtividades | slice:0">
-          <td class="text-nowrap">{{ p.codProd }}</td>
-          <td>{{ p.nomeProdutividade }}</td>
-          <td class="text-end text-nowrap">{{ p.qtdProd }}</td>
-        </tr>
-        <tr *ngIf="!produtividades || produtividades.length === 0">
-          <td colspan="3" class="text-center text-muted">Sem registros</td>
-        </tr>
-      </tbody>
-      <tfoot *ngIf="produtividades && produtividades.length">
-        <tr>
-          <th colspan="2" class="text-end">Total</th>
-          <th class="text-end">{{ sumProdutividade() }}</th>
-        </tr>
-      </tfoot>
-    </table>
-  </section>
+    <section class="doc-section avoid-break">
+      <h2>Produtividades</h2>
+      <table class="table table-sm table-striped">
+        <thead>
+          <tr>
+            <th class="text-nowrap">Cód.</th>
+            <th>Produtividade</th>
+            <th class="text-end text-nowrap">Quantidade</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of produtividades | slice:0">
+            <td class="text-nowrap">{{ p.codProd }}</td>
+            <td>{{ p.nomeProdutividade }}</td>
+            <td class="text-end text-nowrap">{{ p.qtdProd }}</td>
+          </tr>
+          <tr *ngIf="!produtividades || produtividades.length === 0">
+            <td colspan="3" class="text-center text-muted">Sem registros</td>
+          </tr>
+        </tbody>
+        <tfoot *ngIf="produtividades && produtividades.length">
+          <tr>
+            <th colspan="2" class="text-end">Total</th>
+            <th class="text-end">{{ sumProdutividade() }}</th>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
 
-  <!-- Resumo de Produtividades (agrupado) removido -->
+    <section class="doc-section avoid-break">
+      <h2>Ocorrências</h2>
+      <table class="table table-sm table-striped">
+        <thead>
+          <tr>
+            <th class="text-nowrap">Cód.</th>
+            <th>Ocorrência</th>
+            <th class="text-end text-nowrap">Quantidade</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let o of ocorrencias | slice:0">
+            <td class="text-nowrap">{{ o.codOcor }}</td>
+            <td>{{ o.nomeOcorrencia }}</td>
+            <td class="text-end text-nowrap">{{ o.qtdOcor }}</td>
+          </tr>
+          <tr *ngIf="!ocorrencias || ocorrencias.length === 0">
+            <td colspan="3" class="text-center text-muted">Sem registros</td>
+          </tr>
+        </tbody>
+        <tfoot *ngIf="ocorrencias && ocorrencias.length">
+          <tr>
+            <th colspan="2" class="text-end">Total</th>
+            <th class="text-end">{{ sumOcorrencias() }}</th>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
 
-  <section class="doc-section avoid-break">
-    <h2>Ocorrências</h2>
-    <table class="table table-sm table-striped">
-      <thead>
-        <tr>
-          <th class="text-nowrap">Cód.</th>
-          <th>Ocorrência</th>
-          <th class="text-end text-nowrap">Quantidade</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let o of ocorrencias | slice:0">
-          <td class="text-nowrap">{{ o.codOcor }}</td>
-          <td>{{ o.nomeOcorrencia }}</td>
-          <td class="text-end text-nowrap">{{ o.qtdOcor }}</td>
-        </tr>
-        <tr *ngIf="!ocorrencias || ocorrencias.length === 0">
-          <td colspan="3" class="text-center text-muted">Sem registros</td>
-        </tr>
-      </tbody>
-      <tfoot *ngIf="ocorrencias && ocorrencias.length">
-        <tr>
-          <th colspan="2" class="text-end">Total</th>
-          <th class="text-end">{{ sumOcorrencias() }}</th>
-        </tr>
-      </tfoot>
-    </table>
-  </section>
-
-  <!-- Resumo de Ocorrências (agrupado) removido -->
-
-  <footer class="doc-footer">
-    <div>Gerado em {{ now | date:'dd/MM/yyyy HH:mm' }}</div>
-  </footer>
+    <footer class="doc-footer">
+      <div>Gerado em {{ now | date:'dd/MM/yyyy HH:mm' }}</div>
+    </footer>
   </ng-container>
 </div>

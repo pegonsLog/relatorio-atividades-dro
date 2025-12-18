@@ -1,150 +1,171 @@
-<div class="container py-3">
-  <h2 class="h4 mb-3">Usuários</h2>
-
-  <div class="row g-3 mb-3">
-    <div class="col-12 col-md-6">
-      <div class="input-group">
-        <span class="input-group-text"><i class="mdi mdi-magnify"></i></span>
-        <input type="text" class="form-control" [(ngModel)]="filtro" (ngModelChange)="onFilterChange()" name="filtro" placeholder="Buscar por nome ou matrícula" />
-        <button class="btn btn-header" type="button" (click)="clearFilter()" [disabled]="!filtro" aria-label="Limpar filtro">
-          <i class="mdi mdi-close-circle-outline"></i>
-        </button>
-      </div>
+<div class="container py-4">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Usuários</h1>
+      <p>Gerencie os usuários do sistema</p>
     </div>
-    <div class="col-12 col-md-6 text-md-end">
-      <a class="btn btn-outline-secondary me-2" [routerLink]="['/menu']"><i class="mdi mdi-arrow-left me-1"></i>Voltar ao Menu</a>
-      <a class="btn btn-primary" [routerLink]="['/usuarios/novo']"><i class="mdi mdi-account-plus-outline me-1"></i>Novo Usuário</a>
+    <div class="header-actions">
+      <a class="btn btn-outline-secondary" [routerLink]="['/menu']">
+        <hero-icon name="arrow-left" size="1.25rem"></hero-icon>
+        Voltar
+      </a>
+      <a class="btn btn-primary" [routerLink]="['/usuarios/novo']">
+        <hero-icon name="user-plus" size="1.25rem"></hero-icon>
+        Novo Usuário
+      </a>
     </div>
   </div>
 
-  <!-- Spinner de carregamento -->
-  <div *ngIf="loading" class="d-flex justify-content-center align-items-center py-5" role="status" aria-live="polite">
-    <div class="spinner-border text-primary me-2" role="status" aria-hidden="true"></div>
-    <span>Carregando...</span>
+  <div class="search-bar">
+    <div class="search-input">
+      <hero-icon name="magnifying-glass" size="1.25rem"></hero-icon>
+      <input type="text" class="form-control" [(ngModel)]="filtro" (ngModelChange)="onFilterChange()" name="filtro"
+        placeholder="Buscar por nome ou matrícula..." />
+      <button class="btn-clear" type="button" (click)="clearFilter()" *ngIf="filtro">
+        <hero-icon name="x-circle" size="1.25rem"></hero-icon>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner-border text-primary"></div>
+    <span>Carregando usuários...</span>
   </div>
 
   <ng-container *ngIf="!loading">
-  <div class="table-responsive shadow-sm">
-    <table class="table table-striped table-hover align-middle mb-0">
-      <colgroup>
-        <col class="col-matricula" />
-        <col />
-        <col class="col-senha" />
-        <col class="col-perfil" />
-        <col class="col-ativo" />
-        <col class="col-acoes" />
-      </colgroup>
-      <thead class="table-light">
-        <tr>
-          <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('matricula')">
-              <span [class.fw-semibold]="sortKey==='matricula'">Matrícula</span>
-              <i class="mdi" [ngClass]="sortKey==='matricula' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
-            </button>
-          </th>
-          <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('nome')">
-              <span [class.fw-semibold]="sortKey==='nome'">Nome</span>
-              <i class="mdi" [ngClass]="sortKey==='nome' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
-            </button>
-          </th>
-          <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('senha')">
-              <span [class.fw-semibold]="sortKey==='senha'">Senha</span>
-              <i class="mdi" [ngClass]="sortKey==='senha' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
-            </button>
-          </th>
-          <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('perfil')">
-              <span [class.fw-semibold]="sortKey==='perfil'">Perfil</span>
-              <i class="mdi" [ngClass]="sortKey==='perfil' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
-            </button>
-          </th>
-          <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('ativo')">
-              <span [class.fw-semibold]="sortKey==='ativo'">Status</span>
-              <i class="mdi" [ngClass]="sortKey==='ativo' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
-            </button>
-          </th>
-          <th class="th-nowrap text-end">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let u of pageItems">
-          <td>{{ u.matricula }}</td>
-          <td>{{ u.nome }}</td>
-          <td>{{ u.senha }}</td>
-          <td>
-            <span class="badge" [ngClass]="{ 'text-bg-secondary': u.perfil === 'Usuário', 'text-bg-info': u.perfil === 'Admin' }">{{ u.perfil }}</span>
-          </td>
-          <td>
-            <span class="badge" [ngClass]="{ 'text-bg-success': u.ativo, 'text-bg-danger': !u.ativo }">{{ u.ativo ? 'Ativo' : 'Inativo' }}</span>
-          </td>
-          <td class="text-end">
-            <a class="btn btn-sm btn-outline-secondary me-1" [routerLink]="['/usuarios', u.matricula, 'editar']"><i class="mdi mdi-pencil-outline"></i></a>
-            <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDelete(u.matricula)"><i class="mdi mdi-trash-can-outline"></i></button>
-          </td>
-        </tr>
-        <tr *ngIf="filtrados.length === 0">
-          <td colspan="6" class="empty-state">Nenhum usuário encontrado</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Controles de paginação -->
-  <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mt-3">
-    <div class="text-muted small">
-      Mostrando {{ startIndex }}–{{ endIndex }} de {{ total }}
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('matricula')">
+                Matrícula
+                <hero-icon
+                  [name]="sortKey==='matricula' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('nome')">
+                Nome
+                <hero-icon [name]="sortKey==='nome' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('perfil')">
+                Perfil
+                <hero-icon
+                  [name]="sortKey==='perfil' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('ativo')">
+                Status
+                <hero-icon [name]="sortKey==='ativo' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
+              </button>
+            </th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of pageItems">
+            <td><span class="badge text-bg-secondary">{{ u.matricula }}</span></td>
+            <td class="fw-medium">{{ u.nome }}</td>
+            <td>
+              <span class="badge"
+                [ngClass]="{ 'text-bg-info': u.perfil === 'Admin', 'text-bg-secondary': u.perfil !== 'Admin' }">
+                {{ u.perfil }}
+              </span>
+            </td>
+            <td>
+              <span class="status-badge" [class.active]="u.ativo" [class.inactive]="!u.ativo">
+                <span class="status-dot"></span>
+                {{ u.ativo ? 'Ativo' : 'Inativo' }}
+              </span>
+            </td>
+            <td class="text-end">
+              <div class="action-buttons">
+                <a class="btn btn-sm btn-outline-primary" [routerLink]="['/usuarios', u.matricula, 'editar']"
+                  title="Editar">
+                  <hero-icon name="pencil" size="1rem"></hero-icon>
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDelete(u.matricula)"
+                  title="Excluir">
+                  <hero-icon name="trash" size="1rem"></hero-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filtrados.length === 0">
+            <td colspan="5" class="empty-state">
+              <hero-icon name="user-group" size="3rem"></hero-icon>
+              <p>Nenhum usuário encontrado</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div class="d-flex align-items-center gap-2">
-      <div class="input-group input-group-sm" style="width: 180px;">
-        <span class="input-group-text">Por página</span>
-        <select class="form-select" [(ngModel)]="pageSize" name="pageSize" (ngModelChange)="goTo(1)">
-          <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
-        </select>
+
+    <div class="pagination-bar">
+      <div class="pagination-info">
+        Mostrando {{ startIndex }}–{{ endIndex }} de {{ total }}
       </div>
-      <nav>
-        <ul class="pagination pagination-sm mb-0">
-          <li class="page-item" [class.disabled]="page === 1">
-            <button class="page-link" (click)="goTo(page - 1)" [disabled]="page === 1">«</button>
-          </li>
-          <li class="page-item" *ngFor="let p of pages" [class.active]="p === page">
-            <button class="page-link" (click)="goTo(p)">{{ p }}</button>
-          </li>
-          <li class="page-item" [class.disabled]="page === totalPages">
-            <button class="page-link" (click)="goTo(page + 1)" [disabled]="page === totalPages">»</button>
-          </li>
-        </ul>
-      </nav>
+      <div class="pagination-controls">
+        <div class="page-size">
+          <label>Por página</label>
+          <select class="form-select form-select-sm" [(ngModel)]="pageSize" name="pageSize" (ngModelChange)="goTo(1)">
+            <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+        <nav class="pagination-nav">
+          <button class="btn btn-sm btn-outline-secondary" (click)="goTo(page - 1)" [disabled]="page === 1">
+            <hero-icon name="chevron-left" size="1rem"></hero-icon>
+          </button>
+          <button *ngFor="let p of pages" class="btn btn-sm"
+            [ngClass]="p === page ? 'btn-primary' : 'btn-outline-secondary'" (click)="goTo(p)">{{ p }}</button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="goTo(page + 1)" [disabled]="page === totalPages">
+            <hero-icon name="chevron-right" size="1rem"></hero-icon>
+          </button>
+        </nav>
+      </div>
     </div>
-  </div>
-
   </ng-container>
 
   <!-- Modal de confirmação de exclusão -->
-  <div *ngIf="showDeleteModal">
-    <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Confirmar exclusão</h5>
-            <button type="button" class="btn-close" aria-label="Close" (click)="closeDelete()" [disabled]="deleting"></button>
-          </div>
-          <div class="modal-body">
-            <p>Tem certeza que deseja excluir o usuário de matrícula <strong>{{ toDelete }}</strong>?</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeDelete()" [disabled]="deleting">Cancelar</button>
-            <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleting">
-              <span *ngIf="!deleting">Excluir</span>
-              <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              <span *ngIf="deleting" class="ms-2">Excluindo...</span>
-            </button>
-          </div>
+  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDelete()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon danger">
+          <hero-icon name="exclamation-triangle" size="1.5rem"></hero-icon>
         </div>
+        <div>
+          <h5 class="modal-title">Confirmar exclusão</h5>
+          <p class="modal-subtitle">Esta ação não pode ser desfeita</p>
+        </div>
+        <button type="button" class="modal-close" (click)="closeDelete()" [disabled]="deleting">
+          <hero-icon name="x-mark" size="1.5rem"></hero-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza que deseja excluir o usuário de matrícula <strong>{{ toDelete }}</strong>?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeDelete()"
+          [disabled]="deleting">Cancelar</button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleting">
+          <span *ngIf="!deleting" class="d-flex align-items-center gap-2">
+            <hero-icon name="trash" size="1.25rem"></hero-icon>
+            Excluir
+          </span>
+          <span *ngIf="deleting" class="d-flex align-items-center gap-2">
+            <span class="spinner-border spinner-border-sm"></span>
+            Excluindo...
+          </span>
+        </button>
       </div>
     </div>
-    <div class="modal-backdrop fade show"></div>
   </div>
 </div>

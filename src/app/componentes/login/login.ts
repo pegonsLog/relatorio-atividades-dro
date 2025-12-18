@@ -3,12 +3,14 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { HeroIconComponent } from '../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './login.html'
+  imports: [CommonModule, ReactiveFormsModule, HeroIconComponent],
+  templateUrl: './login.html',
+  styleUrl: './login.scss'
 })
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);

@@ -1,20 +1,32 @@
-<form class="row g-3 gy-4" (ngSubmit)="onSubmit()" [formGroup]="form">
-  <div class="col-12 col-sm-6 col-md-3">
-    <label class="form-label">Data</label>
-    <input type="date" class="form-control" formControlName="data" #dataInput />
+<form class="form-grid" (ngSubmit)="onSubmit()" [formGroup]="form">
+  <div class="form-group">
+    <label class="form-label" for="data">
+      <hero-icon name="calendar" size="1rem"></hero-icon>
+      Data
+    </label>
+    <input type="date" id="data" class="form-control" formControlName="data" #dataInput />
   </div>
-  <div class="col-12 col-sm-6 col-md-3">
-    <label class="form-label">Dia da Semana</label>
-    <input type="text" class="form-control" formControlName="diaSemana" readonly />
+
+  <div class="form-group">
+    <label class="form-label" for="diaSemana">
+      <hero-icon name="calendar" size="1rem"></hero-icon>
+      Dia da Semana
+    </label>
+    <input type="text" id="diaSemana" class="form-control" formControlName="diaSemana" readonly />
   </div>
-  <div class="col-12 col-sm-6 col-md-3">
-    <label class="form-label">Gerência</label>
+
+  <div class="form-group">
+    <label class="form-label" for="gerencia">
+      <hero-icon name="user-group" size="1rem"></hero-icon>
+      Gerência
+    </label>
     <ng-container *ngIf="isLocked; else gerenciaSelect">
-      <input type="text" class="form-control locked-display" [value]="form.get('gerencia')?.value || defaults?.gerencia" readonly />
-      <div class="form-text text-muted">Definido pelos filtros</div>
+      <input type="text" class="form-control locked-display" [value]="form.get('gerencia')?.value || defaults?.gerencia"
+        readonly />
+      <div class="form-hint">Definido pelos filtros</div>
     </ng-container>
     <ng-template #gerenciaSelect>
-      <select class="form-select" formControlName="gerencia">
+      <select id="gerencia" class="form-select" formControlName="gerencia">
         <option value="" disabled selected>Selecione</option>
         <option value="GARBO">GARBO</option>
         <option value="GARNE">GARNE</option>
@@ -25,14 +37,19 @@
       </select>
     </ng-template>
   </div>
-  <div class="col-12 col-sm-6 col-md-3">
-    <label class="form-label">Turno</label>
+
+  <div class="form-group">
+    <label class="form-label" for="turno">
+      <hero-icon name="clock" size="1rem"></hero-icon>
+      Turno
+    </label>
     <ng-container *ngIf="isLocked; else turnoSelect">
-      <input type="text" class="form-control locked-display" [value]="form.get('turno')?.value || defaults?.turno" readonly />
-      <div class="form-text text-muted">Definido pelos filtros</div>
+      <input type="text" class="form-control locked-display" [value]="form.get('turno')?.value || defaults?.turno"
+        readonly />
+      <div class="form-hint">Definido pelos filtros</div>
     </ng-container>
     <ng-template #turnoSelect>
-      <select class="form-select" formControlName="turno">
+      <select id="turno" class="form-select" formControlName="turno">
         <option value="" disabled>Selecione</option>
         <option value="MANHÃ">MANHÃ</option>
         <option value="TARDE">TARDE</option>
@@ -40,53 +57,80 @@
       </select>
     </ng-template>
   </div>
-  <div class="col-12 col-sm-6 col-md-3">
-    <label class="form-label">Mat. 1</label>
-    <select class="form-select" formControlName="mat1">
+
+  <div class="form-group">
+    <label class="form-label" for="mat1">
+      <hero-icon name="user" size="1rem"></hero-icon>
+      Mat. 1
+    </label>
+    <select id="mat1" class="form-select" formControlName="mat1">
       <option [ngValue]="null" disabled>Selecione</option>
       <option *ngFor="let a of agentes$ | async" [ngValue]="a.matricula">{{ a.matricula }} - {{ a.nome }}</option>
     </select>
   </div>
-  <div class="col-12 col-sm-6 col-md-3">
-    <label class="form-label">Mat. 2</label>
-    <select class="form-select" formControlName="mat2">
+
+  <div class="form-group">
+    <label class="form-label" for="mat2">
+      <hero-icon name="user" size="1rem"></hero-icon>
+      Mat. 2
+    </label>
+    <select id="mat2" class="form-select" formControlName="mat2">
       <option [ngValue]="null" disabled>Selecione</option>
       <option *ngFor="let a of agentes$ | async" [ngValue]="a.matricula">{{ a.matricula }} - {{ a.nome }}</option>
     </select>
   </div>
-  <div class="col-12 col-sm-6 col-md-3">
-    <label class="form-label">Coord.</label>
-    <select class="form-select" formControlName="coord">
+
+  <div class="form-group">
+    <label class="form-label" for="coord">
+      <hero-icon name="user-circle" size="1rem"></hero-icon>
+      Coord.
+    </label>
+    <select id="coord" class="form-select" formControlName="coord">
       <option [ngValue]="null" disabled>Selecione</option>
       <option *ngFor="let a of agentes$ | async" [ngValue]="a.matricula">{{ a.matricula }} - {{ a.nome }}</option>
     </select>
   </div>
-  <div class="col-12 col-sm-6 col-md-3">
-    <label class="form-label">Superv.</label>
-    <select class="form-select" formControlName="superv">
+
+  <div class="form-group">
+    <label class="form-label" for="superv">
+      <hero-icon name="user-circle" size="1rem"></hero-icon>
+      Superv.
+    </label>
+    <select id="superv" class="form-select" formControlName="superv">
       <option [ngValue]="null" disabled>Selecione</option>
       <option *ngFor="let a of agentes$ | async" [ngValue]="a.matricula">{{ a.matricula }} - {{ a.nome }}</option>
     </select>
   </div>
-  <!-- Campos de auditoria (somente leitura) -->
-  <div class="col-12" *ngIf="value">
-    <div class="row g-3 small text-muted">
-      <div class="col-12 col-md-auto">
-        <div>Criado em: <span class="fw-semibold">{{ value.createdAt ? (value.createdAt | date:'dd/MM/yyyy HH:mm') : '-' }}</span></div>
-      </div>
-      <div class="col-12 col-md-auto">
-        <div>Criado por: <span class="fw-semibold">{{ value.criadoPor || '-' }}</span></div>
-      </div>
-      <div class="col-12 col-md-auto">
-        <div>Atualizado em: <span class="fw-semibold">{{ value.updatedAt ? (value.updatedAt | date:'dd/MM/yyyy HH:mm') : '-' }}</span></div>
-      </div>
-      <div class="col-12 col-md-auto">
-        <div>Modificado por: <span class="fw-semibold">{{ value.modificadoPor || '-' }}</span></div>
-      </div>
+
+  <!-- Campos de auditoria -->
+  <div class="audit-info" *ngIf="value">
+    <div class="audit-item">
+      <hero-icon name="clock" size="0.875rem"></hero-icon>
+      <span>Criado em: <strong>{{ value.createdAt ? (value.createdAt | date:'dd/MM/yyyy HH:mm') : '-' }}</strong></span>
+    </div>
+    <div class="audit-item">
+      <hero-icon name="user" size="0.875rem"></hero-icon>
+      <span>Criado por: <strong>{{ value.criadoPor || '-' }}</strong></span>
+    </div>
+    <div class="audit-item">
+      <hero-icon name="clock" size="0.875rem"></hero-icon>
+      <span>Atualizado em: <strong>{{ value.updatedAt ? (value.updatedAt | date:'dd/MM/yyyy HH:mm') : '-'
+          }}</strong></span>
+    </div>
+    <div class="audit-item">
+      <hero-icon name="user" size="0.875rem"></hero-icon>
+      <span>Modificado por: <strong>{{ value.modificadoPor || '-' }}</strong></span>
     </div>
   </div>
-  <div class="col-12 d-flex gap-2">
-    <button type="submit" class="btn btn-primary" [disabled]="saving">{{ value?.idRelatorio ? 'Salvar' : 'Salvar' }}</button>
-    <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">Cancelar</button>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" (click)="onCancel()">
+      <hero-icon name="x-mark" size="1.125rem"></hero-icon>
+      Cancelar
+    </button>
+    <button type="submit" class="btn btn-primary" [disabled]="saving">
+      <hero-icon name="check" size="1.125rem"></hero-icon>
+      Salvar
+    </button>
   </div>
 </form>

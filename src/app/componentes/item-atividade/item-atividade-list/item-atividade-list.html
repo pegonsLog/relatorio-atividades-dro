@@ -1,111 +1,116 @@
-<div class="container py-3">
-  <h2 class="h4 mb-3">Atividades</h2>
-
-  <div class="row g-3 mb-3">
-    <div class="col-12 col-md-6">
-      <div class="input-group">
-        <span class="input-group-text"><i class="mdi mdi-magnify"></i></span>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="filtro"
-          (ngModelChange)="onFilterChange()"
-          name="filtro"
-          [attr.placeholder]="isFromMenu ? 'Buscar por código, nome da atividade, item ou qtd. agentes' : 'Buscar por local, acionamento, código, nome da atividade ou item'"
-        />
-        <button class="btn btn-header" type="button" (click)="clearFilter()" [disabled]="!filtro" aria-label="Limpar filtro">
-          <i class="mdi mdi-close-circle-outline"></i>
-        </button>
-      </div>
-
+<div class="container py-4">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Atividades</h1>
+      <p>Visualize e gerencie as atividades registradas</p>
     </div>
-    <div class="col-12 col-md-6 text-md-end">
-      <a class="btn btn-outline-secondary me-2" [routerLink]="['/menu']"><i class="mdi mdi-arrow-left me-1"></i>Voltar ao Menu</a>
-      <button type="button" class="btn btn-success me-2" (click)="exportExcel()" [disabled]="filtrados.length === 0">
-        <i class="mdi mdi-file-excel"></i> Exportar Excel
+    <div class="header-actions">
+      <a class="btn btn-outline-secondary" [routerLink]="['/menu']">
+        <hero-icon name="arrow-left" size="1.25rem"></hero-icon>
+        Voltar
+      </a>
+      <button type="button" class="btn btn-success" (click)="exportExcel()" [disabled]="filtrados.length === 0">
+        <hero-icon name="document-arrow-down" size="1.25rem"></hero-icon>
+        Exportar Excel
       </button>
-      <a class="btn btn-primary" *ngIf="!isFromMenu" [routerLink]="['/item-atividade/novo']"><i class="mdi mdi-clipboard-plus-outline me-1"></i>Nova Atividade</a>
+      <a class="btn btn-primary" *ngIf="!isFromMenu" [routerLink]="['/item-atividade/novo']">
+        <hero-icon name="plus-circle" size="1.25rem"></hero-icon>
+        Nova Atividade
+      </a>
     </div>
   </div>
 
-  <!-- Spinner de carregamento -->
-  <div *ngIf="loading" class="d-flex justify-content-center align-items-center py-5" role="status" aria-live="polite">
-    <div class="spinner-border text-primary me-2" role="status" aria-hidden="true"></div>
-    <span>Carregando...</span>
+  <div class="search-bar">
+    <div class="search-input">
+      <hero-icon name="magnifying-glass" size="1.25rem"></hero-icon>
+      <input type="text" class="form-control" [(ngModel)]="filtro" (ngModelChange)="onFilterChange()" name="filtro"
+        [attr.placeholder]="isFromMenu ? 'Buscar por código, nome da atividade, item ou qtd. agentes' : 'Buscar por local, acionamento, código, nome da atividade ou item'" />
+      <button class="btn-clear" type="button" (click)="clearFilter()" *ngIf="filtro">
+        <hero-icon name="x-circle" size="1.25rem"></hero-icon>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner-border text-primary"></div>
+    <span>Carregando atividades...</span>
   </div>
 
   <ng-container *ngIf="!loading">
-    <div class="table-responsive shadow-sm">
-      <table class="table table-striped table-hover align-middle mb-0">
-        <colgroup>
-          <col class="col-id" *ngIf="!isFromMenu" />
-          <col class="col-item" />
-          <col class="col-local" *ngIf="!isFromMenu" />
-          <col class="col-codigo" />
-          <col class="col-nome" />
-          <col class="col-chegada" />
-          <col class="col-solucao" />
-          <col class="col-saida" />
-          <col class="col-agentes" />
-          <col class="col-acoes" *ngIf="!isFromMenu" />
-        </colgroup>
-        <thead class="table-light">
+    <div class="table-container">
+      <table class="table">
+        <thead>
           <tr>
-            <th class="th-nowrap" *ngIf="!isFromMenu">
-              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('idAtividade')">
-                <span [class.fw-semibold]="sortKey==='idAtividade'">ID</span>
-                <i class="mdi" [ngClass]="sortKey==='idAtividade' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            <th *ngIf="!isFromMenu">
+              <button type="button" class="sort-btn" (click)="setSort('idAtividade')">
+                ID
+                <hero-icon
+                  [name]="sortKey==='idAtividade' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
               </button>
             </th>
-            <th class="th-nowrap">
-              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('item')">
-                <span [class.fw-semibold]="sortKey==='item'">Item</span>
-                <i class="mdi" [ngClass]="sortKey==='item' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('item')">
+                Item
+                <hero-icon [name]="sortKey==='item' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
               </button>
             </th>
-            <th class="th-nowrap" *ngIf="!isFromMenu">
-              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('local')">
-                <span [class.fw-semibold]="sortKey==='local'">Local</span>
-                <i class="mdi" [ngClass]="sortKey==='local' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            <th *ngIf="!isFromMenu">
+              <button type="button" class="sort-btn" (click)="setSort('local')">
+                Local
+                <hero-icon [name]="sortKey==='local' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
               </button>
             </th>
-            <th class="th-nowrap">
-              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('codAtv')">
-                <span [class.fw-semibold]="sortKey==='codAtv'">Cód. Atividade</span>
-                <i class="mdi" [ngClass]="sortKey==='codAtv' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('codAtv')">
+                Cód. Atividade
+                <hero-icon
+                  [name]="sortKey==='codAtv' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
               </button>
             </th>
-            <th class="th-nowrap">
-              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('nomeAtividade')">
-                <span [class.fw-semibold]="sortKey==='nomeAtividade'">Nome</span>
-                <i class="mdi" [ngClass]="sortKey==='nomeAtividade' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('nomeAtividade')">
+                Nome
+                <hero-icon
+                  [name]="sortKey==='nomeAtividade' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
               </button>
             </th>
-            <th class="th-nowrap">
-              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('chegada')">
-                <span [class.fw-semibold]="sortKey==='chegada'">Chegada</span>
-                <i class="mdi" [ngClass]="sortKey==='chegada' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('chegada')">
+                Chegada
+                <hero-icon
+                  [name]="sortKey==='chegada' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
               </button>
             </th>
-            <th class="th-nowrap">
-              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('solucao')">
-                <span [class.fw-semibold]="sortKey==='solucao'">Solução</span>
-                <i class="mdi" [ngClass]="sortKey==='solucao' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('solucao')">
+                Solução
+                <hero-icon
+                  [name]="sortKey==='solucao' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
               </button>
             </th>
-            <th class="th-nowrap">
-              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('saida')">
-                <span [class.fw-semibold]="sortKey==='saida'">Saída</span>
-                <i class="mdi" [ngClass]="sortKey==='saida' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('saida')">
+                Saída
+                <hero-icon [name]="sortKey==='saida' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
               </button>
             </th>
-            <th class="th-nowrap">
-              <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('qtdAgentes')">
-                <span [class.fw-semibold]="sortKey==='qtdAgentes'">Qtd. Agentes</span>
-                <i class="mdi" [ngClass]="sortKey==='qtdAgentes' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('qtdAgentes')">
+                Agentes
+                <hero-icon
+                  [name]="sortKey==='qtdAgentes' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
               </button>
             </th>
-            <th class="th-nowrap text-end" *ngIf="!isFromMenu">Ações</th>
+            <th class="text-end" *ngIf="!isFromMenu">Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -116,96 +121,102 @@
               <div class="fw-medium">{{ a.local }}</div>
               <small class="text-muted">{{ a.acionamento }}</small>
             </td>
-            <td>
-              <span class="badge text-bg-info">{{ a.codAtv }}</span>
-            </td>
-            <td>
-              <span class="text-muted" *ngIf="a.nomeAtividade">{{ a.nomeAtividade }}</span>
-            </td>
-            <td>
-              <small>{{ formatDateTime(a.chegada) }}</small>
-            </td>
-            <td>
-              <small>{{ a.solucao ? formatDateTime(a.solucao) : '-' }}</small>
-            </td>
-            <td>
-              <small>{{ formatDateTime(a.saida) }}</small>
-            </td>
+            <td><span class="badge text-bg-info">{{ a.codAtv }}</span></td>
+            <td><span class="text-muted" *ngIf="a.nomeAtividade">{{ a.nomeAtividade }}</span></td>
+            <td><small>{{ formatDateTime(a.chegada) }}</small></td>
+            <td><small>{{ a.solucao ? formatDateTime(a.solucao) : '-' }}</small></td>
+            <td><small>{{ formatDateTime(a.saida) }}</small></td>
             <td>{{ a.qtdAgentes }}</td>
             <td class="text-end" *ngIf="!isFromMenu">
-              <a class="btn btn-sm btn-outline-info me-1" [routerLink]="['/item-atividade', a.idAtividade]" aria-label="Detalhe da atividade">
-                <i class="mdi mdi-eye-outline"></i>
-              </a>
-              <a class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/item-produtividade']" [queryParams]="{ idRelatorio: a.idRelatorio, idAtividade: a.idAtividade }" aria-label="Ver produtividade">
-                <i class="mdi mdi-clipboard-text-outline"></i>
-              </a>
-              <a class="btn btn-sm btn-outline-secondary me-1" [routerLink]="['/item-atividade', a.idAtividade, 'editar']"><i class="mdi mdi-pencil-outline"></i></a>
-              <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDelete(a.idAtividade)"><i class="mdi mdi-trash-can-outline"></i></button>
+              <div class="action-buttons">
+                <a class="btn btn-sm btn-outline-info" [routerLink]="['/item-atividade', a.idAtividade]"
+                  title="Detalhe">
+                  <hero-icon name="eye" size="1rem"></hero-icon>
+                </a>
+                <a class="btn btn-sm btn-outline-success" [routerLink]="['/item-produtividade']"
+                  [queryParams]="{ idRelatorio: a.idRelatorio, idAtividade: a.idAtividade }" title="Produtividade">
+                  <hero-icon name="clipboard-document-check" size="1rem"></hero-icon>
+                </a>
+                <a class="btn btn-sm btn-outline-primary" [routerLink]="['/item-atividade', a.idAtividade, 'editar']"
+                  title="Editar">
+                  <hero-icon name="pencil" size="1rem"></hero-icon>
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDelete(a.idAtividade)"
+                  title="Excluir">
+                  <hero-icon name="trash" size="1rem"></hero-icon>
+                </button>
+              </div>
             </td>
           </tr>
           <tr *ngIf="filtrados.length === 0">
-            <td [attr.colspan]="isFromMenu ? 7 : 10" class="empty-state">Nenhuma atividade encontrada</td>
+            <td [attr.colspan]="isFromMenu ? 7 : 10" class="empty-state">
+              <hero-icon name="clipboard-document" size="3rem"></hero-icon>
+              <p>Nenhuma atividade encontrada</p>
+            </td>
           </tr>
         </tbody>
       </table>
-  </div>
-
-  <!-- Controles de paginação -->
-  <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 mt-3">
-    <div class="text-muted small">
-      Mostrando {{ startIndex }}–{{ endIndex }} de {{ total }}
     </div>
-    <div class="d-flex align-items-center gap-2">
-      <div class="input-group input-group-sm" style="width: 180px;">
-        <span class="input-group-text">Por página</span>
-        <select class="form-select" [(ngModel)]="pageSize" name="pageSize" (ngModelChange)="goTo(1)">
-          <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
-        </select>
+
+    <div class="pagination-bar">
+      <div class="pagination-info">
+        Mostrando {{ startIndex }}–{{ endIndex }} de {{ total }}
       </div>
-      <nav>
-        <ul class="pagination pagination-sm mb-0">
-          <li class="page-item" [class.disabled]="page === 1">
-            <button class="page-link" (click)="goTo(page - 1)" [disabled]="page === 1">«</button>
-          </li>
-          <li class="page-item" *ngFor="let p of pages" [class.active]="p === page">
-            <button class="page-link" (click)="goTo(p)">{{ p }}</button>
-          </li>
-          <li class="page-item" [class.disabled]="page === totalPages">
-            <button class="page-link" (click)="goTo(page + 1)" [disabled]="page === totalPages">»</button>
-          </li>
-        </ul>
-      </nav>
+      <div class="pagination-controls">
+        <div class="page-size">
+          <label>Por página</label>
+          <select class="form-select form-select-sm" [(ngModel)]="pageSize" name="pageSize" (ngModelChange)="goTo(1)">
+            <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+        <nav class="pagination-nav">
+          <button class="btn btn-sm btn-outline-secondary" (click)="goTo(page - 1)" [disabled]="page === 1">
+            <hero-icon name="chevron-left" size="1rem"></hero-icon>
+          </button>
+          <button *ngFor="let p of pages" class="btn btn-sm"
+            [ngClass]="p === page ? 'btn-primary' : 'btn-outline-secondary'" (click)="goTo(p)">{{ p }}</button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="goTo(page + 1)" [disabled]="page === totalPages">
+            <hero-icon name="chevron-right" size="1rem"></hero-icon>
+          </button>
+        </nav>
+      </div>
     </div>
-  </div>
-
   </ng-container>
 
   <!-- Modal de confirmação de exclusão -->
-  <div *ngIf="showDeleteModal">
-    <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Confirmar exclusão</h5>
-            <button type="button" class="btn-close" aria-label="Close" (click)="closeDelete()" [disabled]="deleting"></button>
-          </div>
-          <div class="modal-body">
-            <p>Tem certeza que deseja excluir a atividade <strong>#{{ toDelete }}</strong>?</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeDelete()" [disabled]="deleting">Cancelar</button>
-            <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleting">
-              <span *ngIf="!deleting">Excluir</span>
-              <span *ngIf="deleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              <span *ngIf="deleting" class="ms-2">Excluindo...</span>
-            </button>
-          </div>
+  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDelete()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon danger">
+          <hero-icon name="exclamation-triangle" size="1.5rem"></hero-icon>
         </div>
+        <div>
+          <h5 class="modal-title">Confirmar exclusão</h5>
+          <p class="modal-subtitle">Esta ação não pode ser desfeita</p>
+        </div>
+        <button type="button" class="modal-close" (click)="closeDelete()" [disabled]="deleting">
+          <hero-icon name="x-mark" size="1.5rem"></hero-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza que deseja excluir a atividade <strong>#{{ toDelete }}</strong>?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeDelete()"
+          [disabled]="deleting">Cancelar</button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleting">
+          <span *ngIf="!deleting" class="d-flex align-items-center gap-2">
+            <hero-icon name="trash" size="1.25rem"></hero-icon>
+            Excluir
+          </span>
+          <span *ngIf="deleting" class="d-flex align-items-center gap-2">
+            <span class="spinner-border spinner-border-sm"></span>
+            Excluindo...
+          </span>
+        </button>
       </div>
     </div>
-    <div class="modal-backdrop fade show"></div>
   </div>
 
-  <!-- Componente de gráficos embutido (por mês) -->
   <app-graficos-atividades [items]="filtrados"></app-graficos-atividades>
 </div>

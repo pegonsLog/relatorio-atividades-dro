@@ -4,11 +4,12 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AgentesService } from '../../services/agentes.service';
 import { Agente } from '../../models/agente.interface';
+import { HeroIconComponent } from '../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-agente-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, HeroIconComponent],
   templateUrl: './agente-form.html',
   styleUrl: './agente-form.scss'
 })
@@ -61,12 +62,8 @@ export class AgenteForm implements OnInit {
         await this.service.create(value);
       }
       this.router.navigate(['/agente']);
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) { console.error(e); }
   }
 
-  cancelar() {
-    this.router.navigate(['/agente']);
-  }
+  cancelar() { this.router.navigate(['/agente']); }
 }

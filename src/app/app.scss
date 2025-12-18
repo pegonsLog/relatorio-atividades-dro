@@ -1,138 +1,81 @@
-// Estilos específicos do componente principal DRO
-.dro-container {
-  height: 100vh;
-  width: 100vw;
-  background-color: #f5f5f5;
-  position: fixed;
+// Modern App Layout Styles
+
+.navbar-modern {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  padding: 0 1.5rem;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  position: sticky;
   top: 0;
-  left: 0;
+  z-index: 100;
+}
+
+.navbar-content {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: white;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
   
-  mat-sidenav {
-    width: 300px; // Largura otimizada para desktop
+  svg {
+    width: 22px;
+    height: 22px;
+    color: white;
+  }
+}
+
+.brand-text {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: white;
+  letter-spacing: -0.025em;
+}
+
+.main-content {
+  min-height: calc(100vh - 64px);
+  background: #f9fafb;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .navbar-modern {
+    padding: 0 1rem;
+    height: 56px;
+  }
+  
+  .brand-icon {
+    width: 32px;
+    height: 32px;
     
-    mat-toolbar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 500;
-      
-      mat-icon {
-        font-size: 24px;
-      }
-    }
-    
-    mat-nav-list {
-      padding-top: 0;
-      
-      a[mat-list-item] {
-        height: 48px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 0 16px;
-        color: #333;
-        text-decoration: none;
-        transition: background-color 0.2s;
-        
-        &:hover {
-          background-color: rgba(0,0,0,0.04);
-        }
-        
-        mat-icon {
-          color: #666;
-        }
-      }
+    svg {
+      width: 18px;
+      height: 18px;
     }
   }
   
-  mat-sidenav-content {
-    display: flex;
-    flex-direction: column;
-    
-    // Toolbar superior
-    mat-toolbar {
-      background-color: #3f51b5;
-      color: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      width: 100%;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      
-      button {
-        margin-right: 16px;
-      }
-      
-      span {
-        font-size: 18px;
-        font-weight: 500;
-      }
-    }
-    
-    // Conteúdo principal
-    .content {
-      padding: 24px;
-      background-color: #fafafa;
-      min-height: calc(100vh - 64px);
-      width: 100%;
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
-    
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin-bottom: 20px;
-      
-      mat-card {
-        text-align: center;
-        
-        mat-card-content {
-          padding: 20px;
-          text-align: center;
-          
-          mat-card-content {
-            padding: 20px;
-            
-            h2 {
-              margin: 0 0 8px 0;
-              font-size: 2rem;
-              font-weight: bold;
-              color: #3f51b5;
-            }
-            
-            p {
-              margin: 0;
-              color: #666;
-              font-size: 14px;
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-// Layout otimizado para desktop apenas
-// Sem necessidade de media queries para mobile
-
-@media (max-width: 575.98px) {
-  mat-toolbar span {
-    font-size: 0.95rem; // título um pouco menor no mobile
-  }
-}
-
-// Ajustes do Navbar (Bootstrap)
-.navbar .navbar-brand {
-  white-space: normal;      // permitir quebra de linha
-  overflow-wrap: anywhere;  // quebrar palavras longas
-  word-break: break-word;   // fallback
-  line-height: 1.2;
-}
-
-@media (max-width: 575.98px) {
-  .navbar .navbar-brand {
+  .brand-text {
     font-size: 1rem;
   }
 }

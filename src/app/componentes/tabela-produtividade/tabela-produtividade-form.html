@@ -1,26 +1,52 @@
-<div class="container py-3">
-  <h2 class="h4 mb-3">{{ editing ? 'Editar Registro' : 'Novo Registro' }}</h2>
-
-  <form [formGroup]="form" (ngSubmit)="salvar()" class="row g-3">
-    <div class="col-12 col-md-4">
-      <label class="form-label">Código</label>
-      <input type="number" class="form-control" formControlName="codigo" />
-      <div class="invalid-feedback d-block" *ngIf="form.get('codigo')?.touched && form.get('codigo')?.invalid">
-        Informe um código válido.
-      </div>
+<div class="page-container">
+  <div class="page-header">
+    <div class="page-title">
+      <h1>{{ editing ? 'Editar Registro' : 'Novo Registro' }}</h1>
+      <p class="page-subtitle">{{ editing ? 'Atualize os dados do registro' : 'Cadastre um novo tipo de produtividade'
+        }}</p>
     </div>
+  </div>
 
-    <div class="col-12 col-md-8">
-      <label class="form-label">Nome</label>
-      <input type="text" class="form-control" formControlName="nome" />
-      <div class="invalid-feedback d-block" *ngIf="form.get('nome')?.touched && form.get('nome')?.invalid">
-        Informe um nome válido.
-      </div>
-    </div>
+  <div class="card form-card">
+    <div class="card-body">
+      <form [formGroup]="form" (ngSubmit)="salvar()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="codigo">
+              <hero-icon name="document" size="1rem"></hero-icon>
+              Código
+            </label>
+            <input type="number" id="codigo" class="form-control" formControlName="codigo" placeholder="Digite o código"
+              [class.is-invalid]="form.get('codigo')?.touched && form.get('codigo')?.invalid" />
+            <div class="invalid-feedback" *ngIf="form.get('codigo')?.touched && form.get('codigo')?.invalid">
+              Informe um código válido (maior que zero).
+            </div>
+          </div>
 
-    <div class="col-12 d-flex gap-2">
-      <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Salvar</button>
-      <button class="btn btn-secondary" type="button" (click)="cancelar()">Cancelar</button>
+          <div class="form-group">
+            <label class="form-label" for="nome">
+              <hero-icon name="pencil-square" size="1rem"></hero-icon>
+              Nome
+            </label>
+            <input type="text" id="nome" class="form-control" formControlName="nome" placeholder="Digite o nome"
+              [class.is-invalid]="form.get('nome')?.touched && form.get('nome')?.invalid" />
+            <div class="invalid-feedback" *ngIf="form.get('nome')?.touched && form.get('nome')?.invalid">
+              Informe um nome válido (mínimo 2 caracteres).
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="cancelar()">
+            <hero-icon name="x-mark" size="1.125rem"></hero-icon>
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
+            <hero-icon name="check" size="1.125rem"></hero-icon>
+            {{ editing ? 'Atualizar' : 'Salvar' }}
+          </button>
+        </div>
+      </form>
     </div>
-  </form>
+  </div>
 </div>

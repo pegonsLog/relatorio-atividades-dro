@@ -1,22 +1,25 @@
 <div class="chart-stack">
-  <div class="chart-card mb-4" *ngFor="let g of chartGroups; trackBy: trackByKey">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <h5 class="mb-0">Cód. {{ g.title }}</h5>
+  <div class="chart-card" *ngFor="let g of chartGroups; trackBy: trackByKey">
+    <div class="chart-header">
+      <h5>
+        <hero-icon name="arrow-trending-up" size="1.25rem"></hero-icon>
+        Cód. {{ g.title }}
+      </h5>
     </div>
 
     <div class="chart-wrapper">
-      <ngx-charts-bar-vertical
-        [results]="g.results"
-        [xAxis]="true"
-        [yAxis]="true"
-        [legend]="false"
-        [showDataLabel]="true"
-        [animations]="true"
-        [scheme]="colorScheme">
+      <ngx-charts-bar-vertical [results]="g.results" [xAxis]="true" [yAxis]="true" [legend]="false"
+        [showDataLabel]="true" [animations]="true" [scheme]="colorScheme">
       </ngx-charts-bar-vertical>
     </div>
-    <div class="small text-muted mt-2" *ngIf="g.results.length === 0">Sem dados para exibir.</div>
+    <div class="empty-state" *ngIf="g.results.length === 0">
+      <hero-icon name="chart-bar" size="2rem"></hero-icon>
+      <p>Sem dados para exibir</p>
+    </div>
   </div>
 
-  <div class="small text-muted" *ngIf="chartGroups.length === 0">Sem dados para exibir.</div>
+  <div class="empty-state" *ngIf="chartGroups.length === 0">
+    <hero-icon name="chart-bar" size="3rem"></hero-icon>
+    <p>Sem dados para exibir</p>
+  </div>
 </div>

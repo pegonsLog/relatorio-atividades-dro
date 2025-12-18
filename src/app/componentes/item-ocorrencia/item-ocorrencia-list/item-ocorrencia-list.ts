@@ -5,11 +5,12 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ItemOcorrencia } from '../../../models';
 import { ItemOcorrenciaService, RelatorioBaseService, ExportExcelService } from '../../../services';
 import { GraficosOcorrenciaComponent } from '../../graficos-ocorrencia/graficos-ocorrencia';
+import { HeroIconComponent } from '../../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-item-ocorrencia-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, GraficosOcorrenciaComponent],
+  imports: [CommonModule, FormsModule, RouterModule, GraficosOcorrenciaComponent, HeroIconComponent],
   templateUrl: './item-ocorrencia-list.html',
   styleUrls: ['./item-ocorrencia-list.scss']
 })
@@ -75,9 +76,9 @@ export class ItemOcorrenciaList implements OnInit, OnDestroy {
     this.pageSize = this.pageSizes.includes(ps) ? ps : this.pageSize;
     const sk = qp.get('ocorSortKey') as any;
     const sd = qp.get('ocorSortDir') as any;
-    const validKeys = ['idOcorrencia','codOcor','nomeOcorrencia','qtdOcor','idAtividade','idRelatorio'];
+    const validKeys = ['idOcorrencia', 'codOcor', 'nomeOcorrencia', 'qtdOcor', 'idAtividade', 'idRelatorio'];
     if (sk && validKeys.includes(sk)) this.sortKey = sk;
-    if (sd && ['asc','desc'].includes(sd)) this.sortDir = sd;
+    if (sd && ['asc', 'desc'].includes(sd)) this.sortDir = sd;
 
     const alert = qp.get('alert');
     if (alert) {

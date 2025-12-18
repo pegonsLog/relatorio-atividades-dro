@@ -1,131 +1,138 @@
-<div class="atividade-form-container">
+<div class="form-container">
   <div class="form-header">
     <h2>{{ isEditMode ? 'Editar Atividade' : 'Nova Atividade' }}</h2>
-    <div class="small text-muted" *ngIf="dataRelatorio as d">
-      Data do relatório: <strong>{{ d | date:'dd/MM/yyyy'}}</strong>
+    <div class="date-badge" *ngIf="dataRelatorio as d">
+      <hero-icon name="calendar" size="1rem"></hero-icon>
+      Data do relatório: {{ d | date:'dd/MM/yyyy' }}
     </div>
   </div>
 
-  <form [formGroup]="atividadeForm" (ngSubmit)="onSubmit()" class="atividade-form">
-    <div class="form-row">
-      <div class="form-group">
-        <label for="item">Item *</label>
-        <input type="number" id="item" formControlName="item" class="form-control"
-               [class.is-invalid]="isFieldInvalid('item')" placeholder="Número do item">
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('item')">
-          {{ getFieldError('item') }}
-        </div>
-      </div>
+  <div class="card">
+    <div class="card-body">
+      <form [formGroup]="atividadeForm" (ngSubmit)="onSubmit()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="item">
+              <hero-icon name="document" size="1rem"></hero-icon>
+              Item *
+            </label>
+            <input type="number" id="item" formControlName="item" class="form-control"
+              [class.is-invalid]="isFieldInvalid('item')" placeholder="Número do item">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('item')">{{ getFieldError('item') }}</div>
+          </div>
 
-      <div class="form-group">
-        <label for="acionamento">Tipo de Acionamento *</label>
-        <select id="acionamento" formControlName="acionamento" class="form-control"
-                [class.is-invalid]="isFieldInvalid('acionamento')">
-          <option value="">Selecione o tipo</option>
-          <option *ngFor="let tipo of tiposAcionamento" [value]="tipo">{{ tipo }}</option>
-        </select>
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('acionamento')">
-          {{ getFieldError('acionamento') }}
+          <div class="form-group">
+            <label class="form-label" for="acionamento">
+              <hero-icon name="funnel" size="1rem"></hero-icon>
+              Tipo de Acionamento *
+            </label>
+            <select id="acionamento" formControlName="acionamento" class="form-select"
+              [class.is-invalid]="isFieldInvalid('acionamento')">
+              <option value="">Selecione o tipo</option>
+              <option *ngFor="let tipo of tiposAcionamento" [value]="tipo">{{ tipo }}</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('acionamento')">{{ getFieldError('acionamento') }}</div>
+          </div>
         </div>
-      </div>
+
+        <div class="form-grid-3 mt-3">
+          <div class="form-group">
+            <label class="form-label" for="chegada">
+              <hero-icon name="clock" size="1rem"></hero-icon>
+              Chegada *
+            </label>
+            <input type="time" id="chegada" formControlName="chegada" class="form-control"
+              [class.is-invalid]="isFieldInvalid('chegada')" (change)="validateHorarios()">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('chegada')">{{ getFieldError('chegada') }}</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="solucao">
+              <hero-icon name="check-circle" size="1rem"></hero-icon>
+              Solução
+            </label>
+            <input type="time" id="solucao" formControlName="solucao" class="form-control"
+              [class.is-invalid]="isFieldInvalid('solucao')" (change)="validateHorarios()">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('solucao')">
+              {{ getFieldError('solucao') }}
+              <span *ngIf="atividadeForm.get('solucao')?.errors?.['invalidTime']">Horário deve ser posterior à
+                chegada</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="saida">
+              <hero-icon name="arrow-right-on-rectangle" size="1rem"></hero-icon>
+              Saída *
+            </label>
+            <input type="time" id="saida" formControlName="saida" class="form-control"
+              [class.is-invalid]="isFieldInvalid('saida')" (change)="validateHorarios()">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('saida')">
+              {{ getFieldError('saida') }}
+              <span *ngIf="atividadeForm.get('saida')?.errors?.['invalidTime']">Horário deve ser posterior à
+                solução</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid mt-3">
+          <div class="form-group">
+            <label class="form-label" for="codAtv">
+              <hero-icon name="table-cells" size="1rem"></hero-icon>
+              Código da Atividade *
+            </label>
+            <select id="codAtv" formControlName="codAtv" class="form-select"
+              [class.is-invalid]="isFieldInvalid('codAtv')">
+              <option [ngValue]="null" disabled>Selecione</option>
+              <option *ngFor="let atv of atividades" [ngValue]="atv.codigo">{{ atv.codigo }} - {{ atv.nome }}</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('codAtv')">{{ getFieldError('codAtv') }}</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="qtdAgentes">
+              <hero-icon name="user-group" size="1rem"></hero-icon>
+              Quantidade de Agentes *
+            </label>
+            <input type="number" id="qtdAgentes" formControlName="qtdAgentes" class="form-control"
+              [class.is-invalid]="isFieldInvalid('qtdAgentes')" placeholder="Número de agentes">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('qtdAgentes')">{{ getFieldError('qtdAgentes') }}</div>
+          </div>
+        </div>
+
+        <div class="form-group form-group-full mt-3">
+          <label class="form-label" for="local">
+            <hero-icon name="home" size="1rem"></hero-icon>
+            Local
+          </label>
+          <input type="text" id="local" formControlName="local" class="form-control"
+            [class.is-invalid]="isFieldInvalid('local')" placeholder="Descrição do local da atividade">
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('local')">{{ getFieldError('local') }}</div>
+        </div>
+
+        <div class="form-group form-group-full mt-3">
+          <label class="form-label" for="observacoes">
+            <hero-icon name="document-text" size="1rem"></hero-icon>
+            Observações
+          </label>
+          <textarea id="observacoes" formControlName="observacoes" class="form-control"
+            [class.is-invalid]="isFieldInvalid('observacoes')"
+            placeholder="Observações sobre a atividade (máximo 500 caracteres)" rows="3" maxlength="500"></textarea>
+          <div class="char-counter">{{ atividadeForm.get('observacoes')?.value?.length || 0 }}/500</div>
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('observacoes')">{{ getFieldError('observacoes') }}</div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="onCancel()">
+            <hero-icon name="x-mark" size="1.125rem"></hero-icon>
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="atividadeForm.invalid">
+            <hero-icon name="check" size="1.125rem"></hero-icon>
+            {{ isEditMode ? 'Atualizar' : 'Salvar' }}
+          </button>
+        </div>
+      </form>
     </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label for="chegada">Horário de Chegada *</label>
-        <input type="time" id="chegada" formControlName="chegada" class="form-control"
-               [class.is-invalid]="isFieldInvalid('chegada')" (change)="validateHorarios()">
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('chegada')">
-          {{ getFieldError('chegada') }}
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="solucao">Horário da Solução</label>
-        <input type="time" id="solucao" formControlName="solucao" class="form-control"
-               [class.is-invalid]="isFieldInvalid('solucao')" (change)="validateHorarios()">
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('solucao')">
-          {{ getFieldError('solucao') }}
-          <span *ngIf="atividadeForm.get('solucao')?.errors?.['invalidTime']">
-            Horário deve ser posterior à chegada
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label for="saida">Horário de Saída *</label>
-        <input type="time" id="saida" formControlName="saida" class="form-control"
-               [class.is-invalid]="isFieldInvalid('saida')" (change)="validateHorarios()">
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('saida')">
-          {{ getFieldError('saida') }}
-          <span *ngIf="atividadeForm.get('saida')?.errors?.['invalidTime']">
-            Horário deve ser posterior à solução
-          </span>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="codAtv">Código da Atividade *</label>
-        <select id="codAtv" formControlName="codAtv" class="form-control"
-                [class.is-invalid]="isFieldInvalid('codAtv')">
-          <option [ngValue]="null" disabled>Selecione</option>
-          <option *ngFor="let atv of atividades" [ngValue]="atv.codigo">
-            {{ atv.codigo }} - {{ atv.nome }}
-          </option>
-        </select>
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('codAtv')">
-          {{ getFieldError('codAtv') }}
-        </div>
-      </div>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label for="qtdAgentes">Quantidade de Agentes *</label>
-        <input type="number" id="qtdAgentes" formControlName="qtdAgentes" class="form-control"
-               [class.is-invalid]="isFieldInvalid('qtdAgentes')" placeholder="Número de agentes">
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('qtdAgentes')">
-          {{ getFieldError('qtdAgentes') }}
-        </div>
-      </div>
-    </div>
-
-    <div class="form-row full-width">
-      <div class="form-group">
-        <label for="local">Local</label>
-        <input type="text" id="local" formControlName="local" class="form-control"
-               [class.is-invalid]="isFieldInvalid('local')" placeholder="Descrição do local da atividade">
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('local')">
-          {{ getFieldError('local') }}
-        </div>
-      </div>
-    </div>
-
-    <div class="form-row full-width">
-      <div class="form-group">
-        <label for="observacoes">Observações</label>
-        <textarea id="observacoes" formControlName="observacoes" class="form-control textarea"
-                  [class.is-invalid]="isFieldInvalid('observacoes')" 
-                  placeholder="Observações sobre a atividade (máximo 500 caracteres)"
-                  rows="4" maxlength="500"></textarea>
-        <div class="char-counter">
-          {{ atividadeForm.get('observacoes')?.value?.length || 0 }}/500
-        </div>
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('observacoes')">
-          {{ getFieldError('observacoes') }}
-        </div>
-      </div>
-    </div>
-
-    <div class="form-actions">
-      <button type="button" class="btn btn-secondary" (click)="onCancel()">
-        Cancelar
-      </button>
-      <button type="submit" class="btn btn-primary" [disabled]="atividadeForm.invalid">
-        {{ isEditMode ? 'Atualizar' : 'Salvar' }}
-      </button>
-    </div>
-  </form>
+  </div>
 </div>

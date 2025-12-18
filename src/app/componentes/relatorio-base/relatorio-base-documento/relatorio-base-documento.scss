@@ -1,4 +1,16 @@
-/* Layout geral do documento A4 */
+.doc-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-light);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
 .document-a4 {
   width: 210mm;
   min-height: 297mm;
@@ -7,12 +19,22 @@
   background: white;
   color: #111;
   font-size: 12px;
+  box-shadow: var(--shadow-lg);
 }
 
 .doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   border-bottom: 2px solid #ddd;
-  padding-bottom: 8px;
-  margin-bottom: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .logo {
@@ -21,7 +43,9 @@
 
 .title {
   font-size: 18px;
+  font-weight: 600;
   margin: 0;
+  color: var(--text-primary);
 }
 
 .subtitle {
@@ -29,15 +53,31 @@
   color: #666;
 }
 
-.doc-info .row {
+.meta {
+  text-align: right;
+  font-size: 11px;
+  color: #555;
+}
+
+.meta div {
+  margin-bottom: 4px;
+}
+
+.doc-info {
+  margin-bottom: 16px;
+}
+
+.info-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px 12px;
-  margin-bottom: 10px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
 }
 
 .doc-section {
-  margin-top: 14px;
+  margin-top: 20px;
 }
 
 .avoid-break {
@@ -47,14 +87,17 @@
 
 .doc-section h2 {
   font-size: 14px;
-  margin: 0 0 8px 0;
-  padding-bottom: 4px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  padding-bottom: 6px;
   border-bottom: 1px solid #ddd;
+  color: var(--text-primary);
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 11px;
 }
 
 .table th,
@@ -66,6 +109,12 @@
 
 .table thead th {
   background: #f6f7f9;
+  font-weight: 600;
+  text-align: left;
+}
+
+.table tfoot th {
+  background: #f0f0f0;
 }
 
 .text-end { text-align: right; }
@@ -74,11 +123,16 @@
 .text-nowrap { white-space: nowrap; }
 
 .doc-footer {
-  margin-top: 18px;
-  padding-top: 8px;
+  margin-top: 24px;
+  padding-top: 12px;
   border-top: 1px solid #ddd;
   font-size: 11px;
   color: #666;
+  text-align: center;
+}
+
+.loading {
+  padding: 3rem;
 }
 
 /* Regras de impressão */
@@ -87,21 +141,54 @@
     size: A4;
     margin: 10mm;
   }
-  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .no-print { display: none !important; }
+  
+  body { 
+    -webkit-print-color-adjust: exact; 
+    print-color-adjust: exact; 
+  }
+  
+  .no-print { 
+    display: none !important; 
+  }
+  
   .document-a4 {
     width: auto;
     min-height: auto;
     margin: 0;
     padding: 0;
+    box-shadow: none;
   }
 
-  /* Evitar quebras dentro de blocos marcados */
-  .avoid-break { break-inside: avoid; page-break-inside: avoid; }
+  .avoid-break { 
+    break-inside: avoid; 
+    page-break-inside: avoid; 
+  }
 
-  /* Garantir repetição de cabeçalho/rodapé de tabela ao imprimir */
-  table { page-break-inside: auto; }
-  thead { display: table-header-group; }
-  tfoot { display: table-footer-group; }
-  tr { page-break-inside: avoid; page-break-after: auto; }
+  table { 
+    page-break-inside: auto; 
+  }
+  
+  thead { 
+    display: table-header-group; 
+  }
+  
+  tfoot { 
+    display: table-footer-group; 
+  }
+  
+  tr { 
+    page-break-inside: avoid; 
+    page-break-after: auto; 
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .document-a4 {
+    width: 100%;
+    padding: 1rem;
+  }
+  
+  .info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

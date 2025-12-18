@@ -1,56 +1,74 @@
-<div class="produtividade-form-container mt-3">
-  <div class="form-header d-flex flex-column align-items-center">
-    <h2 class="mb-0 text-center">{{ isEditMode ? 'Editar Item de Produtividade' : 'Novo Item de Produtividade' }}</h2>
-   </div>
-
-  <!-- Aviso de contexto ausente -->
-  <div *ngIf="!hasContext" class="alert alert-warning" role="alert">
-    Este item precisa estar associado a uma <strong>Atividade</strong> (idAtividade).
-    Volte para a lista a partir do contexto correto ou informe o parâmetro na URL (?idAtividade=...).
+<div class="form-container">
+  <div class="form-header">
+    <h2>{{ isEditMode ? 'Editar Item de Produtividade' : 'Novo Item de Produtividade' }}</h2>
   </div>
 
-  <form [formGroup]="produtividadeForm" (ngSubmit)="onSubmit()" class="produtividade-form">
-    <div class="form-row">
-      <div class="form-group">
-        <label for="codProd">Código do Produto *</label>
-        <select id="codProd" formControlName="codProd" class="form-control"
-                [class.is-invalid]="isFieldInvalid('codProd')" (change)="onCodigoProdutoChange()">
-          <option value="">Selecione um produto</option>
-          <option *ngFor="let produto of codigosProdutos" [value]="produto.codigo">
-            {{ produto.codigo }} - {{ produto.descricao }}
-          </option>
-        </select>
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('codProd')">
-          {{ getFieldError('codProd') }}
+  <div *ngIf="!hasContext" class="alert alert-warning">
+    <hero-icon name="exclamation-triangle" size="1.25rem"></hero-icon>
+    <div>
+      <strong>Atenção:</strong> Este item precisa estar associado a uma Atividade (idAtividade).
+      Volte para a lista a partir do contexto correto.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form [formGroup]="produtividadeForm" (ngSubmit)="onSubmit()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="codProd">
+              <hero-icon name="table-cells" size="1rem"></hero-icon>
+              Código do Produto *
+            </label>
+            <select id="codProd" formControlName="codProd" class="form-select"
+              [class.is-invalid]="isFieldInvalid('codProd')" (change)="onCodigoProdutoChange()">
+              <option value="">Selecione um produto</option>
+              <option *ngFor="let produto of codigosProdutos" [value]="produto.codigo">
+                {{ produto.codigo }} - {{ produto.descricao }}
+              </option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('codProd')">{{ getFieldError('codProd') }}</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="qtdProd">
+              <hero-icon name="chart-bar" size="1rem"></hero-icon>
+              Quantidade Produzida *
+            </label>
+            <input type="number" id="qtdProd" formControlName="qtdProd" class="form-control"
+              [class.is-invalid]="isFieldInvalid('qtdProd')" placeholder="Digite a quantidade" min="1">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('qtdProd')">{{ getFieldError('qtdProd') }}</div>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="qtdProd">Quantidade Produzida *</label>
-        <input type="number" id="qtdProd" formControlName="qtdProd" class="form-control"
-               [class.is-invalid]="isFieldInvalid('qtdProd')" 
-               placeholder="Digite a quantidade" min="1">
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('qtdProd')">
-          {{ getFieldError('qtdProd') }}
+        <div class="info-card" *ngIf="produtividadeForm.get('codProd')?.value">
+          <div class="info-card-header">
+            <hero-icon name="information-circle" size="1.25rem"></hero-icon>
+            <h4>Produto Selecionado</h4>
+          </div>
+          <div class="info-card-body">
+            <div class="info-item">
+              <span class="info-label">Código:</span>
+              <span class="info-value badge badge-info">{{ produtividadeForm.get('codProd')?.value }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Descrição:</span>
+              <span class="info-value">{{ getDescricaoProduto(produtividadeForm.get('codProd')?.value) }}</span>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <div class="produto-info" *ngIf="produtividadeForm.get('codProd')?.value">
-      <div class="info-card">
-        <h4>Produto Selecionado</h4>
-        <p><strong>Código:</strong> {{ produtividadeForm.get('codProd')?.value }}</p>
-        <p><strong>Descrição:</strong> {{ getDescricaoProduto(produtividadeForm.get('codProd')?.value) }}</p>
-      </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="onCancel()">
+            <hero-icon name="x-mark" size="1.125rem"></hero-icon>
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="produtividadeForm.invalid || !hasContext">
+            <hero-icon name="check" size="1.125rem"></hero-icon>
+            {{ isEditMode ? 'Atualizar' : 'Salvar' }}
+          </button>
+        </div>
+      </form>
     </div>
-
-    <div class="form-actions">
-      <button type="button" class="btn btn-secondary" (click)="onCancel()">
-        Cancelar
-      </button>
-      <button type="submit" class="btn btn-primary" [disabled]="produtividadeForm.invalid || !hasContext">
-        {{ isEditMode ? 'Atualizar' : 'Salvar' }}
-      </button>
-    </div>
-  </form>
+  </div>
 </div>

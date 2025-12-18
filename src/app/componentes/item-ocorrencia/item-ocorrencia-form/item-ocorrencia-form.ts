@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ItemOcorrencia } from '../../../models';
 import { ItemOcorrenciaService, RelatorioBaseService, TabelaOcorrenciasService } from '../../../services';
+import { HeroIconComponent } from '../../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-item-ocorrencia-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, HeroIconComponent],
   templateUrl: './item-ocorrencia-form.html',
   styleUrls: ['./item-ocorrencia-form.scss']
 })

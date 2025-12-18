@@ -1,155 +1,205 @@
-// Estilos do componente Menu
+// Modern Menu Styles
+
 :host {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #fafafa;
-  width: 100%; // ocupar toda a largura disponível
-  box-sizing: border-box;
+  background-color: #f9fafb;
+  width: 100%;
 }
 
-// Header do Menu
-.menu-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 16px;
-  min-height: 64px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  
-  // Ícones do menu
-  .menu-title {
-    font-weight: 500;
-    font-size: 18px;
-    color: white;
-  }
-}
-
-// Ícones Material Design Icons
-.mdi {
-  font-size: 24px;
-  line-height: 1;
-  vertical-align: middle;
-  
-  &.menu-logo {
-    font-size: 28px;
-  }
-}
-
-// Navegação do Menu
-.menu-nav {
-  flex: 1;
-  padding: 8px 0;
-  padding-left: 16px; // ajuste fino padrão Material
-  display: inline-block; // lista encolhe para caber o conteúdo
-  width: auto;
-  
-  h3 {
-    color: #666;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin: 0;
-  }
-  
-  .menu-item {
-    height: 48px;
-    margin: 2px 0; // sem margem esquerda
-    border-radius: 0; // borda reta para colar na lateral
-    transition: all 0.2s ease;
-    color: #333;
-    text-decoration: none;
-    display: block; // empilhamento vertical dos itens
-    cursor: pointer !important;
-    
-    // Bootstrap já provê hover/active; ajustes sutis opcionais
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.03);
-    }
-    
-    &.active {
-      font-weight: 500;
-      background-color: rgba(13, 110, 253, 0.08); // cor base do primary do Bootstrap
-      color: #0d6efd;
-    }
-    
-    .mdi {
-      color: #666;
-      transition: color 0.2s ease;
-    }
-
-    // Tamanho do texto dos itens do menu
-    span {
-      font-size: 14px;
-    }
-  }
-  
-  .admin-item.active {
-    background-color: rgba(255, 193, 7, 0.12); // baseado em warning do Bootstrap
-    color: #fd7e14; // laranja mais forte
-  }
-  
-  .menu-divider {
-    margin: 16px 0; // acompanha padding do container
-  }
-}
-
-// Footer do Menu
-.menu-footer {
-  margin-top: auto;
-  
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px 0 16px 16px; // 16px da borda esquerda
-    background-color: rgba(0,0,0,0.02);
-    
-    .mdi {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
-      color: #666;
-    }
-    
-    .user-details {
-      display: flex;
-      flex-direction: column;
-      
-      .user-name {
-        font-size: 14px;
-        font-weight: 500;
-        color: #333;
-      }
-      
-      .user-role {
-        font-size: 12px;
-        color: #666;
-        margin-top: 2px;
-      }
-    }
-  }
-}
-
-// Layout otimizado exclusivamente para desktop
-// Menu com dimensões fixas para telas grandes
-
-// ===== Layout Menu (aside) + Conteúdo (main) =====
 .menu-layout {
   display: flex;
-  gap: 24px;
   width: 100%;
-  align-items: stretch;
+  min-height: calc(100vh - 64px);
 }
 
 .menu-sidebar {
   display: flex;
   flex-direction: column;
-  width: 280px; // largura fixa para o menu lateral
-  border-right: 1px solid #eee;
+  width: 320px;
+  background: white;
+  border-right: 1px solid #e5e7eb;
   position: relative;
-  z-index: 2; // manter menu acima da logo fixa
+  z-index: 2;
+}
+
+.menu-nav {
+  flex: 1;
+  padding: 1.5rem 1rem;
+  overflow-y: auto;
+}
+
+.nav-section {
+  margin-bottom: 1rem;
+}
+
+.nav-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #9ca3af;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  
+  hero-icon {
+    color: #d1d5db;
+  }
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
+  color: #4b5563;
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  margin-bottom: 0.25rem;
+  
+  hero-icon:first-child {
+    color: #9ca3af;
+    transition: color 0.15s ease;
+  }
+  
+  .nav-arrow {
+    margin-left: auto;
+    color: #d1d5db;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: all 0.15s ease;
+  }
+  
+  &:hover {
+    background: #f3f4f6;
+    color: #111827;
+    
+    hero-icon:first-child {
+      color: #3b82f6;
+    }
+    
+    .nav-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    color: #1d4ed8;
+    
+    hero-icon:first-child {
+      color: #2563eb;
+    }
+    
+    .nav-arrow {
+      opacity: 1;
+      transform: translateX(0);
+      color: #3b82f6;
+    }
+  }
+  
+  &.admin {
+    &:hover {
+      hero-icon:first-child {
+        color: #f59e0b;
+      }
+    }
+    
+    &.active {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      color: #b45309;
+      
+      hero-icon:first-child {
+        color: #d97706;
+      }
+      
+      .nav-arrow {
+        color: #f59e0b;
+      }
+    }
+  }
+}
+
+.nav-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 1rem 0.75rem;
+}
+
+.menu-footer {
+  padding: 1rem;
+  border-top: 1px solid #e5e7eb;
+  background: #fafafa;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 0.75rem;
+}
+
+.user-avatar {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  hero-icon {
+    color: #2563eb;
+  }
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  
+  .user-name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #111827;
+  }
+  
+  .user-role {
+    font-size: 0.8125rem;
+    color: #6b7280;
+  }
+}
+
+.btn-logout {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: white;
+  border: 1px solid #fecaca;
+  border-radius: 0.625rem;
+  color: #dc2626;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+  
+  &:hover {
+    background: #fef2f2;
+    border-color: #fca5a5;
+  }
 }
 
 .menu-content {
@@ -157,29 +207,203 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 2rem;
 }
 
 .logo-wrapper {
-  position: fixed; // ocupa a viewport inteira
+  position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none; // não intercepta cliques do menu
+  pointer-events: none;
   z-index: 1;
 }
 
 .logo-img {
-  max-width: min(302px, 57.6%);
+  max-width: min(320px, 60%);
   height: auto;
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
-  opacity: 0.98;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.1));
+  opacity: 0.95;
 }
 
-// Utilitário: esconder no mobile
+// Modal Styles
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-container {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  width: 100%;
+  max-width: 480px;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid #f3f4f6;
+  
+  .modal-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    
+    hero-icon {
+      color: #2563eb;
+    }
+  }
+  
+  .modal-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+  }
+  
+  .modal-subtitle {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0.25rem 0 0;
+  }
+  
+  .modal-close {
+    margin-left: auto;
+    padding: 0.5rem;
+    background: transparent;
+    border: none;
+    border-radius: 0.5rem;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    
+    &:hover {
+      background: #f3f4f6;
+      color: #4b5563;
+    }
+  }
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.filter-group {
+  margin-bottom: 1.25rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  
+  hero-icon {
+    color: #9ca3af;
+  }
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  
+  .form-control {
+    flex: 1;
+  }
+  
+  .date-separator {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+  }
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #f3f4f6;
+  background: #fafafa;
+  border-radius: 0 0 1rem 1rem;
+  
+  .filter-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    color: #9ca3af;
+    margin-left: auto;
+    
+    hero-icon {
+      color: #d1d5db;
+    }
+  }
+  
+  .btn-primary {
+    margin-left: auto;
+  }
+}
+
+// Responsive
 @media (max-width: 767.98px) {
   .hide-on-mobile {
     display: none !important;
+  }
+  
+  .menu-sidebar {
+    width: 100%;
+  }
+  
+  .filter-row {
+    grid-template-columns: 1fr;
   }
 }

@@ -6,11 +6,12 @@ import { RelatorioBaseService } from '../../../services/relatorio-base.service';
 import { ItemAtividadeService } from '../../../services/item-atividade.service';
 import { ItemProdutividadeService } from '../../../services/item-produtividade.service';
 import { ItemOcorrenciaService } from '../../../services/item-ocorrencia.service';
+import { HeroIconComponent } from '../../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-relatorio-base-documento',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, HeroIconComponent],
   templateUrl: './relatorio-base-documento.html',
   styleUrls: ['./relatorio-base-documento.scss']
 })

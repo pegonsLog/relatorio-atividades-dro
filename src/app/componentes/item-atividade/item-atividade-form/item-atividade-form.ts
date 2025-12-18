@@ -5,11 +5,12 @@ import { ItemAtividadeService } from '../../../services';
 import { TabelaAtividadesService } from '../../../services/tabela-atividades.service';
 import { TabelaAtividade } from '../../../models/tabela-atividade.interface';
 import { CommonModule } from '@angular/common';
+import { HeroIconComponent } from '../../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-item-atividade-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, HeroIconComponent],
   templateUrl: './item-atividade-form.html',
   styleUrls: ['./item-atividade-form.scss']
 })

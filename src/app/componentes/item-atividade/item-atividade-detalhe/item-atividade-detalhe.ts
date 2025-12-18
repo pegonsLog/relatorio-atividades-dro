@@ -7,11 +7,12 @@ import { ItemOcorrencia } from '../../../models/item-ocorrencia.interface';
 import { ItemAtividadeService } from '../../../services/item-atividade.service';
 import { ItemProdutividadeService } from '../../../services/item-produtividade.service';
 import { ItemOcorrenciaService } from '../../../services/item-ocorrencia.service';
+import { HeroIconComponent } from '../../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-item-atividade-detalhe',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, HeroIconComponent],
   templateUrl: './item-atividade-detalhe.html',
   styleUrls: ['./item-atividade-detalhe.scss']
 })

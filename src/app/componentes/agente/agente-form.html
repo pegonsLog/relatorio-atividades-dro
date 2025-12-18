@@ -1,47 +1,70 @@
-<div class="container py-3">
-  <h2 class="h4 mb-3">{{ editing ? 'Editar Agente' : 'Novo Agente' }}</h2>
+<div class="container py-4">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>{{ editing ? 'Editar Agente' : 'Novo Agente' }}</h1>
+      <p>{{ editing ? 'Atualize as informações do agente' : 'Preencha os dados para cadastrar um novo agente' }}</p>
+    </div>
+  </div>
 
-  <form [formGroup]="form" (ngSubmit)="salvar()" class="row g-3">
-    <div class="col-12 col-md-4">
-      <label class="form-label">Matrícula</label>
-      <input type="number" class="form-control" formControlName="matricula" />
-      <div class="invalid-feedback d-block" *ngIf="form.get('matricula')?.touched && form.get('matricula')?.invalid">
-        Informe uma matrícula válida.
+  <div class="form-card">
+    <form [formGroup]="form" (ngSubmit)="salvar()">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">
+            <hero-icon name="user" size="1rem"></hero-icon>
+            Matrícula
+          </label>
+          <input type="number" class="form-control" formControlName="matricula" placeholder="Digite a matrícula" />
+          <div class="form-error" *ngIf="form.get('matricula')?.touched && form.get('matricula')?.invalid">
+            <hero-icon name="exclamation-circle" size="0.875rem"></hero-icon>
+            Informe uma matrícula válida
+          </div>
+        </div>
+
+        <div class="form-group span-2">
+          <label class="form-label">
+            <hero-icon name="user" size="1rem"></hero-icon>
+            Nome Completo
+          </label>
+          <input type="text" class="form-control" formControlName="nome" placeholder="Digite o nome completo" />
+          <div class="form-error" *ngIf="form.get('nome')?.touched && form.get('nome')?.invalid">
+            <hero-icon name="exclamation-circle" size="0.875rem"></hero-icon>
+            Informe um nome válido
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Cargo</label>
+          <input type="text" class="form-control" formControlName="cargo" placeholder="Digite o cargo" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Turno</label>
+          <select class="form-select" formControlName="turno">
+            <option value="" disabled>Selecione o turno</option>
+            <option value="MANHÃ">MANHÃ</option>
+            <option value="TARDE">TARDE</option>
+            <option value="MADRUGADA">MADRUGADA</option>
+            <option value="ADMINISTRATIVO">ADMINISTRATIVO</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Gerência</label>
+          <input type="text" class="form-control" formControlName="gerencia" placeholder="Digite a gerência" />
+        </div>
       </div>
-    </div>
 
-    <div class="col-12 col-md-8">
-      <label class="form-label">Nome</label>
-      <input type="text" class="form-control" formControlName="nome" />
-      <div class="invalid-feedback d-block" *ngIf="form.get('nome')?.touched && form.get('nome')?.invalid">
-        Informe um nome válido.
+      <div class="form-actions">
+        <button class="btn btn-outline-secondary" type="button" (click)="cancelar()">
+          <hero-icon name="x-mark" size="1.25rem"></hero-icon>
+          Cancelar
+        </button>
+        <button class="btn btn-primary" type="submit" [disabled]="form.invalid">
+          <hero-icon name="check" size="1.25rem"></hero-icon>
+          {{ editing ? 'Salvar Alterações' : 'Cadastrar Agente' }}
+        </button>
       </div>
-    </div>
-
-    <div class="col-12 col-md-4">
-      <label class="form-label">Cargo</label>
-      <input type="text" class="form-control" formControlName="cargo" />
-    </div>
-
-    <div class="col-12 col-md-4">
-      <label class="form-label">Turno</label>
-      <select class="form-select" formControlName="turno">
-        <option value="" disabled>Selecione...</option>
-        <option value="MANHÃ">MANHÃ</option>
-        <option value="TARDE">TARDE</option>
-        <option value="MADRUGADA">MADRUGADA</option>
-        <option value="ADMINISTRATIVO">ADMINISTRATIVO</option>
-      </select>
-    </div>
-
-    <div class="col-12 col-md-4">
-      <label class="form-label">Gerência</label>
-      <input type="text" class="form-control" formControlName="gerencia" />
-    </div>
-
-    <div class="col-12 d-flex gap-2">
-      <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Salvar</button>
-      <button class="btn btn-secondary" type="button" (click)="cancelar()">Cancelar</button>
-    </div>
-  </form>
+    </form>
+  </div>
 </div>

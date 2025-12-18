@@ -1,135 +1,173 @@
-<div class="container py-3">
-  <div class="row g-3 mb-2 align-items-center">
-    <div class="col">
-      <h2 class="h4 mb-0">Agentes</h2>
+<div class="container py-4">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Agentes</h1>
+      <p>Gerencie os agentes cadastrados no sistema</p>
+    </div>
+    <div class="header-actions">
+      <a class="btn btn-outline-secondary" routerLink="/menu">
+        <hero-icon name="arrow-left" size="1.25rem"></hero-icon>
+        Voltar
+      </a>
+      <a class="btn btn-primary" [routerLink]="['/agente/novo']">
+        <hero-icon name="user-plus" size="1.25rem"></hero-icon>
+        Novo Agente
+      </a>
     </div>
   </div>
 
-  <div class="row g-3 mb-3">
-    <div class="col-12 col-md-6">
-      <div class="input-group">
-        <span class="input-group-text"><i class="mdi mdi-magnify"></i></span>
-        <input type="text" class="form-control" [(ngModel)]="filtro" (ngModelChange)="onFilterChange()" name="filtro" placeholder="Buscar por nome, matrícula, cargo ou gerência" />
-        <button class="btn btn-header" type="button" (click)="clearFilter()" [disabled]="!filtro" aria-label="Limpar filtro">
-          <i class="mdi mdi-close-circle-outline"></i>
-        </button>
-      </div>
-    </div>
-    <div class="col-12 col-md-6 text-md-end">
-      <a class="btn btn-outline-secondary me-2" routerLink="/menu"><i class="mdi mdi-arrow-left me-1"></i>Voltar ao Menu</a>
-      <a class="btn btn-primary" [routerLink]="['/agente/novo']"><i class="mdi mdi-account-plus-outline me-1"></i>Novo Agente</a>
+  <div class="search-bar">
+    <div class="search-input">
+      <hero-icon name="magnifying-glass" size="1.25rem"></hero-icon>
+      <input type="text" class="form-control" [(ngModel)]="filtro" (ngModelChange)="onFilterChange()" name="filtro"
+        placeholder="Buscar por nome, matrícula, cargo ou gerência..." />
+      <button class="btn-clear" type="button" (click)="clearFilter()" *ngIf="filtro">
+        <hero-icon name="x-circle" size="1.25rem"></hero-icon>
+      </button>
     </div>
   </div>
 
-  <!-- Spinner de carregamento -->
-  <div *ngIf="loading" class="d-flex justify-content-center align-items-center py-5" role="status" aria-live="polite">
-    <div class="spinner-border text-primary me-2" role="status" aria-hidden="true"></div>
-    <span>Carregando...</span>
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner-border text-primary"></div>
+    <span>Carregando agentes...</span>
   </div>
 
   <ng-container *ngIf="!loading">
-  <div class="table-responsive shadow-sm">
-    <table class="table table-striped table-hover align-middle mb-0">
-      <colgroup>
-        <col class="col-matricula" />
-        <col />
-        <col class="col-cargo" />
-        <col class="col-turno" />
-        <col class="col-gerencia" />
-        <col class="col-acoes" />
-      </colgroup>
-      <thead class="table-light">
-        <tr>
-          <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('matricula')">
-              <span [class.fw-semibold]="sortKey==='matricula'">Matrícula</span>
-              <i class="mdi" [ngClass]="sortKey==='matricula' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
-            </button>
-          </th>
-          <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('nome')">
-              <span [class.fw-semibold]="sortKey==='nome'">Nome</span>
-              <i class="mdi" [ngClass]="sortKey==='nome' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
-            </button>
-          </th>
-          <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('cargo')">
-              <span [class.fw-semibold]="sortKey==='cargo'">Cargo</span>
-              <i class="mdi" [ngClass]="sortKey==='cargo' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
-            </button>
-          </th>
-          <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('turno')">
-              <span [class.fw-semibold]="sortKey==='turno'">Turno</span>
-              <i class="mdi" [ngClass]="sortKey==='turno' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
-            </button>
-          </th>
-          <th class="th-nowrap">
-            <button type="button" class="btn btn-link p-0 text-decoration-none" (click)="setSort('gerencia')">
-              <span [class.fw-semibold]="sortKey==='gerencia'">Gerência</span>
-              <i class="mdi" [ngClass]="sortKey==='gerencia' ? (sortDir==='asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-arrow-up-down'"></i>
-            </button>
-          </th>
-          <th class="th-nowrap text-end">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let a of pagedAgentes">
-          <td>{{ a.matricula }}</td>
-          <td>{{ a.nome }}</td>
-          <td>{{ a.cargo }}</td>
-          <td>{{ a.turno }}</td>
-          <td>{{ a.gerencia }}</td>
-          <td class="text-end">
-            <a class="btn btn-sm btn-outline-secondary me-1" [routerLink]="['/agente', a.matricula, 'editar']"><i class="mdi mdi-pencil-outline"></i></a>
-            <button type="button" class="btn btn-sm btn-outline-danger" (click)="prepareDelete(a)" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"><i class="mdi mdi-trash-can-outline"></i></button>
-          </td>
-        </tr>
-        <tr *ngIf="agentesFiltrados.length === 0">
-          <td colspan="6" class="empty-state">Nenhum agente encontrado</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  
-  <!-- Controles de paginação -->
-  <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 py-3">
-    <div class="text-muted small">
-      Mostrando {{ totalItems ? (pageStart + 1) : 0 }}–{{ pageEnd }} de {{ totalItems }}
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('matricula')">
+                Matrícula
+                <hero-icon
+                  [name]="sortKey==='matricula' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('nome')">
+                Nome
+                <hero-icon [name]="sortKey==='nome' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('cargo')">
+                Cargo
+                <hero-icon [name]="sortKey==='cargo' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('turno')">
+                Turno
+                <hero-icon [name]="sortKey==='turno' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('gerencia')">
+                Gerência
+                <hero-icon
+                  [name]="sortKey==='gerencia' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
+              </button>
+            </th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of pagedAgentes">
+            <td><span class="badge text-bg-secondary">{{ a.matricula }}</span></td>
+            <td class="fw-medium">{{ a.nome }}</td>
+            <td>{{ a.cargo }}</td>
+            <td>{{ a.turno }}</td>
+            <td>{{ a.gerencia }}</td>
+            <td class="text-end">
+              <div class="action-buttons">
+                <a class="btn btn-sm btn-outline-primary" [routerLink]="['/agente', a.matricula, 'editar']"
+                  title="Editar">
+                  <hero-icon name="pencil" size="1rem"></hero-icon>
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="prepareDelete(a)"
+                  data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" title="Excluir">
+                  <hero-icon name="trash" size="1rem"></hero-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="agentesFiltrados.length === 0">
+            <td colspan="6" class="empty-state">
+              <hero-icon name="user-group" size="3rem"></hero-icon>
+              <p>Nenhum agente encontrado</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div class="d-flex align-items-center gap-2">
-      <label class="form-label me-2 mb-0" for="pageSizeSelect">Itens por página</label>
-      <select id="pageSizeSelect" class="form-select form-select-sm w-auto" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()" name="pageSize">
-        <option *ngFor="let opt of pageSizeOptions" [ngValue]="opt">{{ opt }}</option>
-      </select>
-      <div class="btn-group ms-2" role="group" aria-label="Paginação">
-        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="setPage(1)" [disabled]="currentPage <= 1" aria-label="Primeira página"><i class="mdi mdi-chevron-double-left"></i></button>
-        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="prevPage()" [disabled]="currentPage <= 1" aria-label="Página anterior"><i class="mdi mdi-chevron-left"></i></button>
-        <ng-container *ngFor="let p of pageNumbers">
-          <button *ngIf="p !== -1" type="button" class="btn btn-sm" [ngClass]="p === currentPage ? 'btn-primary' : 'btn-outline-secondary'" [attr.aria-current]="p === currentPage ? 'page' : null" (click)="setPage(p)">{{ p }}</button>
-          <span *ngIf="p === -1" class="btn btn-outline-secondary btn-sm disabled" aria-hidden="true">…</span>
-        </ng-container>
-        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="nextPage()" [disabled]="currentPage >= totalPages" aria-label="Próxima página"><i class="mdi mdi-chevron-right"></i></button>
-        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="setPage(totalPages)" [disabled]="currentPage >= totalPages" aria-label="Última página"><i class="mdi mdi-chevron-double-right"></i></button>
+
+    <div class="pagination-bar">
+      <div class="pagination-info">
+        Mostrando {{ totalItems ? (pageStart + 1) : 0 }}–{{ pageEnd }} de {{ totalItems }}
+      </div>
+      <div class="pagination-controls">
+        <div class="page-size">
+          <label>Por página</label>
+          <select class="form-select form-select-sm" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()"
+            name="pageSize">
+            <option *ngFor="let opt of pageSizeOptions" [ngValue]="opt">{{ opt }}</option>
+          </select>
+        </div>
+        <nav class="pagination-nav">
+          <button class="btn btn-sm btn-outline-secondary" (click)="setPage(1)" [disabled]="currentPage <= 1">
+            <hero-icon name="chevron-double-left" size="1rem"></hero-icon>
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="prevPage()" [disabled]="currentPage <= 1">
+            <hero-icon name="chevron-left" size="1rem"></hero-icon>
+          </button>
+          <ng-container *ngFor="let p of pageNumbers">
+            <button *ngIf="p !== -1" class="btn btn-sm"
+              [ngClass]="p === currentPage ? 'btn-primary' : 'btn-outline-secondary'" (click)="setPage(p)">{{ p
+              }}</button>
+            <span *ngIf="p === -1" class="pagination-ellipsis">…</span>
+          </ng-container>
+          <button class="btn btn-sm btn-outline-secondary" (click)="nextPage()" [disabled]="currentPage >= totalPages">
+            <hero-icon name="chevron-right" size="1rem"></hero-icon>
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="setPage(totalPages)"
+            [disabled]="currentPage >= totalPages">
+            <hero-icon name="chevron-double-right" size="1rem"></hero-icon>
+          </button>
+        </nav>
       </div>
     </div>
-  </div>
   </ng-container>
-  
+
   <!-- Modal de confirmação de exclusão -->
-  <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+  <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="confirmDeleteLabel">Confirmar exclusão</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          <div class="modal-icon danger">
+            <hero-icon name="exclamation-triangle" size="1.5rem"></hero-icon>
+          </div>
+          <div>
+            <h5 class="modal-title">Confirmar exclusão</h5>
+            <p class="modal-subtitle">Esta ação não pode ser desfeita</p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          Tem certeza que deseja excluir o agente <strong>{{ selectedNome }}</strong> (Matrícula {{ selectedMatricula }})?
+          <p>Tem certeza que deseja excluir o agente <strong>{{ selectedNome }}</strong> (Matrícula {{ selectedMatricula
+            }})?</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-danger" (click)="confirmDelete()" data-bs-dismiss="modal">Excluir</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" (click)="confirmDelete()" data-bs-dismiss="modal">
+            <hero-icon name="trash" size="1.25rem"></hero-icon>
+            Excluir
+          </button>
         </div>
       </div>
     </div>

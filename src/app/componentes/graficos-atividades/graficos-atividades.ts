@@ -2,13 +2,14 @@ import { AfterViewInit, Component, Input, OnChanges, SimpleChanges } from '@angu
 import { CommonModule } from '@angular/common';
 import { ItemAtividade } from '../../models';
 import { NgxChartsModule, ScaleType, Color } from '@swimlane/ngx-charts';
+import { HeroIconComponent } from '../../shared/icons/heroicons';
 
 // Este componente agora é embutido e recebe os itens já filtrados via @Input().
 
 @Component({
   selector: 'app-graficos-atividades',
   standalone: true,
-  imports: [CommonModule, NgxChartsModule],
+  imports: [CommonModule, NgxChartsModule, HeroIconComponent],
   templateUrl: './graficos-atividades.html',
   styleUrls: ['./graficos-atividades.scss']
 })

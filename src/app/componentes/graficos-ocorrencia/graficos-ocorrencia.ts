@@ -2,11 +2,12 @@ import { AfterViewInit, Component, Input, OnChanges, SimpleChanges } from '@angu
 import { CommonModule } from '@angular/common';
 import { ItemOcorrencia } from '../../models';
 import { NgxChartsModule, ScaleType, Color } from '@swimlane/ngx-charts';
+import { HeroIconComponent } from '../../shared/icons/heroicons';
 
 @Component({
   selector: 'app-graficos-ocorrencia',
   standalone: true,
-  imports: [CommonModule, NgxChartsModule],
+  imports: [CommonModule, NgxChartsModule, HeroIconComponent],
   templateUrl: './graficos-ocorrencia.html',
   styleUrls: ['./graficos-ocorrencia.scss']
 })
