@@ -141,6 +141,7 @@
         <select class="form-select" [(ngModel)]="selectedGerencia" appAutoFocus>
           <option *ngFor="let g of gerencias" [value]="g">{{ g }}</option>
         </select>
+        <small class="form-text text-muted">Gerência para qual prestou o serviço</small>
       </div>
       <div class="filter-group">
         <label class="filter-label">Turno</label>

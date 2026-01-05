@@ -106,17 +106,29 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
         : true;
       return okGer && okTur;
     });
-    if (!f) return byFixed;
-    return byFixed.filter(r => {
-      const dateStr = this.formatDateStr(r.data).toLowerCase();
-      return (
-        dateStr.includes(f) ||
-        String(r.mat1 ?? '').toLowerCase().includes(f) ||
-        String(r.mat2 ?? '').toLowerCase().includes(f) ||
-        String(r.coord ?? '').toLowerCase().includes(f) ||
-        String(r.superv ?? '').toLowerCase().includes(f)
-      );
+    
+    let filtered = byFixed;
+    if (f) {
+      filtered = byFixed.filter(r => {
+        const dateStr = this.formatDateStr(r.data).toLowerCase();
+        return (
+          dateStr.includes(f) ||
+          String(r.mat1 ?? '').toLowerCase().includes(f) ||
+          String(r.mat2 ?? '').toLowerCase().includes(f) ||
+          String(r.coord ?? '').toLowerCase().includes(f) ||
+          String(r.superv ?? '').toLowerCase().includes(f)
+        );
+      });
+    }
+    
+    // Retorna apenas o último registro adicionado (mais recente por createdAt)
+    if (filtered.length === 0) return [];
+    const ultimo = filtered.reduce((prev, current) => {
+      const prevTime = new Date(prev.createdAt as any).getTime() || 0;
+      const currentTime = new Date(current.createdAt as any).getTime() || 0;
+      return currentTime > prevTime ? current : prev;
     });
+    return [ultimo];
   }
 
   // Derivados
