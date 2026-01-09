@@ -36,6 +36,7 @@ export class RelatorioBaseService {
     const relatorioData = {
       ...relatorio,
       idRelatorio: (relatorio as any)?.idRelatorio ?? '',
+      status: relatorio.status || 'pendente',
       createdAt: new Date(),
       updatedAt: new Date(),
       criadoPor: userId,
@@ -48,6 +49,7 @@ export class RelatorioBaseService {
         const novo: RelatorioBase = {
           ...relatorio,
           idRelatorio: docRef.id,
+          status: relatorioData.status,
           createdAt: relatorioData.createdAt,
           updatedAt: relatorioData.updatedAt,
           criadoPor: relatorioData.criadoPor,
@@ -80,6 +82,31 @@ export class RelatorioBaseService {
         }
       },
       error: (error) => console.error('Erro ao atualizar relatório base:', error),
+    });
+  }
+
+  // UPDATE STATUS (apenas para coordenador)
+  updateStatus(id: string | number, status: 'pendente' | 'lido'): Promise<void> {
+    return runInInjectionContext(this.injector, async () => {
+      const userId = this.userCtx.getCurrentUserId() || undefined;
+      const ref = doc(this.firestore, 'relatorio-base', String(id));
+      const data = {
+        status,
+        updatedAt: new Date(),
+        modificadoPor: userId,
+      };
+      try {
+        await updateDoc(ref, data);
+        const arr = [...this.subject.value];
+        const i = arr.findIndex(r => r.idRelatorio === id);
+        if (i !== -1) {
+          arr[i] = { ...arr[i], status, updatedAt: data.updatedAt, modificadoPor: data.modificadoPor };
+          this.subject.next(arr);
+        }
+      } catch (error) {
+        console.error('Erro ao atualizar status do relatório:', error);
+        throw error;
+      }
     });
   }
 
@@ -136,6 +163,7 @@ export class RelatorioBaseService {
             mat2: data['mat2'] || 0,
             coord: data['coord'] || 0,
             superv: data['superv'] || 0,
+            status: data['status'] || 'pendente',
             createdAt: data['createdAt']?.toDate?.() || data['createdAt'] || undefined,
             updatedAt: data['updatedAt']?.toDate?.() || data['updatedAt'] || undefined,
             criadoPor: data['criadoPor'] || undefined,

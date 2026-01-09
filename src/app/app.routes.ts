@@ -154,6 +154,11 @@ export const routes: Routes = [
     canActivate: [requireAuthGuard]
   },
   {
+    path: 'relatorios-coordenador',
+    loadComponent: () => import('./componentes/relatorios-coordenador/relatorios-coordenador').then(m => m.RelatoriosCoordenadorComponent),
+    canActivate: [requireAuthGuard]
+  },
+  {
     path: 'agente/novo',
     loadComponent: () => import('./componentes/agente/agente-form').then(m => m.AgenteForm),
     canActivate: [requireAuthGuard]

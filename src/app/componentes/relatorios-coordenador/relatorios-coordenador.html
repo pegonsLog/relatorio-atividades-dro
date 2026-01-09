@@ -1,0 +1,188 @@
+<div class="container py-4">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Relatórios por Coordenador</h1>
+      <p>Consulte relatórios filtrados por matrícula do coordenador e período</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="openFilterModal()">
+        <hero-icon name="funnel" size="1.25rem"></hero-icon>
+        Filtrar
+      </button>
+      <a class="btn btn-outline-secondary" [routerLink]="['/menu']">
+        <hero-icon name="home" size="1.25rem"></hero-icon>
+        Voltar ao Menu
+      </a>
+    </div>
+  </div>
+
+  <!-- Filtros ativos -->
+  <div class="active-filters" *ngIf="filteredRelatorios.length > 0 || (matriculaCoordenador && dataInicio && dataFim)">
+    <div class="filter-tags">
+      <span class="filter-tag">
+        <hero-icon name="user" size="1rem"></hero-icon>
+        Coord: {{ matriculaCoordenador }}
+      </span>
+      <span class="filter-tag">
+        <hero-icon name="calendar" size="1rem"></hero-icon>
+        {{ dataInicio }} até {{ dataFim }}
+      </span>
+      <button class="btn btn-sm btn-outline-secondary" (click)="clearFilters()">
+        <hero-icon name="x-mark" size="1rem"></hero-icon>
+        Limpar
+      </button>
+    </div>
+  </div>
+
+  <!-- Lista de Relatórios -->
+  <div class="section-card">
+    <div class="section-header">
+      <hero-icon name="document-duplicate" size="1.25rem"></hero-icon>
+      <span>Relatórios Encontrados</span>
+      <span class="badge-count" *ngIf="total > 0">{{ total }}</span>
+    </div>
+
+    <div class="table-container" *ngIf="filteredRelatorios.length > 0">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('data')">
+                Data
+                <hero-icon [name]="sortKey==='data' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'" size="0.875rem"></hero-icon>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('gerencia')">
+                Gerência
+                <hero-icon [name]="sortKey==='gerencia' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'" size="0.875rem"></hero-icon>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('turno')">
+                Turno
+                <hero-icon [name]="sortKey==='turno' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'" size="0.875rem"></hero-icon>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('coord')">
+                Coord.
+                <hero-icon [name]="sortKey==='coord' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'" size="0.875rem"></hero-icon>
+              </button>
+            </th>
+            <th>Mat. 1</th>
+            <th>Mat. 2</th>
+            <th>Superv.</th>
+            <th>Status</th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of pageItems" (dblclick)="goToRelatorio(r.idRelatorio)" class="cursor-pointer">
+            <td>{{ r.data | date:'dd/MM/yyyy' }}</td>
+            <td><span class="badge text-bg-primary">{{ r.gerencia }}</span></td>
+            <td><span class="badge text-bg-secondary">{{ r.turno }}</span></td>
+            <td>{{ r.coord }}</td>
+            <td>{{ r.mat1 }}</td>
+            <td>{{ r.mat2 }}</td>
+            <td>{{ r.superv }}</td>
+            <td>
+              <span class="badge" [ngClass]="r.status === 'lido' ? 'text-bg-success' : 'text-bg-warning'">
+                {{ r.status === 'lido' ? 'Lido' : 'Pendente' }}
+              </span>
+            </td>
+            <td class="text-end">
+              <div class="action-buttons">
+                <a class="btn btn-sm btn-outline-success" [routerLink]="['/relatorio-base', r.idRelatorio!, 'documento']" [queryParams]="{fromCoord: 1, coord: matriculaCoordenador, dataInicio: dataInicio, dataFim: dataFim}" title="Ver Documento">
+                  <hero-icon name="document-text" size="1rem"></hero-icon>
+                </a>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Estado vazio -->
+    <div class="empty-state" *ngIf="filteredRelatorios.length === 0">
+      <hero-icon name="document-duplicate" size="3rem"></hero-icon>
+      <p>Nenhum relatório encontrado</p>
+      <span class="empty-hint">Use o botão "Filtrar" para buscar relatórios</span>
+    </div>
+
+    <!-- Paginação -->
+    <div class="pagination-bar" *ngIf="filteredRelatorios.length > 0">
+      <div class="pagination-info">
+        Mostrando {{ startIndex }}–{{ endIndex }} de {{ total }}
+      </div>
+      <div class="pagination-controls">
+        <div class="page-size">
+          <label>Por página</label>
+          <select class="form-select form-select-sm" [(ngModel)]="pageSize" (ngModelChange)="goTo(1)">
+            <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+        <nav class="pagination-nav">
+          <button class="btn btn-sm btn-outline-secondary" (click)="goTo(page - 1)" [disabled]="page === 1">
+            <hero-icon name="chevron-left" size="1rem"></hero-icon>
+          </button>
+          <button *ngFor="let p of pages" class="btn btn-sm" [ngClass]="p === page ? 'btn-primary' : 'btn-outline-secondary'" (click)="goTo(p)">{{ p }}</button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="goTo(page + 1)" [disabled]="page === totalPages">
+            <hero-icon name="chevron-right" size="1rem"></hero-icon>
+          </button>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Filtros -->
+<div *ngIf="showFilterModal" class="modal-overlay" (click)="closeFilterModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-icon">
+        <hero-icon name="funnel" size="1.5rem"></hero-icon>
+      </div>
+      <div>
+        <h5 class="modal-title">Filtrar Relatórios</h5>
+        <p class="modal-subtitle">Informe a matrícula do coordenador e o período</p>
+      </div>
+      <button type="button" class="modal-close" (click)="closeFilterModal()">
+        <hero-icon name="x-mark" size="1.5rem"></hero-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="filter-group">
+        <label class="filter-label">
+          <hero-icon name="user" size="1rem"></hero-icon>
+          Matrícula do Coordenador
+        </label>
+        <input class="form-control" type="text" inputmode="numeric" [(ngModel)]="matriculaCoordenador" placeholder="Digite a matrícula" />
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">
+          <hero-icon name="calendar" size="1rem"></hero-icon>
+          Período
+        </label>
+        <div class="date-range">
+          <input class="form-control" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10"
+            [(ngModel)]="dataInicio" (input)="onDateInput('dataInicio', $event)" />
+          <span class="date-separator">até</span>
+          <input class="form-control" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10"
+            [(ngModel)]="dataFim" (input)="onDateInput('dataFim', $event)" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="closeFilterModal()">Cancelar</button>
+      <div class="filter-hint" *ngIf="!filtersValid">
+        <hero-icon name="exclamation-circle" size="1rem"></hero-icon>
+        Preencha todos os campos corretamente
+      </div>
+      <button type="button" class="btn btn-primary" (click)="applyFilters()" [disabled]="!filtersValid">
+        <hero-icon name="magnifying-glass" size="1.25rem"></hero-icon>
+        Buscar
+      </button>
+    </div>
+  </div>
+</div>

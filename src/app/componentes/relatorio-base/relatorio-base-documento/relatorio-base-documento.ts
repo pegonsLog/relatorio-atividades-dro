@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RelatorioBase, ItemAtividade, ItemProdutividade, ItemOcorrencia } from '../../../models';
 import { RelatorioBaseService } from '../../../services/relatorio-base.service';
@@ -18,6 +18,7 @@ import { HeroIconComponent } from '../../../shared/icons/heroicons';
 export class RelatorioBaseDocumento implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly relatorioService = inject(RelatorioBaseService);
   private readonly atividadeService = inject(ItemAtividadeService);
   private readonly produtividadeService = inject(ItemProdutividadeService);
@@ -30,11 +31,30 @@ export class RelatorioBaseDocumento implements OnInit {
   ocorrencias: ItemOcorrencia[] = [];
   loading = true;
   readonly now = new Date();
+  
+  // Controle de acesso do coordenador
+  fromCoord = false;
+  updatingStatus = false;
+  
+  // Parâmetros para voltar ao coordenador
+  private coordParams: { coord?: string; dataInicio?: string; dataFim?: string } = {};
+  
   // Agregados por código
   aggProdutividades: { codProd: number; nome: string; total: number }[] = [];
   aggOcorrencias: { codOcor: number; nome: string; total: number }[] = [];
 
   ngOnInit(): void {
+    this.route.queryParamMap.subscribe(qp => {
+      this.fromCoord = qp.get('fromCoord') === '1';
+      // Capturar parâmetros de filtro do coordenador
+      const coord = qp.get('coord');
+      const dataInicio = qp.get('dataInicio');
+      const dataFim = qp.get('dataFim');
+      if (coord) this.coordParams.coord = coord;
+      if (dataInicio) this.coordParams.dataInicio = dataInicio;
+      if (dataFim) this.coordParams.dataFim = dataFim;
+    });
+
     this.route.paramMap.subscribe(pm => {
       const id = pm.get('id');
       if (!id) {
@@ -69,7 +89,27 @@ export class RelatorioBaseDocumento implements OnInit {
   }
 
   voltar(): void {
-    this.router.navigate(['/relatorio-base'], { queryParamsHandling: 'preserve' });
+    if (this.fromCoord) {
+      // Voltar para relatorios-coordenador com os filtros preservados
+      this.router.navigate(['/relatorios-coordenador'], {
+        queryParams: this.coordParams
+      });
+    } else {
+      this.router.navigate(['/relatorio-base'], { queryParamsHandling: 'preserve' });
+    }
+  }
+
+  // Atualizar status (apenas coordenador)
+  async setStatus(status: 'pendente' | 'lido'): Promise<void> {
+    if (!this.idRelatorio || this.updatingStatus) return;
+    this.updatingStatus = true;
+    try {
+      await this.relatorioService.updateStatus(this.idRelatorio, status);
+    } catch (e) {
+      console.error('Erro ao atualizar status:', e);
+    } finally {
+      this.updatingStatus = false;
+    }
   }
 
   // Helpers

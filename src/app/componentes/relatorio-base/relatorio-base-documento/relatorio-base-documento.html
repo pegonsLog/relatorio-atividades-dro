@@ -3,10 +3,26 @@
     <hero-icon name="arrow-left" size="1.125rem"></hero-icon>
     Voltar
   </button>
-  <button class="btn btn-primary" (click)="print()">
-    <hero-icon name="document-arrow-down" size="1.125rem"></hero-icon>
-    Imprimir / Exportar PDF
-  </button>
+  <div class="toolbar-right">
+    <!-- Controles de status (apenas para coordenador) -->
+    <div class="status-controls" *ngIf="fromCoord && relatorio">
+      <span class="status-label">Status:</span>
+      <div class="radio-group">
+        <label class="radio-option pendente" [class.active]="relatorio.status !== 'lido'">
+          <input type="radio" name="status" value="pendente" [checked]="relatorio.status !== 'lido'" (change)="setStatus('pendente')" [disabled]="updatingStatus" />
+          <span class="radio-label">Pendente</span>
+        </label>
+        <label class="radio-option lido" [class.active]="relatorio.status === 'lido'">
+          <input type="radio" name="status" value="lido" [checked]="relatorio.status === 'lido'" (change)="setStatus('lido')" [disabled]="updatingStatus" />
+          <span class="radio-label">Lido</span>
+        </label>
+      </div>
+    </div>
+    <button class="btn btn-primary" (click)="print()">
+      <hero-icon name="document-arrow-down" size="1.125rem"></hero-icon>
+      Imprimir / Exportar PDF
+    </button>
+  </div>
 </div>
 
 <div class="document-a4">

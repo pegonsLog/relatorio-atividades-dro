@@ -38,6 +38,7 @@ export class Menu implements OnInit {
     { icon: 'mdi-clipboard-text-outline', heroIcon: 'clipboard-document', label: 'Relatório de Atividade', route: '/item-atividade' },
     { icon: 'mdi-clipboard-check-outline', heroIcon: 'clipboard-document-check', label: 'Relatório de Produtividade', route: '/item-produtividade' },
     { icon: 'mdi-alert-outline', heroIcon: 'exclamation-triangle', label: 'Relatório de Ocorrências', route: '/item-ocorrencia' },
+    { icon: 'mdi-account-search', heroIcon: 'user-circle', label: 'Relatórios por Coordenador', route: '/relatorios-coordenador' },
   ]);
 
   protected readonly adminItems = signal<MenuItem[]>([

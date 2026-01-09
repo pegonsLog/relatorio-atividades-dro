@@ -106,6 +106,7 @@
                       size="0.875rem"></hero-icon>
                   </button>
                 </th>
+                <th>Status</th>
                 <th>Criado por</th>
                 <th class="text-end">Ações</th>
               </tr>
@@ -119,6 +120,11 @@
                 <td>{{ r.mat2 }}</td>
                 <td>{{ r.coord }}</td>
                 <td>{{ r.superv }}</td>
+                <td>
+                  <span class="badge" [ngClass]="r.status === 'lido' ? 'text-bg-success' : 'text-bg-warning'">
+                    {{ r.status === 'lido' ? 'Lido' : 'Pendente' }}
+                  </span>
+                </td>
                 <td class="text-muted">{{ r.criadoPor || '-' }}</td>
                 <td class="text-end">
                   <div class="action-buttons">
@@ -126,22 +132,17 @@
                       [queryParamsHandling]="'preserve'" title="Detalhe">
                       <hero-icon name="eye" size="1rem"></hero-icon>
                     </a>
-                    <a class="btn btn-sm btn-outline-success"
-                      [routerLink]="['/relatorio-base', r.idRelatorio!, 'documento']" [queryParamsHandling]="'preserve'"
-                      title="Documento">
-                      <hero-icon name="document-text" size="1rem"></hero-icon>
-                    </a>
-                    <button class="btn btn-sm btn-outline-primary" (click)="startEdit(r)" title="Editar">
+                    <button class="btn btn-sm btn-outline-primary" (click)="startEdit(r)" title="Editar" *ngIf="r.status !== 'lido'">
                       <hero-icon name="pencil" size="1rem"></hero-icon>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" (click)="openDelete(r.idRelatorio!)" title="Excluir">
+                    <button class="btn btn-sm btn-outline-danger" (click)="openDelete(r.idRelatorio!)" title="Excluir" *ngIf="r.status !== 'lido'">
                       <hero-icon name="trash" size="1rem"></hero-icon>
                     </button>
                   </div>
                 </td>
               </tr>
               <tr *ngIf="filtrados.length === 0">
-                <td colspan="9" class="empty-state">
+                <td colspan="10" class="empty-state">
                   <hero-icon name="document-duplicate" size="3rem"></hero-icon>
                   <p>Nenhum relatório encontrado</p>
                 </td>

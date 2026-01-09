@@ -121,14 +121,14 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
       });
     }
     
-    // Retorna apenas o último registro adicionado (mais recente por createdAt)
+    // Retorna os 10 últimos registros (mais recentes por createdAt)
     if (filtered.length === 0) return [];
-    const ultimo = filtered.reduce((prev, current) => {
-      const prevTime = new Date(prev.createdAt as any).getTime() || 0;
-      const currentTime = new Date(current.createdAt as any).getTime() || 0;
-      return currentTime > prevTime ? current : prev;
+    const sorted = [...filtered].sort((a, b) => {
+      const timeA = new Date(a.createdAt as any).getTime() || 0;
+      const timeB = new Date(b.createdAt as any).getTime() || 0;
+      return timeB - timeA; // Mais recente primeiro
     });
-    return [ultimo];
+    return sorted.slice(0, 10);
   }
 
   // Derivados
