@@ -52,6 +52,8 @@ export class Menu implements OnInit {
   showFilterModal = false;
   selectedGerencia = '';
   selectedTurno = '';
+  selectedMat1 = '';
+  selectedMat2 = '';
 
   readonly gerencias = ['GARBO', 'GARNE', 'GARNP', 'GARVN', 'GEACE', 'GAOPE'];
   readonly turnos = ['MANHÃ', 'TARDE', 'MADRUGADA'];
@@ -76,6 +78,8 @@ export class Menu implements OnInit {
     const queryParams: any = {
       gerencia: this.selectedGerencia || undefined,
       turno: this.selectedTurno || undefined,
+      mat1: this.selectedMat1 || undefined,
+      mat2: this.selectedMat2 || undefined,
     };
     this.showFilterModal = false;
     this.router.navigate(['/relatorio-base'], { queryParams });

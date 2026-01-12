@@ -60,7 +60,7 @@
   </div>
 
   <!-- Ações -->
-  <div class="section-actions">
+  <div class="section-actions" *ngIf="podeEditar">
     <a class="btn btn-primary" [routerLink]="['/item-produtividade/novo']"
       [queryParams]="{ idRelatorio: strIdRelatorio, idAtividade: strIdAtividade }" [queryParamsHandling]="'merge'">
       <hero-icon name="plus" size="1.125rem"></hero-icon>
@@ -119,11 +119,11 @@
       </div>
       <div class="item-card-actions">
         <a class="btn btn-sm btn-ghost" [routerLink]="['/item-produtividade', i.idProdutividade, 'editar']"
-          [queryParamsHandling]="'preserve'">
+          [queryParamsHandling]="'preserve'" *ngIf="podeEditar">
           <hero-icon name="pencil" size="1rem"></hero-icon>
           Editar
         </a>
-        <button type="button" class="btn btn-sm btn-ghost-danger" (click)="openDelete(i.idProdutividade)">
+        <button type="button" class="btn btn-sm btn-ghost-danger" (click)="openDelete(i.idProdutividade)" *ngIf="podeEditar">
           <hero-icon name="trash" size="1rem"></hero-icon>
           Excluir
         </button>
@@ -166,11 +166,11 @@
       </div>
       <div class="item-card-actions">
         <a class="btn btn-sm btn-ghost" [routerLink]="['/item-ocorrencia', o.idOcorrencia, 'editar']"
-          [queryParamsHandling]="'preserve'">
+          [queryParamsHandling]="'preserve'" *ngIf="podeEditar">
           <hero-icon name="pencil" size="1rem"></hero-icon>
           Editar
         </a>
-        <button type="button" class="btn btn-sm btn-ghost-danger" (click)="openDeleteOcor(o.idOcorrencia)">
+        <button type="button" class="btn btn-sm btn-ghost-danger" (click)="openDeleteOcor(o.idOcorrencia)" *ngIf="podeEditar">
           <hero-icon name="trash" size="1rem"></hero-icon>
           Excluir
         </button>

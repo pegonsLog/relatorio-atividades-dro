@@ -33,6 +33,8 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
   // Defaults para o formulário
   defaultGerencia = '';
   defaultTurno = '';
+  defaultMat1: number | null = null;
+  defaultMat2: number | null = null;
 
 
   // Paginação
@@ -65,6 +67,11 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
       this.filterTurno = qp.get('turno') ?? '';
       this.defaultGerencia = this.filterGerencia;
       this.defaultTurno = this.filterTurno;
+      // Mat1 e Mat2 dos query params
+      const mat1Param = qp.get('mat1');
+      const mat2Param = qp.get('mat2');
+      this.defaultMat1 = mat1Param ? Number(mat1Param) : null;
+      this.defaultMat2 = mat2Param ? Number(mat2Param) : null;
       const p = Number(qp.get('page'));
       const ps = Number(qp.get('pageSize'));
       this.page = Number.isFinite(p) && p > 0 ? p : 1;
@@ -96,7 +103,7 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
   // Filtrados
   get filtrados(): RelatorioBase[] {
     const f = this.filtro.trim().toLowerCase();
-    // Aplica filtros de gerência/turno vindos do modal externo (query params)
+    // Aplica filtros de gerência/turno/mat1/mat2 vindos do modal externo (query params)
     const byFixed = this.relatorios.filter(r => {
       const okGer = this.filterGerencia
         ? String(r.gerencia || '').toLowerCase() === String(this.filterGerencia || '').toLowerCase()
@@ -104,7 +111,13 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
       const okTur = this.filterTurno
         ? String(r.turno || '').toLowerCase() === String(this.filterTurno || '').toLowerCase()
         : true;
-      return okGer && okTur;
+      const okMat1 = this.defaultMat1
+        ? r.mat1 === this.defaultMat1
+        : true;
+      const okMat2 = this.defaultMat2
+        ? r.mat2 === this.defaultMat2
+        : true;
+      return okGer && okTur && okMat1 && okMat2;
     });
     
     let filtered = byFixed;

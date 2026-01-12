@@ -136,18 +136,32 @@
       </button>
     </div>
     <div class="modal-body">
-      <div class="filter-group">
-        <label class="filter-label">Gerência</label>
-        <select class="form-select" [(ngModel)]="selectedGerencia" appAutoFocus>
-          <option *ngFor="let g of gerencias" [value]="g">{{ g }}</option>
-        </select>
-        <small class="form-text text-muted">Gerência para qual prestou o serviço</small>
+      <div class="filter-row">
+        <div class="filter-group">
+          <label class="filter-label">Gerência</label>
+          <select class="form-select" [(ngModel)]="selectedGerencia" appAutoFocus>
+            <option *ngFor="let g of gerencias" [value]="g">{{ g }}</option>
+          </select>
+          <small class="form-text text-muted">Gerência para qual prestou o serviço</small>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Turno</label>
+          <select class="form-select" [(ngModel)]="selectedTurno">
+            <option *ngFor="let t of turnos" [value]="t">{{ t }}</option>
+          </select>
+        </div>
       </div>
-      <div class="filter-group">
-        <label class="filter-label">Turno</label>
-        <select class="form-select" [(ngModel)]="selectedTurno">
-          <option *ngFor="let t of turnos" [value]="t">{{ t }}</option>
-        </select>
+      <div class="filter-row">
+        <div class="filter-group">
+          <label class="filter-label">Mat. 1</label>
+          <input type="text" class="form-control" [(ngModel)]="selectedMat1" placeholder="Matrícula 1" inputmode="numeric" />
+          <small class="form-text text-muted">Matrícula do agente digitador</small>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Mat. 2</label>
+          <input type="text" class="form-control" [(ngModel)]="selectedMat2" placeholder="Matrícula 2 (opcional)" inputmode="numeric" />
+          <small class="form-text text-muted">Matrícula do segundo agente</small>
+        </div>
       </div>
     </div>
     <div class="modal-footer">

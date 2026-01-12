@@ -1,7 +1,9 @@
 <div class="page-container" *ngIf="relatorio; else carregando">
   <div class="page-header">
     <div class="page-title">
-      <h1>Relatório Diário #{{ relatorio.idRelatorio }}</h1>
+      <h1>Relatório Diário 
+        <!-- #{{ relatorio.idRelatorio }} -->
+      </h1>
       <p class="page-subtitle">Detalhes e atividades do relatório</p>
     </div>
     <div class="page-actions">
@@ -57,7 +59,7 @@
   </div>
 
   <!-- Ações -->
-  <div class="section-actions">
+  <div class="section-actions" *ngIf="podeEditar">
     <button class="btn btn-primary" (click)="abrirForm()">
       <hero-icon name="plus" size="1.125rem"></hero-icon>
       Adicionar Atividade
@@ -153,11 +155,11 @@
           <hero-icon name="eye" size="1rem"></hero-icon>
           Ver Detalhes
         </a>
-        <button class="btn btn-sm btn-ghost" (click)="editarAtividade(a)">
+        <button class="btn btn-sm btn-ghost" (click)="editarAtividade(a)" *ngIf="podeEditar">
           <hero-icon name="pencil" size="1rem"></hero-icon>
           Editar
         </button>
-        <button class="btn btn-sm btn-ghost-danger" (click)="openDelete(a.idAtividade)">
+        <button class="btn btn-sm btn-ghost-danger" (click)="openDelete(a.idAtividade)" *ngIf="podeEditar">
           <hero-icon name="trash" size="1rem"></hero-icon>
           Excluir
         </button>

@@ -4,9 +4,11 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ItemAtividade } from '../../../models/item-atividade.interface';
 import { ItemProdutividade } from '../../../models/item-produtividade.interface';
 import { ItemOcorrencia } from '../../../models/item-ocorrencia.interface';
+import { RelatorioBase } from '../../../models';
 import { ItemAtividadeService } from '../../../services/item-atividade.service';
 import { ItemProdutividadeService } from '../../../services/item-produtividade.service';
 import { ItemOcorrenciaService } from '../../../services/item-ocorrencia.service';
+import { RelatorioBaseService } from '../../../services/relatorio-base.service';
 import { HeroIconComponent } from '../../../shared/icons/heroicons';
 
 @Component({
@@ -22,9 +24,11 @@ export class ItemAtividadeDetalhe implements OnInit, OnDestroy {
   private readonly atividadeService = inject(ItemAtividadeService);
   private readonly prodService = inject(ItemProdutividadeService);
   private readonly ocorService = inject(ItemOcorrenciaService);
+  private readonly relatorioService = inject(RelatorioBaseService);
 
   idAtividade!: string;
   atividade: ItemAtividade | null = null;
+  relatorio: RelatorioBase | null = null;
   itens: ItemProdutividade[] = [];
   ocorrencias: ItemOcorrencia[] = [];
 
@@ -55,6 +59,13 @@ export class ItemAtividadeDetalhe implements OnInit, OnDestroy {
       this.atividadeService.getAtividades().subscribe(list => {
         this.atividade = (list || []).find(a => String(a.idAtividade) === this.idAtividade) || null;
         this.loading = false;
+        
+        // Carregar relatório para verificar status
+        if (this.atividade?.idRelatorio) {
+          this.relatorioService.getRelatorios$().subscribe(relatorios => {
+            this.relatorio = relatorios.find(r => String(r.idRelatorio) === String(this.atividade?.idRelatorio)) || null;
+          });
+        }
       });
 
       // Carregar itens de produtividade vinculados
@@ -96,6 +107,11 @@ export class ItemAtividadeDetalhe implements OnInit, OnDestroy {
   get hasValidContext(): boolean {
     // Para criar item de produtividade, basta ter uma Atividade válida (idAtividade)
     return !!this.strIdAtividade;
+  }
+
+  // Verifica se o relatório pode ser editado (status não é 'lido')
+  get podeEditar(): boolean {
+    return this.relatorio?.status !== 'lido';
   }
 
   get alertText(): string {

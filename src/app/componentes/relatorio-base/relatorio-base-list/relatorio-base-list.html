@@ -21,7 +21,7 @@
           <span>{{ selected?.idRelatorio ? 'Editar Relatório' : 'Novo Relatório' }}</span>
         </div>
         <div class="section-body">
-          <app-relatorio-base-form [value]="selected" [defaults]="{ gerencia: defaultGerencia, turno: defaultTurno }"
+          <app-relatorio-base-form [value]="selected" [defaults]="{ gerencia: defaultGerencia, turno: defaultTurno, mat1: defaultMat1, mat2: defaultMat2 }"
             [saving]="saving" (submitValue)="onSubmit($event)" (cancel)="cancel()"></app-relatorio-base-form>
         </div>
       </div>

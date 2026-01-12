@@ -63,10 +63,17 @@
       <hero-icon name="user" size="1rem"></hero-icon>
       Mat. 1
     </label>
-    <select id="mat1" class="form-select" formControlName="mat1">
-      <option [ngValue]="null" disabled>Selecione</option>
-      <option *ngFor="let a of agentes$ | async" [ngValue]="a.matricula">{{ a.matricula }} - {{ a.nome }}</option>
-    </select>
+    <ng-container *ngIf="isMat1Locked; else mat1Select">
+      <input type="text" class="form-control locked-display" [value]="form.get('mat1')?.value || defaults?.mat1"
+        readonly />
+      <div class="form-hint">Definido pelos filtros</div>
+    </ng-container>
+    <ng-template #mat1Select>
+      <select id="mat1" class="form-select" formControlName="mat1">
+        <option [ngValue]="null" disabled>Selecione</option>
+        <option *ngFor="let a of agentes$ | async" [ngValue]="a.matricula">{{ a.matricula }} - {{ a.nome }}</option>
+      </select>
+    </ng-template>
   </div>
 
   <div class="form-group">
@@ -74,10 +81,17 @@
       <hero-icon name="user" size="1rem"></hero-icon>
       Mat. 2
     </label>
-    <select id="mat2" class="form-select" formControlName="mat2">
-      <option [ngValue]="null" disabled>Selecione</option>
-      <option *ngFor="let a of agentes$ | async" [ngValue]="a.matricula">{{ a.matricula }} - {{ a.nome }}</option>
-    </select>
+    <ng-container *ngIf="isMat2Locked; else mat2Select">
+      <input type="text" class="form-control locked-display" [value]="form.get('mat2')?.value || defaults?.mat2"
+        readonly />
+      <div class="form-hint">Definido pelos filtros</div>
+    </ng-container>
+    <ng-template #mat2Select>
+      <select id="mat2" class="form-select" formControlName="mat2">
+        <option [ngValue]="null" disabled>Selecione</option>
+        <option *ngFor="let a of agentes$ | async" [ngValue]="a.matricula">{{ a.matricula }} - {{ a.nome }}</option>
+      </select>
+    </ng-template>
   </div>
 
   <div class="form-group">

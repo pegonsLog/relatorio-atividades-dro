@@ -39,6 +39,11 @@ export class RelatorioBaseDetalhe implements OnInit {
   contagemProd: { [idAtividade: string]: number } = {};
   contagemOcor: { [idAtividade: string]: number } = {};
 
+  // Verifica se o relatório pode ser editado (status não é 'lido')
+  get podeEditar(): boolean {
+    return this.relatorio?.status !== 'lido';
+  }
+
   ngOnInit(): void {
     this.route.paramMap.subscribe(pm => {
       const id = pm.get('id');

@@ -18,7 +18,7 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
 
   @Input() value?: RelatorioBase | null;
   @Input() saving = false;
-  @Input() defaults?: { gerencia?: string; turno?: string } | null;
+  @Input() defaults?: { gerencia?: string; turno?: string; mat1?: number | null; mat2?: number | null } | null;
   @Output() submitValue = new EventEmitter<RelatorioBase>();
   @Output() cancel = new EventEmitter<void>();
   @ViewChild('dataInput') dataInput?: ElementRef<HTMLInputElement>;
@@ -42,6 +42,16 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
     return !this.value && !!(this.defaults?.gerencia && this.defaults?.turno);
   }
 
+  // Indica se mat1 está travado pelos defaults
+  get isMat1Locked(): boolean {
+    return !this.value && !!this.defaults?.mat1;
+  }
+
+  // Indica se mat2 está travado pelos defaults
+  get isMat2Locked(): boolean {
+    return !this.value && !!this.defaults?.mat2;
+  }
+
   // Reseta o formulário usando os defaults atuais e aplica bloqueio conforme necessário
   resetToDefaults() {
     this.form.reset({
@@ -49,8 +59,8 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
       data: '',
       diaSemana: '',
       turno: this.defaults?.turno || '',
-      mat1: null,
-      mat2: null,
+      mat1: this.defaults?.mat1 || null,
+      mat2: this.defaults?.mat2 || null,
       coord: null,
       superv: null,
     });
@@ -61,6 +71,17 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
     } else {
       this.form.get('gerencia')?.enable({ emitEvent: false });
       this.form.get('turno')?.enable({ emitEvent: false });
+    }
+    // Travar mat1 e mat2 se vierem dos defaults
+    if (this.defaults?.mat1) {
+      this.form.get('mat1')?.disable({ emitEvent: false });
+    } else {
+      this.form.get('mat1')?.enable({ emitEvent: false });
+    }
+    if (this.defaults?.mat2) {
+      this.form.get('mat2')?.disable({ emitEvent: false });
+    } else {
+      this.form.get('mat2')?.enable({ emitEvent: false });
     }
     // Limpa estado de validação/toque
     this.form.markAsPristine();
