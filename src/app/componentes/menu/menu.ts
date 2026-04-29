@@ -33,6 +33,12 @@ export class Menu implements OnInit {
   displayName = '';
   displayPerfil = '';
 
+  // Verifica se o usuário tem perfil avançado ou admin
+  get isPerfilAvancado(): boolean {
+    const perfil = this.displayPerfil.toLowerCase();
+    return perfil === 'admin' || perfil === 'usuário avançado';
+  }
+
   protected readonly menuItems = signal<MenuItem[]>([
     { icon: 'mdi-file-document', heroIcon: 'document-text', label: 'Relatório Base', route: '/relatorio-base' },
     { icon: 'mdi-clipboard-text-outline', heroIcon: 'clipboard-document', label: 'Relatório de Atividade', route: '/item-atividade' },

@@ -9,6 +9,7 @@
 
         @for (item of menuItems(); track item.route) {
         <a class="nav-item" [class.hide-on-mobile]="item.route !== '/relatorio-base'"
+          [class.hide-usuario-comum]="item.route !== '/relatorio-base' && !isPerfilAvancado"
           [routerLink]="requiresDirectNav(item.route) ? item.route : undefined" (click)="onMenuClick($event, item)"
           routerLinkActive="active">
           <hero-icon [name]="item.heroIcon" size="1.25rem"></hero-icon>
@@ -18,9 +19,9 @@
         }
       </div>
 
-      <div class="nav-divider hide-on-mobile"></div>
+      <div class="nav-divider hide-on-mobile" *ngIf="isPerfilAvancado"></div>
 
-      <div class="nav-section hide-on-mobile">
+      <div class="nav-section hide-on-mobile" *ngIf="isPerfilAvancado">
         <h3 class="nav-title">
           <hero-icon name="cog-6-tooth" size="1rem"></hero-icon>
           Administração
@@ -46,6 +47,8 @@
           <span class="user-role">{{ displayPerfil || 'Perfil' }}</span>
         </div>
       </div>
+    </div>
+    <div class="menu-footer">
       <button type="button" class="btn btn-logout" (click)="logout()">
         <hero-icon name="arrow-left-on-rectangle" size="1.25rem"></hero-icon>
         Sair do Sistema

@@ -48,7 +48,7 @@ export class UsuarioForm implements OnInit {
       .subscribe((u) => {
         if (u) {
           const perfilRaw = (u as any).perfil as string;
-          const perfilNorm: Usuario['perfil'] = perfilRaw === 'Usuario' ? 'Usuário' : (perfilRaw === 'Admin' ? 'Admin' : 'Usuário');
+          const perfilNorm: Usuario['perfil'] = perfilRaw === 'Admin' ? 'Admin' : perfilRaw === 'Usuário Avançado' ? 'Usuário Avançado' : (perfilRaw === 'Usuario' ? 'Usuário' : 'Usuário');
           const { matricula, nome, senha, ativo } = u as Usuario;
           this.form.patchValue({ matricula, nome, senha, perfil: perfilNorm, ativo });
         } else if (this.editing) {

@@ -407,3 +407,8 @@
     grid-template-columns: 1fr;
   }
 }
+
+// Oculta itens para usuário comum (mesmo no desktop)
+.hide-usuario-comum {
+  display: none !important;
+}
