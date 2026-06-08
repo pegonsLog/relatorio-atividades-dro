@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RelatorioBase } from '../../../models';
 import { AgentesService } from '../../../services/agentes.service';
+import { Agente } from '../../../models/agente.interface';
 import { HeroIconComponent } from '../../../shared/icons/heroicons';
 
 @Component({
@@ -34,8 +35,17 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
     superv: [null, [Validators.required]],
   });
 
-  // Observable de agentes para popular selects
+  // Observable de agentes para popular selects (mat1/mat2)
   agentes$ = this.agentesService.list();
+
+  // Lista de agentes carregada em memória para os campos de busca (coord/superv)
+  agentes: Agente[] = [];
+
+  // Estado dos campos de busca com filtro (autocomplete)
+  coordSearch = '';
+  supervSearch = '';
+  coordOpen = false;
+  supervOpen = false;
 
   // Indica quando o formulário está em modo "novo" com defaults válidos, para travar os campos
   get isLocked(): boolean {
@@ -86,11 +96,24 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
     // Limpa estado de validação/toque
     this.form.markAsPristine();
     this.form.markAsUntouched();
+    // Limpa os textos de busca de coord/superv
+    this.coordSearch = '';
+    this.supervSearch = '';
+    this.coordOpen = false;
+    this.supervOpen = false;
     // Foca o primeiro campo (Data)
     setTimeout(() => this.dataInput?.nativeElement.focus(), 0);
   }
 
   ngOnInit(): void {
+    // Carrega agentes em memória para os campos de busca com filtro
+    this.agentes$.subscribe(list => {
+      this.agentes = list;
+      // Sincroniza o texto exibido caso já exista valor selecionado
+      this.coordSearch = this.labelForMatricula(this.form.get('coord')?.value);
+      this.supervSearch = this.labelForMatricula(this.form.get('superv')?.value);
+    });
+
     const dataCtrl = this.form.get('data');
     const diaCtrl = this.form.get('diaSemana');
     dataCtrl?.valueChanges.subscribe((val: string) => {
@@ -121,6 +144,9 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
         // Em edição, permitir alterar gerência/turno
         this.form.get('gerencia')?.enable({ emitEvent: false });
         this.form.get('turno')?.enable({ emitEvent: false });
+        // Sincroniza os textos de busca de coord/superv
+        this.coordSearch = this.labelForMatricula(v.coord);
+        this.supervSearch = this.labelForMatricula(v.superv);
       } else {
         this.resetToDefaults();
       }
@@ -164,11 +190,82 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
       coord: null,
       superv: null,
     });
+    // Limpa os textos de busca
+    this.coordSearch = '';
+    this.supervSearch = '';
+    this.coordOpen = false;
+    this.supervOpen = false;
     // Reseta estado de validação/toque
     this.form.markAsPristine();
     this.form.markAsUntouched();
     // Emite evento para o componente pai fechar o modo de edição
     this.cancel.emit();
+  }
+
+  // ===== Autocomplete (busca com filtro) para Coord. e Superv. =====
+
+  // Retorna o rótulo "matricula - nome" para uma matrícula
+  private labelForMatricula(matricula: number | null | undefined): string {
+    if (matricula == null) return '';
+    const a = this.agentes.find(x => x.matricula === matricula);
+    return a ? `${a.matricula} - ${a.nome}` : String(matricula);
+  }
+
+  // Filtra agentes pelo termo digitado (matrícula ou nome)
+  filterAgentes(term: string): Agente[] {
+    const t = (term || '').trim().toLowerCase();
+    if (!t) return this.agentes;
+    return this.agentes.filter(a =>
+      a.nome.toLowerCase().includes(t) || String(a.matricula).includes(t)
+    );
+  }
+
+  get coordResults(): Agente[] {
+    return this.filterAgentes(this.coordSearch);
+  }
+
+  get supervResults(): Agente[] {
+    return this.filterAgentes(this.supervSearch);
+  }
+
+  // Reage à digitação: limpa a seleção enquanto o texto não corresponde
+  onCoordInput(value: string) {
+    this.coordSearch = value;
+    this.coordOpen = true;
+    this.form.get('coord')?.setValue(null);
+  }
+
+  onSupervInput(value: string) {
+    this.supervSearch = value;
+    this.supervOpen = true;
+    this.form.get('superv')?.setValue(null);
+  }
+
+  selectCoord(a: Agente) {
+    this.form.get('coord')?.setValue(a.matricula);
+    this.coordSearch = `${a.matricula} - ${a.nome}`;
+    this.coordOpen = false;
+  }
+
+  selectSuperv(a: Agente) {
+    this.form.get('superv')?.setValue(a.matricula);
+    this.supervSearch = `${a.matricula} - ${a.nome}`;
+    this.supervOpen = false;
+  }
+
+  // Fecha o dropdown ao perder o foco; restaura o texto se nenhuma seleção foi feita
+  closeCoord() {
+    setTimeout(() => {
+      this.coordOpen = false;
+      this.coordSearch = this.labelForMatricula(this.form.get('coord')?.value);
+    }, 150);
+  }
+
+  closeSuperv() {
+    setTimeout(() => {
+      this.supervOpen = false;
+      this.supervSearch = this.labelForMatricula(this.form.get('superv')?.value);
+    }, 150);
   }
 
   private toInputDate(date: Date): string {

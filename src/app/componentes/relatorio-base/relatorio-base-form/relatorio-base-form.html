@@ -99,10 +99,19 @@
       <hero-icon name="user-circle" size="1rem"></hero-icon>
       Coord.
     </label>
-    <select id="coord" class="form-select" formControlName="coord">
-      <option [ngValue]="null" disabled>Selecione</option>
-      <option *ngFor="let a of agentes$ | async" [ngValue]="a.matricula">{{ a.matricula }} - {{ a.nome }}</option>
-    </select>
+    <div class="autocomplete">
+      <input type="text" id="coord" class="form-control" autocomplete="off" placeholder="Buscar por matrícula ou nome"
+        [value]="coordSearch" (input)="onCoordInput($any($event.target).value)" (focus)="coordOpen = true"
+        (blur)="closeCoord()" />
+      <ul class="autocomplete-list" *ngIf="coordOpen && coordResults.length">
+        <li *ngFor="let a of coordResults" class="autocomplete-item" (mousedown)="selectCoord(a)">
+          {{ a.matricula }} - {{ a.nome }}
+        </li>
+      </ul>
+      <div class="autocomplete-empty" *ngIf="coordOpen && coordSearch && !coordResults.length">
+        Nenhum agente encontrado
+      </div>
+    </div>
   </div>
 
   <div class="form-group">
@@ -110,10 +119,19 @@
       <hero-icon name="user-circle" size="1rem"></hero-icon>
       Superv.
     </label>
-    <select id="superv" class="form-select" formControlName="superv">
-      <option [ngValue]="null" disabled>Selecione</option>
-      <option *ngFor="let a of agentes$ | async" [ngValue]="a.matricula">{{ a.matricula }} - {{ a.nome }}</option>
-    </select>
+    <div class="autocomplete">
+      <input type="text" id="superv" class="form-control" autocomplete="off" placeholder="Buscar por matrícula ou nome"
+        [value]="supervSearch" (input)="onSupervInput($any($event.target).value)" (focus)="supervOpen = true"
+        (blur)="closeSuperv()" />
+      <ul class="autocomplete-list" *ngIf="supervOpen && supervResults.length">
+        <li *ngFor="let a of supervResults" class="autocomplete-item" (mousedown)="selectSuperv(a)">
+          {{ a.matricula }} - {{ a.nome }}
+        </li>
+      </ul>
+      <div class="autocomplete-empty" *ngIf="supervOpen && supervSearch && !supervResults.length">
+        Nenhum agente encontrado
+      </div>
+    </div>
   </div>
 
   <!-- Campos de auditoria -->
