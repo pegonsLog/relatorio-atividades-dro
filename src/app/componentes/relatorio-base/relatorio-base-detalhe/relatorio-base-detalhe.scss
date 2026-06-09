@@ -105,7 +105,7 @@
 
 .items-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
   gap: 1rem;
 }
 
@@ -115,6 +115,7 @@
   border-radius: 0.75rem;
   overflow: hidden;
   transition: all 0.2s;
+  min-width: 0;
 }
 
 .item-card:hover {
@@ -156,6 +157,7 @@
   display: flex;
   gap: 1rem;
   margin-bottom: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .item-stat {
@@ -163,6 +165,7 @@
   flex-direction: column;
   gap: 0.125rem;
   flex: 1;
+  min-width: 0;
 }
 
 .stat-label {
@@ -220,6 +223,7 @@
   padding: 0.75rem 1rem;
   border-top: 1px solid var(--border-light);
   background: var(--bg-secondary);
+  flex-wrap: wrap;
 }
 
 .btn-ghost {
@@ -416,6 +420,10 @@
 }
 
 @media (max-width: 768px) {
+  .page-container {
+    padding: 1rem;
+  }
+
   .page-header {
     flex-direction: column;
     align-items: stretch;
@@ -424,8 +432,17 @@
   .page-actions {
     justify-content: flex-end;
   }
+
+  .section-actions .btn {
+    width: 100%;
+  }
   
   .items-grid {
     grid-template-columns: 1fr;
+  }
+
+  .item-card-actions .btn {
+    flex: 1;
+    justify-content: center;
   }
 }

@@ -1,5 +1,14 @@
 <div class="menu-layout">
-  <aside class="menu-sidebar">
+  <!-- Botão hambúrguer (mobile) -->
+  <button type="button" class="sidebar-toggle" (click)="toggleSidebar()"
+    [attr.aria-label]="sidebarOpen ? 'Fechar menu' : 'Abrir menu'" aria-controls="menuSidebar">
+    <hero-icon [name]="sidebarOpen ? 'x-mark' : 'bars-3'" size="1.5rem"></hero-icon>
+  </button>
+
+  <!-- Overlay para fechar a sidenav no mobile -->
+  <div class="sidebar-overlay" *ngIf="sidebarOpen" (click)="closeSidebar()"></div>
+
+  <aside class="menu-sidebar" id="menuSidebar" [class.open]="sidebarOpen">
     <div class="menu-nav">
       <div class="nav-section">
         <h3 class="nav-title">

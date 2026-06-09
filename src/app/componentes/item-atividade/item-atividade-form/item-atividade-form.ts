@@ -1,7 +1,8 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ItemAtividade } from '../../../models';
 import { ItemAtividadeService } from '../../../services';
+import { SpeechToTextService } from '../../../services/speech-to-text.service';
 import { TabelaAtividadesService } from '../../../services/tabela-atividades.service';
 import { TabelaAtividade } from '../../../models/tabela-atividade.interface';
 import { CommonModule } from '@angular/common';
@@ -14,7 +15,7 @@ import { HeroIconComponent } from '../../../shared/icons/heroicons';
   templateUrl: './item-atividade-form.html',
   styleUrls: ['./item-atividade-form.scss']
 })
-export class ItemAtividadeForm implements OnInit {
+export class ItemAtividadeForm implements OnInit, OnDestroy {
   @Input() atividade?: ItemAtividade;
   @Input() idRelatorio!: string | number;
   @Input() dataRelatorio?: Date;
@@ -22,9 +23,22 @@ export class ItemAtividadeForm implements OnInit {
   @Output() formSubmit = new EventEmitter<ItemAtividade>();
   @Output() formCancel = new EventEmitter<void>();
 
+  private readonly speech = inject(SpeechToTextService);
+
   atividadeForm: FormGroup;
   tiposAcionamento = ['Central/Técnico', 'Não Programado', 'Programado'];
   atividades: TabelaAtividade[] = [];
+
+  // Campo atualmente em gravação ('local' | 'observacoes' | null)
+  recordingField: 'local' | 'observacoes' | null = null;
+  // Base de texto do campo antes da fala (para anexar resultados parciais)
+  private recordingBaseText = '';
+  // Mensagem de erro de gravação
+  speechError = '';
+
+  get speechSupported(): boolean {
+    return this.speech.isSupported;
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -136,11 +150,83 @@ export class ItemAtividadeForm implements OnInit {
   }
 
   onCancel(): void {
+    this.stopRecording();
     this.resetForm();
     this.formCancel.emit();
   }
 
+  ngOnDestroy(): void {
+    this.stopRecording();
+  }
+
+  // ===== Gravação de voz (speech-to-text) para Local e Observações =====
+
+  toggleRecording(field: 'local' | 'observacoes'): void {
+    if (this.recordingField === field) {
+      this.stopRecording();
+      return;
+    }
+    // Se outro campo estiver gravando, para antes de iniciar o novo
+    if (this.recordingField) {
+      this.stopRecording();
+    }
+    this.startRecording(field);
+  }
+
+  private startRecording(field: 'local' | 'observacoes'): void {
+    this.speechError = '';
+    const current = (this.atividadeForm.get(field)?.value ?? '').toString();
+    this.recordingBaseText = current;
+    const started = this.speech.start({
+      onText: (text, isFinal) => this.appendSpeech(field, text, isFinal),
+      onEnd: () => {
+        this.recordingField = null;
+      },
+      onError: (message) => {
+        this.speechError = message;
+        this.recordingField = null;
+      }
+    });
+    if (started) {
+      this.recordingField = field;
+    }
+  }
+
+  stopRecording(): void {
+    if (this.recordingField) {
+      this.speech.stop();
+    }
+  }
+
+  // Limpa o conteúdo do campo informado (e para a gravação se estiver ativa nele)
+  clearField(field: 'local' | 'observacoes'): void {
+    if (this.recordingField === field) {
+      this.stopRecording();
+    }
+    this.atividadeForm.get(field)?.setValue('');
+    this.atividadeForm.get(field)?.markAsDirty();
+  }
+
+  private appendSpeech(field: 'local' | 'observacoes', text: string, isFinal: boolean): void {
+    const sep = this.recordingBaseText && !/\s$/.test(this.recordingBaseText) ? ' ' : '';
+    let combined = (this.recordingBaseText + sep + text).trimStart();
+
+    // Respeita o limite de 500 caracteres das observações
+    if (field === 'observacoes' && combined.length > 500) {
+      combined = combined.slice(0, 500);
+    }
+
+    this.atividadeForm.get(field)?.setValue(combined);
+    this.atividadeForm.get(field)?.markAsDirty();
+
+    // Resultados finais passam a fazer parte da base acumulada
+    if (isFinal) {
+      this.recordingBaseText = combined;
+    }
+  }
+
   private resetForm(): void {
+    this.stopRecording();
     this.atividadeForm.reset({ acionamento: 'Programado' });
     this.atividade = undefined;
     this.isEditMode = false;

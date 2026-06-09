@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -33,6 +33,32 @@ export class Menu implements OnInit {
   displayName = '';
   displayPerfil = '';
 
+  // Controle da sidenav no mobile
+  isMobile = false;
+  sidebarOpen = false;
+
+  @HostListener('window:resize')
+  onResize() {
+    this.updateIsMobile();
+  }
+
+  private updateIsMobile() {
+    const mobile = window.innerWidth < 768;
+    // Ao sair do mobile, garante que a sidenav fique visível (não colapsada)
+    if (!mobile) {
+      this.sidebarOpen = false;
+    }
+    this.isMobile = mobile;
+  }
+
+  toggleSidebar() {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar() {
+    this.sidebarOpen = false;
+  }
+
   // Verifica se o usuário tem perfil avançado ou admin
   get isPerfilAvancado(): boolean {
     const perfil = this.displayPerfil.toLowerCase();
@@ -65,6 +91,10 @@ export class Menu implements OnInit {
   readonly turnos = ['MANHÃ', 'TARDE', 'MADRUGADA'];
 
   onMenuClick(event: Event, item: MenuItem) {
+    // No mobile, ao escolher uma opção, fecha a sidenav
+    if (this.isMobile) {
+      this.sidebarOpen = false;
+    }
     if (item.route === '/relatorio-base') {
       event.preventDefault();
       this.openRelatorioBaseModal();
@@ -172,7 +202,13 @@ export class Menu implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    this.updateIsMobile();
     await this.loadUserInfo();
+    // No mobile, vai direto para o fluxo de Relatório Base (abre o modal de filtros)
+    if (this.isMobile) {
+      this.sidebarOpen = false;
+      this.openRelatorioBaseModal();
+    }
   }
 
   private async loadUserInfo(): Promise<void> {

@@ -158,6 +158,64 @@
       </table>
     </div>
 
+    <div class="cards-container">
+      <div class="data-card" *ngFor="let a of pageItems">
+        <div class="data-card-header">
+          <span class="badge text-bg-info">Cód. {{ a.codAtv }}</span>
+          <span class="data-card-item">Item {{ a.item }}</span>
+          <span class="data-card-id" *ngIf="!isFromMenu">#{{ a.idAtividade }}</span>
+        </div>
+        <div class="data-card-title" *ngIf="a.nomeAtividade">{{ a.nomeAtividade }}</div>
+        <div class="data-card-body">
+          <div class="data-card-field" *ngIf="!isFromMenu">
+            <span class="label">Local</span>
+            <span class="value">{{ a.local || '-' }}</span>
+          </div>
+          <div class="data-card-field" *ngIf="!isFromMenu">
+            <span class="label">Acionamento</span>
+            <span class="value">{{ a.acionamento }}</span>
+          </div>
+          <div class="data-card-field">
+            <span class="label">Chegada</span>
+            <span class="value">{{ formatDateTime(a.chegada) }}</span>
+          </div>
+          <div class="data-card-field">
+            <span class="label">Solução</span>
+            <span class="value">{{ a.solucao ? formatDateTime(a.solucao) : '-' }}</span>
+          </div>
+          <div class="data-card-field">
+            <span class="label">Saída</span>
+            <span class="value">{{ formatDateTime(a.saida) }}</span>
+          </div>
+          <div class="data-card-field">
+            <span class="label">Agentes</span>
+            <span class="value">{{ a.qtdAgentes }}</span>
+          </div>
+        </div>
+        <div class="data-card-actions" *ngIf="!isFromMenu">
+          <a class="btn btn-sm btn-outline-info" [routerLink]="['/item-atividade', a.idAtividade]" title="Detalhe">
+            <hero-icon name="eye" size="1rem"></hero-icon>
+          </a>
+          <a class="btn btn-sm btn-outline-success" [routerLink]="['/item-produtividade']"
+            [queryParams]="{ idRelatorio: a.idRelatorio, idAtividade: a.idAtividade }" title="Produtividade">
+            <hero-icon name="clipboard-document-check" size="1rem"></hero-icon>
+          </a>
+          <a class="btn btn-sm btn-outline-primary" [routerLink]="['/item-atividade', a.idAtividade, 'editar']"
+            title="Editar">
+            <hero-icon name="pencil" size="1rem"></hero-icon>
+          </a>
+          <button type="button" class="btn btn-sm btn-outline-danger" (click)="openDelete(a.idAtividade)"
+            title="Excluir">
+            <hero-icon name="trash" size="1rem"></hero-icon>
+          </button>
+        </div>
+      </div>
+      <div class="cards-empty" *ngIf="filtrados.length === 0">
+        <hero-icon name="clipboard-document" size="3rem"></hero-icon>
+        <p>Nenhuma atividade encontrada</p>
+      </div>
+    </div>
+
     <div class="pagination-bar">
       <div class="pagination-info">
         Mostrando {{ startIndex }}–{{ endIndex }} de {{ total }}

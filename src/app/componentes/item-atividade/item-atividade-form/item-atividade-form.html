@@ -105,8 +105,29 @@
             <hero-icon name="home" size="1rem"></hero-icon>
             Local
           </label>
-          <input type="text" id="local" formControlName="local" class="form-control"
-            [class.is-invalid]="isFieldInvalid('local')" placeholder="Descrição do local da atividade">
+          <textarea id="local" formControlName="local" class="form-control"
+            [class.is-invalid]="isFieldInvalid('local')" placeholder="Descrição do local da atividade"
+            rows="3"></textarea>
+          <div class="field-toolbar">
+            <button type="button" class="field-btn"
+              [class.recording]="recordingField === 'local'"
+              [attr.aria-label]="recordingField === 'local' ? 'Parar gravação' : 'Gravar por voz'"
+              [title]="recordingField === 'local' ? 'Parar gravação' : 'Gravar por voz'"
+              (click)="toggleRecording('local')">
+              <hero-icon [name]="recordingField === 'local' ? 'stop' : 'microphone'" size="1.125rem"></hero-icon>
+              {{ recordingField === 'local' ? 'Parar' : 'Gravar' }}
+            </button>
+            <button type="button" class="field-btn clear"
+              [disabled]="!atividadeForm.get('local')?.value"
+              aria-label="Limpar campo" title="Limpar campo"
+              (click)="clearField('local')">
+              <hero-icon name="x-circle" size="1.125rem"></hero-icon>
+              Limpar
+            </button>
+          </div>
+          <div class="mic-hint" *ngIf="recordingField === 'local'">
+            Gravando... fale agora. Toque no botão para parar (máx. 1 min).
+          </div>
           <div class="invalid-feedback" *ngIf="isFieldInvalid('local')">{{ getFieldError('local') }}</div>
         </div>
 
@@ -118,8 +139,33 @@
           <textarea id="observacoes" formControlName="observacoes" class="form-control"
             [class.is-invalid]="isFieldInvalid('observacoes')"
             placeholder="Observações sobre a atividade (máximo 500 caracteres)" rows="3" maxlength="500"></textarea>
+          <div class="field-toolbar">
+            <button type="button" class="field-btn"
+              [class.recording]="recordingField === 'observacoes'"
+              [attr.aria-label]="recordingField === 'observacoes' ? 'Parar gravação' : 'Gravar por voz'"
+              [title]="recordingField === 'observacoes' ? 'Parar gravação' : 'Gravar por voz'"
+              (click)="toggleRecording('observacoes')">
+              <hero-icon [name]="recordingField === 'observacoes' ? 'stop' : 'microphone'" size="1.125rem"></hero-icon>
+              {{ recordingField === 'observacoes' ? 'Parar' : 'Gravar' }}
+            </button>
+            <button type="button" class="field-btn clear"
+              [disabled]="!atividadeForm.get('observacoes')?.value"
+              aria-label="Limpar campo" title="Limpar campo"
+              (click)="clearField('observacoes')">
+              <hero-icon name="x-circle" size="1.125rem"></hero-icon>
+              Limpar
+            </button>
+          </div>
+          <div class="mic-hint" *ngIf="recordingField === 'observacoes'">
+            Gravando... fale agora. Toque no botão para parar (máx. 1 min).
+          </div>
           <div class="char-counter">{{ atividadeForm.get('observacoes')?.value?.length || 0 }}/500</div>
           <div class="invalid-feedback" *ngIf="isFieldInvalid('observacoes')">{{ getFieldError('observacoes') }}</div>
+        </div>
+
+        <div class="speech-error" *ngIf="speechError">
+          <hero-icon name="exclamation-circle" size="1rem"></hero-icon>
+          {{ speechError }}
         </div>
 
         <div class="form-actions">

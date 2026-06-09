@@ -6,3 +6,4 @@ export { TabelaProdutividadeService } from './tabela-produtividade.service';
 export { ItemOcorrenciaService } from './item-ocorrencia.service';
 export { TabelaOcorrenciasService } from './tabela-ocorrencias.service';
 export { ExportExcelService } from './export-excel.service';
+export { SpeechToTextService } from './speech-to-text.service';

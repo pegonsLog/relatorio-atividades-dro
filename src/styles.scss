@@ -71,9 +71,13 @@
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+// Evita que mídias e conteúdos largos estourem a largura no mobile
+img, svg, video, canvas { max-width: 100%; }
+
 html, body {
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
+  max-width: 100%;
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0fdfa 100%);
   color: var(--text-primary);
@@ -81,7 +85,7 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-app-root { display: block; height: 100vh; width: 100vw; }
+app-root { display: block; min-height: 100%; width: 100%; max-width: 100%; overflow-x: hidden; }
 
 h1, h2, h3, h4, h5, h6 { 
   font-weight: 600; 
@@ -506,6 +510,56 @@ input[type="date"], input[type="time"] { appearance: textfield; -webkit-appearan
 
 @media (max-width: 768px) { 
   .container { padding-left: 1rem; padding-right: 1rem; } 
+}
+
+// =====================================================================
+// Mobile-first: garantir que toda tela caiba na largura do dispositivo
+// (app usado majoritariamente em celular). Evita necessidade de zoom.
+// =====================================================================
+
+// Nunca permitir rolagem/zoom horizontal no nível da página
+html, body { max-width: 100%; overflow-x: hidden; }
+
+// Itens de grid/flex precisam poder encolher abaixo do conteúdo,
+// caso contrário forçam estouro horizontal (min-width: auto é o padrão).
+.form-group,
+.filter-group,
+.form-section,
+.list-section,
+.content-grid > *,
+.data-card-field {
+  min-width: 0;
+}
+
+// Campos de formulário nunca devem ultrapassar a largura disponível
+.form-control,
+.form-select,
+input,
+textarea,
+select {
+  max-width: 100%;
+}
+
+// Quebra de palavras longas para não estourar a largura
+.value,
+.data-card-field,
+.nav-item span,
+td, th { overflow-wrap: anywhere; }
+
+@media (max-width: 768px) {
+  // Em telas pequenas, layouts em colunas viram coluna única
+  .form-grid,
+  .form-grid-3,
+  .filter-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  // Container ocupa toda a largura
+  .container,
+  .container-fluid {
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
 // Scrollbar styling

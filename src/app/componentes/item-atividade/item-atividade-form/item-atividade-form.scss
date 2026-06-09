@@ -64,6 +64,77 @@
   margin-top: 0.25rem;
 }
 
+.field-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.field-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--border-light);
+  border-radius: 0.5rem;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.field-btn:hover:not(:disabled) {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.field-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.field-btn.clear:hover:not(:disabled) {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.field-btn.recording {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #ef4444;
+  animation: mic-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mic-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 0.375rem rgba(239, 68, 68, 0);
+  }
+}
+
+.mic-hint {
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-top: 0.25rem;
+}
+
+.speech-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.8125rem;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;
