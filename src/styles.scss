@@ -551,7 +551,7 @@ td, th { overflow-wrap: anywhere; }
   .form-grid,
   .form-grid-3,
   .filter-row {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: minmax(0, 1fr) !important;
   }
 
   // Container ocupa toda a largura
@@ -559,6 +559,13 @@ td, th { overflow-wrap: anywhere; }
   .container-fluid {
     width: 100%;
     max-width: 100%;
+  }
+
+  // CHAVE: permite que QUALQUER item de grid/flex encolha abaixo do seu
+  // conteúdo mínimo. Sem isso, min-width:auto força estouro horizontal
+  // (textos longos, linhas de botões, etc.), exigindo zoom manual.
+  * {
+    min-width: 0;
   }
 }
 
