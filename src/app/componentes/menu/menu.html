@@ -137,10 +137,10 @@
   <div class="modal-container" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div class="modal-icon">
-        <hero-icon name="funnel" size="1.5rem"></hero-icon>
+        <hero-icon name="document-text" size="1.5rem"></hero-icon>
       </div>
       <div>
-        <h5 class="modal-title">Selecionar Filtros</h5>
+        <h5 class="modal-title">Cadastro de relatório</h5>
         <p class="modal-subtitle">Escolha a gerência e turno</p>
       </div>
       <button type="button" class="modal-close" (click)="closeRelatorioBaseModal()">
@@ -161,6 +161,7 @@
           <select class="form-select" [(ngModel)]="selectedTurno">
             <option *ngFor="let t of turnos" [value]="t">{{ t }}</option>
           </select>
+          <small class="form-text text-muted">Turno em que prestou o serviço</small>
         </div>
       </div>
       <div class="filter-row">
@@ -178,10 +179,6 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-outline-secondary" (click)="closeRelatorioBaseModal()">Cancelar</button>
-      <div class="filter-hint" *ngIf="!selectedGerencia || !selectedTurno">
-        <hero-icon name="exclamation-circle" size="1rem"></hero-icon>
-        Selecione Gerência e Turno
-      </div>
       <button type="button" class="btn btn-primary" (click)="confirmRelatorioBaseFilters()"
         [disabled]="!selectedGerencia || !selectedTurno">
         <hero-icon name="check" size="1.25rem"></hero-icon>
