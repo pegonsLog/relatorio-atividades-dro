@@ -26,6 +26,27 @@
           <hero-icon name="chevron-right" size="1rem" class="nav-arrow"></hero-icon>
         </a>
         }
+
+        <div class="nav-group hide-on-mobile" *ngIf="isPerfilAvancado">
+          <button type="button" class="nav-item nav-group-toggle" [class.expanded]="reportsExpanded"
+            (click)="toggleReports()" [attr.aria-expanded]="reportsExpanded">
+            <hero-icon name="clipboard-document" size="1.25rem"></hero-icon>
+            <span>Relatórios</span>
+            <hero-icon name="chevron-down" size="1rem" class="nav-arrow group-arrow"></hero-icon>
+          </button>
+
+          <div class="nav-subitems" *ngIf="reportsExpanded">
+            @for (item of reportItems(); track item.route) {
+            <a class="nav-item nav-subitem"
+              [routerLink]="requiresDirectNav(item.route) ? item.route : undefined" (click)="onMenuClick($event, item)"
+              routerLinkActive="active">
+              <hero-icon [name]="item.heroIcon" size="1.125rem"></hero-icon>
+              <span>{{ item.label }}</span>
+              <hero-icon name="chevron-right" size="1rem" class="nav-arrow"></hero-icon>
+            </a>
+            }
+          </div>
+        </div>
       </div>
 
       <div class="nav-divider hide-on-mobile" *ngIf="isPerfilAvancado"></div>
@@ -36,13 +57,24 @@
           Administração
         </h3>
 
-        @for (item of adminItems(); track item.route) {
-        <a class="nav-item admin" [routerLink]="item.route" routerLinkActive="active">
-          <hero-icon [name]="item.heroIcon" size="1.25rem"></hero-icon>
-          <span>{{ item.label }}</span>
-          <hero-icon name="chevron-right" size="1rem" class="nav-arrow"></hero-icon>
-        </a>
-        }
+        <div class="nav-group">
+          <button type="button" class="nav-item admin nav-group-toggle" [class.expanded]="tablesExpanded"
+            (click)="toggleTables()" [attr.aria-expanded]="tablesExpanded">
+            <hero-icon name="table-cells" size="1.25rem"></hero-icon>
+            <span>Tabelas</span>
+            <hero-icon name="chevron-down" size="1rem" class="nav-arrow group-arrow"></hero-icon>
+          </button>
+
+          <div class="nav-subitems" *ngIf="tablesExpanded">
+            @for (item of adminItems(); track item.route) {
+            <a class="nav-item nav-subitem admin" [routerLink]="item.route" routerLinkActive="active">
+              <hero-icon [name]="item.heroIcon" size="1.125rem"></hero-icon>
+              <span>{{ item.label }}</span>
+              <hero-icon name="chevron-right" size="1rem" class="nav-arrow"></hero-icon>
+            </a>
+            }
+          </div>
+        </div>
       </div>
     </div>
 

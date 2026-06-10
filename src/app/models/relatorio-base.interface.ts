@@ -1,4 +1,4 @@
-export type StatusRelatorio = 'pendente' | 'lido';
+export type StatusRelatorio = 'em_preenchimento' | 'pendente' | 'lido';
 
 export interface RelatorioBase {
   idRelatorio?: string | number;

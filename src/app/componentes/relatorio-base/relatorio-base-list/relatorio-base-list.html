@@ -121,8 +121,8 @@
                 <td>{{ r.coord }}</td>
                 <td>{{ r.superv }}</td>
                 <td>
-                  <span class="badge" [ngClass]="r.status === 'lido' ? 'text-bg-success' : 'text-bg-warning'">
-                    {{ r.status === 'lido' ? 'Lido' : 'Pendente' }}
+                  <span class="badge" [ngClass]="statusClass(r.status)">
+                    {{ statusLabel(r.status) }}
                   </span>
                 </td>
                 <td class="text-muted">{{ r.criadoPor || '-' }}</td>
@@ -132,10 +132,18 @@
                       [queryParamsHandling]="'preserve'" title="Detalhe">
                       <hero-icon name="eye" size="1rem"></hero-icon>
                     </a>
-                    <button class="btn btn-sm btn-outline-primary" (click)="startEdit(r)" title="Editar" *ngIf="r.status !== 'lido'">
+                    <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/relatorio-base', r.idRelatorio!, 'documento']"
+                      [queryParamsHandling]="'preserve'" title="Ver documento">
+                      <hero-icon name="document-text" size="1rem"></hero-icon>
+                    </a>
+                    <button class="btn btn-sm btn-outline-success" (click)="openSend(r.idRelatorio!)" title="Enviar para revisão"
+                      *ngIf="canEdit(r)">
+                      <hero-icon name="arrow-right-on-rectangle" size="1rem"></hero-icon>
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" (click)="startEdit(r)" title="Editar" *ngIf="canEdit(r)">
                       <hero-icon name="pencil" size="1rem"></hero-icon>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" (click)="openDelete(r.idRelatorio!)" title="Excluir" *ngIf="r.status !== 'lido'">
+                    <button class="btn btn-sm btn-outline-danger" (click)="openDelete(r.idRelatorio!)" title="Excluir" *ngIf="canEdit(r)">
                       <hero-icon name="trash" size="1rem"></hero-icon>
                     </button>
                   </div>
@@ -155,8 +163,8 @@
           <div class="data-card" *ngFor="let r of pageItems" (dblclick)="startEdit(r)">
             <div class="data-card-header">
               <span class="data-card-date">{{ r.data | date:'dd/MM/yyyy' }}</span>
-              <span class="badge" [ngClass]="r.status === 'lido' ? 'text-bg-success' : 'text-bg-warning'">
-                {{ r.status === 'lido' ? 'Lido' : 'Pendente' }}
+              <span class="badge" [ngClass]="statusClass(r.status)">
+                {{ statusLabel(r.status) }}
               </span>
             </div>
             <div class="data-card-badges">
@@ -190,12 +198,21 @@
                 [queryParamsHandling]="'preserve'" title="Detalhe">
                 <hero-icon name="eye" size="1rem"></hero-icon>
               </a>
+              <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/relatorio-base', r.idRelatorio!, 'documento']"
+                [queryParamsHandling]="'preserve'" title="Ver documento">
+                <hero-icon name="document-text" size="1rem"></hero-icon>
+              </a>
+              <button class="btn btn-sm btn-outline-success" (click)="openSend(r.idRelatorio!)" title="Enviar para revisão"
+                *ngIf="canEdit(r)">
+                <hero-icon name="arrow-right-on-rectangle" size="1rem"></hero-icon>
+                Enviar
+              </button>
               <button class="btn btn-sm btn-outline-primary" (click)="startEdit(r)" title="Editar"
-                *ngIf="r.status !== 'lido'">
+                *ngIf="canEdit(r)">
                 <hero-icon name="pencil" size="1rem"></hero-icon>
               </button>
               <button class="btn btn-sm btn-outline-danger" (click)="openDelete(r.idRelatorio!)" title="Excluir"
-                *ngIf="r.status !== 'lido'">
+                *ngIf="canEdit(r)">
                 <hero-icon name="trash" size="1rem"></hero-icon>
               </button>
             </div>
@@ -264,6 +281,43 @@
           <span *ngIf="deleting" class="d-flex align-items-center gap-2">
             <span class="spinner-border spinner-border-sm"></span>
             Excluindo...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de confirmação de envio para revisão -->
+  <div *ngIf="showSendModal" class="modal-overlay" (click)="closeSend()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon" style="background:#dbeafe;">
+          <hero-icon name="arrow-right-on-rectangle" size="1.5rem"></hero-icon>
+        </div>
+        <div>
+          <h5 class="modal-title">Enviar para revisão</h5>
+          <p class="modal-subtitle">Esta ação não pode ser desfeita</p>
+        </div>
+        <button type="button" class="modal-close" (click)="closeSend()" [disabled]="sending">
+          <hero-icon name="x-mark" size="1.5rem"></hero-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>O relatório <strong>{{ toSend }}</strong> será enviado para a revisão do coordenador.</p>
+        <p class="text-muted">Após o envio, o relatório passará para o status <strong>Pendente</strong> e não poderá
+          mais ser alterado ou excluído por você.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeSend()"
+          [disabled]="sending">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="confirmSend()" [disabled]="sending">
+          <span *ngIf="!sending" class="d-flex align-items-center gap-2">
+            <hero-icon name="arrow-right-on-rectangle" size="1.25rem"></hero-icon>
+            Enviar
+          </span>
+          <span *ngIf="sending" class="d-flex align-items-center gap-2">
+            <span class="spinner-border spinner-border-sm"></span>
+            Enviando...
           </span>
         </button>
       </div>

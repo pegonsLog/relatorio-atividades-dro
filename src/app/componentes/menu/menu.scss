@@ -129,6 +129,51 @@
   }
 }
 
+// Grupo colapsável (submenu de Tabelas)
+.nav-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-group-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  font: inherit;
+  text-align: left;
+
+  .group-arrow {
+    margin-left: auto;
+    opacity: 1;
+    transform: none;
+    transition: transform 0.2s ease;
+    color: #9ca3af;
+  }
+
+  &.expanded .group-arrow {
+    transform: rotate(180deg);
+  }
+}
+
+.nav-subitems {
+  display: flex;
+  flex-direction: column;
+  margin: 0.125rem 0 0.25rem 0.75rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid #e5e7eb;
+  animation: subitemsIn 0.18s ease;
+}
+
+@keyframes subitemsIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.nav-subitem {
+  font-size: 0.875rem;
+  padding: 0.625rem 0.875rem;
+}
+
 .nav-divider {
   height: 1px;
   background: #e5e7eb;

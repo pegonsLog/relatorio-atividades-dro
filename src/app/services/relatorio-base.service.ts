@@ -5,6 +5,7 @@ import { Firestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs } fro
 import { ItemAtividadeService } from './item-atividade.service';
 import { ItemProdutividadeService } from './item-produtividade.service';
 import { UserContextService } from './user-context.service';
+import { StatusRelatorio } from '../models/relatorio-base.interface';
 
 @Injectable({ providedIn: 'root' })
 export class RelatorioBaseService {
@@ -36,7 +37,7 @@ export class RelatorioBaseService {
     const relatorioData = {
       ...relatorio,
       idRelatorio: (relatorio as any)?.idRelatorio ?? '',
-      status: relatorio.status || 'pendente',
+      status: relatorio.status || 'em_preenchimento',
       createdAt: new Date(),
       updatedAt: new Date(),
       criadoPor: userId,
@@ -85,8 +86,8 @@ export class RelatorioBaseService {
     });
   }
 
-  // UPDATE STATUS (apenas para coordenador)
-  updateStatus(id: string | number, status: 'pendente' | 'lido'): Promise<void> {
+  // UPDATE STATUS (envio para revisão e ações do coordenador)
+  updateStatus(id: string | number, status: StatusRelatorio): Promise<void> {
     return runInInjectionContext(this.injector, async () => {
       const userId = this.userCtx.getCurrentUserId() || undefined;
       const ref = doc(this.firestore, 'relatorio-base', String(id));

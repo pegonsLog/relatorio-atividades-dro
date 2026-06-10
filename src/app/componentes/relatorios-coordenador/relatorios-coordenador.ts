@@ -153,6 +153,8 @@ export class RelatoriosCoordenadorComponent implements OnInit {
     df.setHours(23, 59, 59, 999);
 
     this.filteredRelatorios = this.relatorios.filter(r => {
+      // Relatórios em preenchimento não são visíveis para o coordenador
+      if (r.status === 'em_preenchimento') return false;
       const matchCoord = r.coord === coordNum;
       const dataRel = new Date(r.data);
       const matchData = dataRel >= di && dataRel <= df;

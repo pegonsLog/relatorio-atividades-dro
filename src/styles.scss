@@ -278,6 +278,11 @@ h1, h2, h3, h4, h5, h6 {
   &::placeholder { color: var(--text-muted); }
 }
 
+// Mantém espaço para a seta do select (evita o texto sobrepor o ícone)
+.form-select {
+  padding-right: 2.25rem;
+}
+
 .form-label { 
   font-weight: 500; 
   font-size: 0.875rem; 

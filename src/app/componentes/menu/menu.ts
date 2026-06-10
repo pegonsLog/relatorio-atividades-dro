@@ -37,6 +37,18 @@ export class Menu implements OnInit {
   isMobile = false;
   sidebarOpen = false;
 
+  // Controle dos submenus colapsáveis
+  tablesExpanded = false;
+  reportsExpanded = false;
+
+  toggleTables() {
+    this.tablesExpanded = !this.tablesExpanded;
+  }
+
+  toggleReports() {
+    this.reportsExpanded = !this.reportsExpanded;
+  }
+
   @HostListener('window:resize')
   onResize() {
     this.updateIsMobile();
@@ -66,19 +78,23 @@ export class Menu implements OnInit {
   }
 
   protected readonly menuItems = signal<MenuItem[]>([
-    { icon: 'mdi-file-document', heroIcon: 'document-text', label: 'Relatório Base', route: '/relatorio-base' },
+    { icon: 'mdi-file-document', heroIcon: 'document-text', label: 'Cadastro de Relatório', route: '/relatorio-base' },
+    { icon: 'mdi-account-search', heroIcon: 'user-circle', label: 'Revisão do Coordenador', route: '/relatorios-coordenador' },
+  ]);
+
+  // Relatórios agrupados em submenu colapsável
+  protected readonly reportItems = signal<MenuItem[]>([
     { icon: 'mdi-clipboard-text-outline', heroIcon: 'clipboard-document', label: 'Relatório de Atividade', route: '/item-atividade' },
     { icon: 'mdi-clipboard-check-outline', heroIcon: 'clipboard-document-check', label: 'Relatório de Produtividade', route: '/item-produtividade' },
     { icon: 'mdi-alert-outline', heroIcon: 'exclamation-triangle', label: 'Relatório de Ocorrências', route: '/item-ocorrencia' },
-    { icon: 'mdi-account-search', heroIcon: 'user-circle', label: 'Relatórios por Coordenador', route: '/relatorios-coordenador' },
   ]);
 
   protected readonly adminItems = signal<MenuItem[]>([
-    { icon: 'mdi-account', heroIcon: 'user', label: 'Tabela de Agentes', route: '/agente' },
-    { icon: 'mdi-account-group', heroIcon: 'user-group', label: 'Tabela de Usuário', route: '/usuarios' },
-    { icon: 'mdi-table-large', heroIcon: 'table-cells', label: 'Tabela de Atividades', route: '/tabela-atividades' },
-    { icon: 'mdi-table-large', heroIcon: 'table-cells', label: 'Tabela de Produtividade', route: '/tabela-produtividade' },
-    { icon: 'mdi-table-large', heroIcon: 'table-cells', label: 'Tabela de Ocorrências', route: '/tabela-ocorrencias' }
+    { icon: 'mdi-account', heroIcon: 'user', label: 'Agentes', route: '/agente' },
+    { icon: 'mdi-account-group', heroIcon: 'user-group', label: 'Usuários', route: '/usuarios' },
+    { icon: 'mdi-table-large', heroIcon: 'table-cells', label: 'Atividades', route: '/tabela-atividades' },
+    { icon: 'mdi-table-large', heroIcon: 'table-cells', label: 'Produtividade', route: '/tabela-produtividade' },
+    { icon: 'mdi-table-large', heroIcon: 'table-cells', label: 'Ocorrências', route: '/tabela-ocorrencias' }
   ]);
 
   showFilterModal = false;

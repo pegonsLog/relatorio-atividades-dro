@@ -54,6 +54,34 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
   toDelete?: string | number;
   deleting = false;
 
+  // Modal de envio para revisão
+  showSendModal = false;
+  toSend?: string | number;
+  sending = false;
+
+  // Permissões/labels de status
+  canEdit(r: RelatorioBase): boolean {
+    return r.status === 'em_preenchimento';
+  }
+
+  statusLabel(status?: string): string {
+    switch (status) {
+      case 'lido': return 'Lido';
+      case 'pendente': return 'Pendente';
+      case 'em_preenchimento': return 'Em preenchimento';
+      default: return 'Em preenchimento';
+    }
+  }
+
+  statusClass(status?: string): string {
+    switch (status) {
+      case 'lido': return 'text-bg-success';
+      case 'pendente': return 'text-bg-warning';
+      case 'em_preenchimento': return 'text-bg-info';
+      default: return 'text-bg-info';
+    }
+  }
+
   // Âncora para rolar até o formulário ao editar
   @ViewChild('formTop') formTop?: ElementRef<HTMLElement>;
   // Referência ao componente de formulário para poder resetar após salvar
@@ -302,6 +330,32 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
     } catch (e) {
       console.error(e);
       this.deleting = false;
+    }
+  }
+
+  // Modal de envio para revisão do coordenador
+  openSend(id: string | number) {
+    this.toSend = id;
+    this.showSendModal = true;
+  }
+
+  closeSend() {
+    this.showSendModal = false;
+    this.toSend = undefined;
+    this.sending = false;
+  }
+
+  async confirmSend() {
+    if (this.toSend == null) return;
+    this.sending = true;
+    try {
+      await this.service.updateStatus(this.toSend, 'pendente');
+      // Se o relatório enviado estiver em edição, cancela
+      if (this.selected && this.selected.idRelatorio === this.toSend) this.cancel();
+      this.closeSend();
+    } catch (e) {
+      console.error(e);
+      this.sending = false;
     }
   }
 }
