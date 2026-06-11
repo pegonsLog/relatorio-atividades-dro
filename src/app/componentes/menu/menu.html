@@ -178,16 +178,14 @@
 <div *ngIf="showFilterModal" class="modal-overlay" (click)="closeRelatorioBaseModal()">
   <div class="modal-container" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <div class="modal-icon">
-        <hero-icon name="document-text" size="1.5rem"></hero-icon>
-      </div>
+      <img src="assets/logo/BHTrans.png" alt="BHTRANS" class="modal-logo" />
       <div>
         <h5 class="modal-title">Cadastro de Relatório</h5>
        
       </div>
     </div>
     <div class="modal-body">
-      <div class="filter-row">
+      <div class="filter-stack">
         <div class="filter-group">
           <label class="filter-label">Gerência</label>
           <select class="form-select" [(ngModel)]="selectedGerencia" appAutoFocus>
@@ -201,18 +199,6 @@
             <option *ngFor="let t of turnos" [value]="t">{{ t }}</option>
           </select>
           <small class="form-text text-muted">Turno em que prestou o serviço</small>
-        </div>
-      </div>
-      <div class="filter-row">
-        <div class="filter-group">
-          <label class="filter-label">Mat. 1</label>
-          <input type="text" class="form-control" [(ngModel)]="selectedMat1" placeholder="Matrícula 1" inputmode="numeric" />
-          <small class="form-text text-muted">Matrícula do agente digitador</small>
-        </div>
-        <div class="filter-group">
-          <label class="filter-label">Mat. 2</label>
-          <input type="text" class="form-control" [(ngModel)]="selectedMat2" placeholder="Matrícula 2 (opcional)" inputmode="numeric" />
-          <small class="form-text text-muted">Matrícula do segundo agente</small>
         </div>
       </div>
     </div>

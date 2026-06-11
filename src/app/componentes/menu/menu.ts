@@ -104,8 +104,6 @@ export class Menu implements OnInit {
   showFilterModal = false;
   selectedGerencia = '';
   selectedTurno = '';
-  selectedMat1 = '';
-  selectedMat2 = '';
 
   readonly gerencias = ['GARBO', 'GARNE', 'GARNP', 'GARVN', 'GEACE', 'GAOPE'];
   readonly turnos = ['MANHÃ', 'TARDE', 'MADRUGADA'];
@@ -131,11 +129,13 @@ export class Menu implements OnInit {
   closeRelatorioBaseModal() { this.showFilterModal = false; }
 
   confirmRelatorioBaseFilters() {
+    // Mat. 1 é sempre a matrícula do usuário logado; Mat. 2 é preenchida
+    // depois, no formulário do relatório base.
+    const matriculaLogada = this.userContext.getCurrentUserId() || undefined;
     const queryParams: any = {
       gerencia: this.selectedGerencia || undefined,
       turno: this.selectedTurno || undefined,
-      mat1: this.selectedMat1 || undefined,
-      mat2: this.selectedMat2 || undefined,
+      mat1: matriculaLogada,
     };
     this.showFilterModal = false;
     this.router.navigate(['/relatorio-base'], { queryParams });

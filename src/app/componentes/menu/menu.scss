@@ -463,6 +463,22 @@
   }
 }
 
+// Campos empilhados na vertical (modal de cadastro)
+.filter-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+// Logo no cabeçalho do modal (substitui o ícone)
+.modal-logo {
+  height: 66px;
+  width: auto;
+  max-width: none;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .date-range {
   display: flex;
   align-items: center;
