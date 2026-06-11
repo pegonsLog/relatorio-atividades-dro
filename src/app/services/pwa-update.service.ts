@@ -87,4 +87,30 @@ export class PwaUpdateService {
       }
     });
   }
+
+  /**
+   * Atualização manual (acionada por um botão). Garante que o app pegue a
+   * versão mais recente mesmo quando a atualização automática não ocorre:
+   *  1. Checa e ativa uma nova versão do service worker, se houver.
+   *  2. Limpa os caches do navegador (Cache Storage).
+   *  3. Recarrega a página buscando os arquivos novos do servidor.
+   */
+  async forcarAtualizacao(): Promise<void> {
+    try {
+      if (this.swUpdate.isEnabled) {
+        await this.swUpdate.checkForUpdate().catch(() => {});
+        await this.swUpdate.activateUpdate().catch(() => {});
+      }
+
+      // Remove todos os caches gerenciados pelo service worker / navegador.
+      if ('caches' in window) {
+        const chaves = await caches.keys();
+        await Promise.all(chaves.map((chave) => caches.delete(chave)));
+      }
+    } catch {
+      // Ignora falhas e força o reload mesmo assim.
+    } finally {
+      document.location.reload();
+    }
+  }
 }

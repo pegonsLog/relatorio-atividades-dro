@@ -6,7 +6,7 @@
   flex-wrap: wrap;
   gap: 1rem;
   .header-content {
-    h1 { font-size: 1.5rem; font-weight: 700; color: #111827; margin: 0; }
+    h1 { font-size: 1.65rem; font-weight: 700; margin: 0; letter-spacing: -0.02em; background: linear-gradient(135deg, #1BA1DD 0%, #8CC63F 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
     p { color: #6b7280; font-size: 0.875rem; margin: 0.25rem 0 0; }
   }
   .header-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
@@ -89,13 +89,20 @@
 
 .data-card {
   background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  padding: 1rem;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  border: 1px solid #eef1f6;
+  border-radius: var(--radius-lg, 1rem);
+  padding: 1.1rem;
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  transition: transform var(--transition, 0.2s), box-shadow var(--transition, 0.2s), border-color var(--transition, 0.2s);
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    border-color: #bfdbfe;
+    transform: translateY(-2px);
+  }
 }
 
 .data-card-header {
@@ -149,7 +156,7 @@
   display: inline-flex; align-items: center; gap: 0.375rem;
   background: none; border: none; padding: 0;
   font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; cursor: pointer;
-  &:hover { color: #3b82f6; }
+  &:hover { color: #1BA1DD; }
   hero-icon { opacity: 0.5; }
 }
 
@@ -173,7 +180,7 @@
 .modal-container { background: white; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); width: 100%; max-width: 480px; }
 .modal-header {
   display: flex; align-items: flex-start; gap: 1rem; padding: 1.5rem; border-bottom: 1px solid #f3f4f6;
-  .modal-icon { width: 48px; height: 48px; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; &.danger { background: #fee2e2; hero-icon { color: #dc2626; } } }
+  .modal-icon { width: 48px; height: 48px; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; &.danger { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); box-shadow: 0 8px 18px rgba(225, 29, 72, 0.3); hero-icon { color: white; } } }
   .modal-title { font-size: 1.125rem; font-weight: 600; margin: 0; }
   .modal-subtitle { font-size: 0.875rem; color: #6b7280; margin: 0.125rem 0 0; }
   .modal-close { margin-left: auto; padding: 0.5rem; background: transparent; border: none; border-radius: 0.5rem; color: #9ca3af; cursor: pointer; &:hover { background: #f3f4f6; color: #4b5563; } }

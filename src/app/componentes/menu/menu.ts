@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, HostListener } from '@angular/core';
+import { Component, OnInit, signal, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +6,7 @@ import { AutoFocusDirective } from '../../shared/auto-focus.directive';
 import { AuthService } from '../../services/auth.service';
 import { UserContextService } from '../../services/user-context.service';
 import { UsuariosService } from '../../services/usuarios.service';
+import { PwaUpdateService } from '../../services/pwa-update.service';
 import { HeroIconComponent } from '../../shared/icons/heroicons';
 import { firstValueFrom } from 'rxjs';
 
@@ -23,6 +24,8 @@ interface MenuItem {
   styleUrls: ['./menu.scss']
 })
 export class Menu implements OnInit {
+  private pwaUpdate = inject(PwaUpdateService);
+
   constructor(
     private router: Router,
     private auth: AuthService,
@@ -32,6 +35,7 @@ export class Menu implements OnInit {
 
   displayName = '';
   displayPerfil = '';
+  atualizando = signal(false);
 
   // Controle da sidenav no mobile
   isMobile = false;
@@ -215,6 +219,14 @@ export class Menu implements OnInit {
   logout(): void {
     this.auth.logout();
     this.router.navigate(['/login']);
+  }
+
+  async atualizarApp(): Promise<void> {
+    if (this.atualizando()) {
+      return;
+    }
+    this.atualizando.set(true);
+    await this.pwaUpdate.forcarAtualizacao();
   }
 
   async ngOnInit(): Promise<void> {

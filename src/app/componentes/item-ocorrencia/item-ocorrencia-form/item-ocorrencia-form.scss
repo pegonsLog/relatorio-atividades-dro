@@ -9,10 +9,14 @@
 }
 
 .form-header h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size: 1.4rem;
+  font-weight: 700;
   margin: 0;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #1BA1DD 0%, #8CC63F 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .alert {
@@ -26,8 +30,8 @@
 
 .alert-warning {
   background: var(--warning-light);
-  color: var(--warning);
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  color: var(--warning-dark);
+  border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .alert hero-icon {

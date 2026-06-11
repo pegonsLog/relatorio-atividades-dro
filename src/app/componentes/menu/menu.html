@@ -9,6 +9,12 @@
   <div class="sidebar-overlay" *ngIf="sidebarOpen" (click)="closeSidebar()"></div>
 
   <aside class="menu-sidebar" id="menuSidebar" [class.open]="sidebarOpen">
+    <div class="sidebar-mobile-header">
+      <span class="sidebar-mobile-title">Menu</span>
+      <button type="button" class="sidebar-close" (click)="closeSidebar()" aria-label="Fechar menu">
+        <hero-icon name="x-mark" size="1.5rem"></hero-icon>
+      </button>
+    </div>
     <div class="menu-nav">
       <div class="nav-section">
         <h3 class="nav-title">
@@ -90,6 +96,10 @@
       </div>
     </div>
     <div class="menu-footer">
+      <button type="button" class="btn btn-atualizar-app" (click)="atualizarApp()" [disabled]="atualizando()">
+        <hero-icon name="arrow-path" size="1.25rem" [class.girando]="atualizando()"></hero-icon>
+        {{ atualizando() ? 'Atualizando...' : 'Atualizar App' }}
+      </button>
       <button type="button" class="btn btn-logout" (click)="logout()">
         <hero-icon name="arrow-left-on-rectangle" size="1.25rem"></hero-icon>
         Sair do Sistema
