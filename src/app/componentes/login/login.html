@@ -44,6 +44,12 @@
       </button>
     </form>
 
+    <button *ngIf="podeInstalar" type="button" class="btn btn-instalar w-100" (click)="instalarApp()"
+      [disabled]="instalando">
+      <hero-icon name="arrow-down-tray" size="1.25rem"></hero-icon>
+      {{ instalando ? 'Instalando...' : 'Instalar aplicativo' }}
+    </button>
+
     <div class="login-footer">
       <p>Sistema de Relatórios DRO</p>
     </div>

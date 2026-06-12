@@ -164,6 +164,7 @@ export class RelatorioBaseService {
             mat2: data['mat2'] || 0,
             coord: data['coord'] || 0,
             superv: data['superv'] || 0,
+            relatorioGeralDescritivo: data['relatorioGeralDescritivo'] || '',
             status: data['status'] || 'pendente',
             createdAt: data['createdAt']?.toDate?.() || data['createdAt'] || undefined,
             updatedAt: data['updatedAt']?.toDate?.() || data['updatedAt'] || undefined,

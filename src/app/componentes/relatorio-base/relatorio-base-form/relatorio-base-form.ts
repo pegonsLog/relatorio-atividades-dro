@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, OnDestroy, Output, SimpleChanges, ViewChild, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RelatorioBase } from '../../../models';
 import { AgentesService } from '../../../services/agentes.service';
+import { SpeechToTextService } from '../../../services/speech-to-text.service';
 import { Agente } from '../../../models/agente.interface';
 import { HeroIconComponent } from '../../../shared/icons/heroicons';
 
@@ -13,13 +14,14 @@ import { HeroIconComponent } from '../../../shared/icons/heroicons';
   templateUrl: './relatorio-base-form.html',
   styleUrls: ['./relatorio-base-form.scss']
 })
-export class RelatorioBaseFormComponent implements OnChanges, OnInit {
+export class RelatorioBaseFormComponent implements OnChanges, OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly agentesService = inject(AgentesService);
+  private readonly speech = inject(SpeechToTextService);
 
   @Input() value?: RelatorioBase | null;
   @Input() saving = false;
-  @Input() defaults?: { gerencia?: string; turno?: string; mat1?: number | null; mat2?: number | null } | null;
+  @Input() defaults?: { gerencia?: string; turno?: string; data?: string; mat1?: number | null; mat2?: number | null } | null;
   @Output() submitValue = new EventEmitter<RelatorioBase>();
   @Output() cancel = new EventEmitter<void>();
   @ViewChild('dataInput') dataInput?: ElementRef<HTMLInputElement>;
@@ -33,6 +35,7 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
     mat2: [null],
     coord: [null, [Validators.required]],
     superv: [null, [Validators.required]],
+    relatorioGeralDescritivo: [''],
   });
 
   // Observable de agentes para popular selects (mat1/mat2)
@@ -46,6 +49,18 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
   supervSearch = '';
   coordOpen = false;
   supervOpen = false;
+
+  // ===== Gravação de voz (speech-to-text) para o relatório descritivo =====
+  // Indica se o campo está gravando no momento.
+  gravando = false;
+  // Texto base do campo antes da fala (para anexar resultados parciais).
+  private recordingBaseText = '';
+  // Mensagem de erro de gravação.
+  speechError = '';
+
+  get speechSupported(): boolean {
+    return this.speech.isSupported;
+  }
 
   // Indica quando o formulário está em modo "novo" com defaults válidos, para travar os campos
   get isLocked(): boolean {
@@ -66,14 +81,19 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
   resetToDefaults() {
     this.form.reset({
       gerencia: this.defaults?.gerencia || '',
-      data: '',
+      data: this.defaults?.data || '',
       diaSemana: '',
       turno: this.defaults?.turno || '',
       mat1: this.defaults?.mat1 || null,
       mat2: this.defaults?.mat2 || null,
       coord: null,
       superv: null,
+      relatorioGeralDescritivo: '',
     });
+    // Calcula o dia da semana se houver data padrão
+    if (this.defaults?.data) {
+      this.form.get('diaSemana')?.setValue(this.computeDiaSemana(this.defaults.data), { emitEvent: false });
+    }
     const canLock = !!(this.defaults?.gerencia && this.defaults?.turno);
     if (canLock) {
       this.form.get('gerencia')?.disable({ emitEvent: false });
@@ -140,6 +160,7 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
           mat2: v.mat2,
           coord: v.coord,
           superv: v.superv,
+          relatorioGeralDescritivo: v.relatorioGeralDescritivo || '',
         });
         // Em edição, permitir alterar gerência/turno
         this.form.get('gerencia')?.enable({ emitEvent: false });
@@ -174,11 +195,14 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
       mat2: Number(v.mat2) || 0,
       coord: Number(v.coord) || 0,
       superv: Number(v.superv) || 0,
+      relatorioGeralDescritivo: (v.relatorioGeralDescritivo || '').trim(),
     };
     this.submitValue.emit(payload);
   }
 
   onCancel() {
+    // Para a gravação de voz, se ativa
+    this.stopRecording();
     // Limpa todos os campos do formulário
     this.form.reset({
       gerencia: '',
@@ -189,6 +213,7 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
       mat2: null,
       coord: null,
       superv: null,
+      relatorioGeralDescritivo: '',
     });
     // Limpa os textos de busca
     this.coordSearch = '';
@@ -200,6 +225,61 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit {
     this.form.markAsUntouched();
     // Emite evento para o componente pai fechar o modo de edição
     this.cancel.emit();
+  }
+
+  ngOnDestroy(): void {
+    this.stopRecording();
+  }
+
+  // ===== Gravação de voz para o campo "Relatório Geral Descritivo" =====
+
+  toggleRecording(): void {
+    if (this.gravando) {
+      this.stopRecording();
+      return;
+    }
+    this.startRecording();
+  }
+
+  private startRecording(): void {
+    this.speechError = '';
+    const current = (this.form.get('relatorioGeralDescritivo')?.value ?? '').toString();
+    this.recordingBaseText = current;
+    const started = this.speech.start({
+      onText: (text, isFinal) => this.appendSpeech(text, isFinal),
+      onEnd: () => {
+        this.gravando = false;
+      },
+      onError: (message) => {
+        this.speechError = message;
+        this.gravando = false;
+      }
+    });
+    if (started) {
+      this.gravando = true;
+    }
+  }
+
+  stopRecording(): void {
+    if (this.gravando) {
+      this.speech.stop();
+    }
+  }
+
+  clearRelatorioGeral(): void {
+    this.stopRecording();
+    this.form.get('relatorioGeralDescritivo')?.setValue('');
+    this.form.get('relatorioGeralDescritivo')?.markAsDirty();
+  }
+
+  private appendSpeech(text: string, isFinal: boolean): void {
+    const sep = this.recordingBaseText && !/\s$/.test(this.recordingBaseText) ? ' ' : '';
+    const combined = (this.recordingBaseText + sep + text).trimStart();
+    this.form.get('relatorioGeralDescritivo')?.setValue(combined);
+    this.form.get('relatorioGeralDescritivo')?.markAsDirty();
+    if (isFinal) {
+      this.recordingBaseText = combined;
+    }
   }
 
   // ===== Autocomplete (busca com filtro) para Coord. e Superv. =====

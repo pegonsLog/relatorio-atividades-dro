@@ -37,6 +37,9 @@ export class Menu implements OnInit {
   displayPerfil = '';
   atualizando = signal(false);
 
+  // Indica que há uma nova versão disponível (mostra aviso no menu).
+  atualizacaoDisponivel = this.pwaUpdate.atualizacaoDisponivel;
+
   // Controle da sidenav no mobile
   isMobile = false;
   sidebarOpen = false;
@@ -104,6 +107,7 @@ export class Menu implements OnInit {
   showFilterModal = false;
   selectedGerencia = '';
   selectedTurno = '';
+  selectedData = '';
 
   readonly gerencias = ['GARBO', 'GARNE', 'GARNP', 'GARVN', 'GEACE', 'GAOPE'];
   readonly turnos = ['MANHÃ', 'TARDE', 'MADRUGADA'];
@@ -125,7 +129,17 @@ export class Menu implements OnInit {
     }
   }
 
-  openRelatorioBaseModal() { this.showFilterModal = true; }
+  openRelatorioBaseModal() {
+    // Pré-preenche a data com o dia atual (formato yyyy-MM-dd para o input date)
+    if (!this.selectedData) {
+      const hoje = new Date();
+      const y = hoje.getFullYear();
+      const m = String(hoje.getMonth() + 1).padStart(2, '0');
+      const d = String(hoje.getDate()).padStart(2, '0');
+      this.selectedData = `${y}-${m}-${d}`;
+    }
+    this.showFilterModal = true;
+  }
   closeRelatorioBaseModal() { this.showFilterModal = false; }
 
   confirmRelatorioBaseFilters() {
@@ -133,6 +147,7 @@ export class Menu implements OnInit {
     // depois, no formulário do relatório base.
     const matriculaLogada = this.userContext.getCurrentUserId() || undefined;
     const queryParams: any = {
+      data: this.selectedData || undefined,
       gerencia: this.selectedGerencia || undefined,
       turno: this.selectedTurno || undefined,
       mat1: matriculaLogada,

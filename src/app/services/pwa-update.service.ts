@@ -1,17 +1,16 @@
-import { Injectable, ApplicationRef, inject } from '@angular/core';
+import { Injectable, ApplicationRef, inject, signal } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter, concat, interval, first } from 'rxjs';
 
 /**
  * Serviço responsável por detectar e aplicar atualizações do PWA.
  *
- * Estratégia (atualização obrigatória, porém não disruptiva):
+ * Estratégia:
  *  - Verifica novas versões periodicamente e quando o app volta ao foco.
- *  - Ao encontrar uma nova versão, NÃO recarrega no meio do uso. Apenas
- *    marca que há uma atualização pendente.
- *  - A atualização é aplicada (recarrega a página) somente quando o usuário
- *    volta para o app (retorno ao primeiro plano), momento em que ninguém
- *    está digitando, evitando perda de dados de formulários.
+ *  - Ao encontrar uma nova versão, exibe um aviso (sinal `atualizacaoDisponivel`)
+ *    para que a UI mostre uma mensagem com botão "Atualizar agora".
+ *  - A atualização só é aplicada quando o usuário confirma (clica em atualizar),
+ *    evitando recarregar no meio de um cadastro.
  *  - Se o app entrar em estado irrecuperável (cache corrompido), recarrega.
  */
 @Injectable({ providedIn: 'root' })
@@ -22,9 +21,8 @@ export class PwaUpdateService {
   // Intervalo entre as checagens automáticas de atualização (6 horas).
   private readonly intervaloChecagem = 6 * 60 * 60 * 1000;
 
-  // Indica que uma nova versão já foi baixada e está aguardando para ser
-  // aplicada no próximo momento seguro (retorno ao app).
-  private atualizacaoPendente = false;
+  // Sinaliza para a UI que há uma nova versão disponível para atualizar.
+  readonly atualizacaoDisponivel = signal(false);
 
   init(): void {
     if (!this.swUpdate.isEnabled) {
@@ -34,7 +32,7 @@ export class PwaUpdateService {
     this.agendarChecagens();
     this.ouvirNovasVersoes();
     this.ouvirFalhasIrrecuperaveis();
-    this.aplicarAoVoltarParaOApp();
+    this.checarAoVoltarParaOApp();
   }
 
   /**
@@ -56,9 +54,8 @@ export class PwaUpdateService {
     this.swUpdate.versionUpdates
       .pipe(filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY'))
       .subscribe(() => {
-        // Nova versão pronta: marca como pendente, sem recarregar agora.
-        // Será aplicada quando o usuário voltar ao app.
-        this.atualizacaoPendente = true;
+        // Nova versão pronta: avisa a UI para exibir a mensagem de atualização.
+        this.atualizacaoDisponivel.set(true);
       });
   }
 
@@ -70,27 +67,35 @@ export class PwaUpdateService {
   }
 
   /**
-   * Quando o usuário volta para o app (reabre o PWA na tela de início):
-   *  - Se já existe uma atualização pendente, aplica e recarrega agora.
-   *  - Caso contrário, dispara uma checagem para a próxima vez.
+   * Quando o usuário volta para o app (reabre o PWA na tela de início),
+   * dispara uma checagem imediata de atualização. Se houver nova versão,
+   * o evento VERSION_READY ativa o aviso.
    */
-  private aplicarAoVoltarParaOApp(): void {
+  private checarAoVoltarParaOApp(): void {
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState !== 'visible') {
-        return;
-      }
-
-      if (this.atualizacaoPendente) {
-        this.swUpdate.activateUpdate().then(() => document.location.reload());
-      } else {
+      if (document.visibilityState === 'visible') {
         this.swUpdate.checkForUpdate().catch(() => {});
       }
     });
   }
 
   /**
-   * Atualização manual (acionada por um botão). Garante que o app pegue a
-   * versão mais recente mesmo quando a atualização automática não ocorre:
+   * Aplica a atualização detectada (acionada pelo botão "Atualizar agora"
+   * do aviso): ativa a nova versão do service worker e recarrega.
+   */
+  async aplicarAtualizacao(): Promise<void> {
+    try {
+      if (this.swUpdate.isEnabled) {
+        await this.swUpdate.activateUpdate().catch(() => {});
+      }
+    } finally {
+      document.location.reload();
+    }
+  }
+
+  /**
+   * Atualização manual (acionada pelo botão "Atualizar App" do menu). Garante
+   * que o app pegue a versão mais recente mesmo quando a automática não ocorre:
    *  1. Checa e ativa uma nova versão do service worker, se houver.
    *  2. Limpa os caches do navegador (Cache Storage).
    *  3. Recarrega a página buscando os arquivos novos do servidor.

@@ -33,6 +33,7 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
   // Defaults para o formulário
   defaultGerencia = '';
   defaultTurno = '';
+  defaultData = '';
   defaultMat1: number | null = null;
   defaultMat2: number | null = null;
 
@@ -95,6 +96,7 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
       this.filterTurno = qp.get('turno') ?? '';
       this.defaultGerencia = this.filterGerencia;
       this.defaultTurno = this.filterTurno;
+      this.defaultData = qp.get('data') ?? '';
       // Mat1 e Mat2 dos query params
       const mat1Param = qp.get('mat1');
       const mat2Param = qp.get('mat2');

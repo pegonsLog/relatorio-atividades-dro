@@ -10,6 +10,7 @@ export interface RelatorioBase {
   mat2: number;
   coord: number;
   superv: number;
+  relatorioGeralDescritivo?: string;
   status?: StatusRelatorio;
   createdAt?: Date;
   updatedAt?: Date;

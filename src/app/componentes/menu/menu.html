@@ -185,7 +185,22 @@
       </div>
     </div>
     <div class="modal-body">
+      <div class="update-notice" *ngIf="atualizacaoDisponivel()">
+        <div class="update-notice-text">
+          <hero-icon name="arrow-path" size="1.125rem"></hero-icon>
+          <span>Uma nova versão do aplicativo está disponível.</span>
+        </div>
+        <button type="button" class="btn-update-now" (click)="atualizarApp()" [disabled]="atualizando()">
+          <hero-icon name="arrow-path" size="1rem" [class.girando]="atualizando()"></hero-icon>
+          {{ atualizando() ? 'Atualizando...' : 'Atualizar agora' }}
+        </button>
+      </div>
       <div class="filter-stack">
+        <div class="filter-group">
+          <label class="filter-label">Data</label>
+          <input type="date" class="form-control" [(ngModel)]="selectedData" />
+          <small class="form-text text-muted">Data do relatório</small>
+        </div>
         <div class="filter-group">
           <label class="filter-label">Gerência</label>
           <select class="form-select" [(ngModel)]="selectedGerencia" appAutoFocus>

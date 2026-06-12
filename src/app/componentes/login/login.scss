@@ -161,6 +161,35 @@
   }
 }
 
+.btn-instalar {
+  margin-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.85rem;
+  color: white;
+  background: linear-gradient(135deg, #7DB52F 0%, #5F9A22 100%);
+  box-shadow: 0 8px 20px rgba(125, 181, 47, 0.35);
+  transition: transform 0.1s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 12px 24px rgba(125, 181, 47, 0.45);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.8;
+  }
+}
+
 .login-footer {
   text-align: center;
   margin-top: 2rem;
