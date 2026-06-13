@@ -243,17 +243,27 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
     this.selected = null;
   }
 
-  onSubmit(payload: RelatorioBase): void {
+  async onSubmit(payload: RelatorioBase): Promise<void> {
     this.saving = true;
-    if (this.selected && this.selected.idRelatorio) {
-      this.service.update(this.selected.idRelatorio, payload);
-    } else {
-      this.service.create(payload);
-      // Após criar, limpa o formulário para novos lançamentos
-      this.relForm?.resetToDefaults();
+    try {
+      if (this.selected && this.selected.idRelatorio) {
+        // Edição: salva e vai para o detalhe do relatório
+        const id = this.selected.idRelatorio;
+        this.service.update(id, payload);
+        this.cancel();
+        this.router.navigate(['/relatorio-base', id], { queryParamsHandling: 'preserve' });
+      } else {
+        // Criação: salva e vai para o detalhe do relatório recém-criado,
+        // para já lançar atividades, ocorrências ou produtividade.
+        const novoId = await this.service.create(payload);
+        this.relForm?.resetToDefaults();
+        this.router.navigate(['/relatorio-base', novoId], { queryParamsHandling: 'preserve' });
+      }
+    } catch (e) {
+      console.error('Erro ao salvar relatório base:', e);
+    } finally {
+      this.saving = false;
     }
-    this.saving = false;
-    this.cancel();
   }
 
   delete(id: string | number): void {

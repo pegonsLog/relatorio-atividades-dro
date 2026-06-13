@@ -31,22 +31,23 @@ export class RelatorioBaseService {
     return this.subject.value.find(r => r.idRelatorio === id);
   }
 
-  // CREATE
-  create(relatorio: RelatorioBase): void {
-    const userId = this.userCtx.getCurrentUserId() || undefined;
-    const relatorioData = {
-      ...relatorio,
-      idRelatorio: (relatorio as any)?.idRelatorio ?? '',
-      status: relatorio.status || 'em_preenchimento',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      criadoPor: userId,
-      modificadoPor: userId,
-    } as any;
+  // CREATE — retorna o id do documento criado para permitir navegação
+  create(relatorio: RelatorioBase): Promise<string> {
+    return runInInjectionContext(this.injector, async () => {
+      const userId = this.userCtx.getCurrentUserId() || undefined;
+      const relatorioData = {
+        ...relatorio,
+        idRelatorio: (relatorio as any)?.idRelatorio ?? '',
+        status: relatorio.status || 'em_preenchimento',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        criadoPor: userId,
+        modificadoPor: userId,
+      } as any;
 
-    const relatoriosRef = collection(this.firestore, 'relatorio-base');
-    from(addDoc(relatoriosRef, relatorioData)).subscribe({
-      next: (docRef) => {
+      const relatoriosRef = collection(this.firestore, 'relatorio-base');
+      try {
+        const docRef = await addDoc(relatoriosRef, relatorioData);
         const novo: RelatorioBase = {
           ...relatorio,
           idRelatorio: docRef.id,
@@ -57,8 +58,11 @@ export class RelatorioBaseService {
           modificadoPor: relatorioData.modificadoPor,
         };
         this.subject.next([...this.subject.value, novo]);
-      },
-      error: (error) => console.error('Erro ao criar relatório base:', error),
+        return docRef.id;
+      } catch (error) {
+        console.error('Erro ao criar relatório base:', error);
+        throw error;
+      }
     });
   }
 
