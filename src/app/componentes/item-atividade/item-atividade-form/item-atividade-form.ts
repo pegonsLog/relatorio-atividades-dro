@@ -29,6 +29,10 @@ export class ItemAtividadeForm implements OnInit, OnDestroy {
   tiposAcionamento = ['Central/Técnico', 'Não Programado', 'Programado'];
   atividades: TabelaAtividade[] = [];
 
+  // Autocomplete do código da atividade
+  codAtvSearch = '';
+  codAtvOpen = false;
+
   // Campo atualmente em gravação ('local' | 'observacoes' | null)
   recordingField: 'local' | 'observacoes' | null = null;
   // Base de texto do campo antes da fala (para anexar resultados parciais)
@@ -82,6 +86,7 @@ export class ItemAtividadeForm implements OnInit, OnDestroy {
         local: this.atividade.local,
         observacoes: this.atividade.observacoes
       });
+      this.codAtvSearch = this.labelForCodAtv(this.atividade.codAtv);
     }
   }
 
@@ -89,9 +94,47 @@ export class ItemAtividadeForm implements OnInit, OnDestroy {
     this.tabelaAtividadesService.list().subscribe({
       next: (itens) => {
         this.atividades = (itens ?? []).map(i => ({ ...i, codigo: Number(i.codigo) }));
+        // Sincroniza o texto de busca caso já exista um código selecionado
+        const cod = this.atividadeForm.get('codAtv')?.value;
+        if (cod) this.codAtvSearch = this.labelForCodAtv(cod);
       },
       error: (e) => console.error('Erro ao carregar códigos de atividade', e)
     });
+  }
+
+  // ===== Autocomplete (busca com filtro) para o Código da Atividade =====
+  private labelForCodAtv(cod: number | string | null | undefined): string {
+    if (cod == null || cod === '') return '';
+    const a = this.atividades.find(x => Number(x.codigo) === Number(cod));
+    return a ? `${a.codigo} - ${a.nome}` : String(cod);
+  }
+
+  get codAtvResults(): TabelaAtividade[] {
+    const t = (this.codAtvSearch || '').trim().toLowerCase();
+    if (!t) return this.atividades;
+    return this.atividades.filter(a =>
+      (a.nome || '').toLowerCase().includes(t) || String(a.codigo).includes(t)
+    );
+  }
+
+  onCodAtvInput(value: string): void {
+    this.codAtvSearch = value;
+    this.codAtvOpen = true;
+    this.atividadeForm.get('codAtv')?.setValue('');
+  }
+
+  selectCodAtv(a: TabelaAtividade): void {
+    this.atividadeForm.get('codAtv')?.setValue(a.codigo);
+    this.codAtvSearch = `${a.codigo} - ${a.nome}`;
+    this.codAtvOpen = false;
+  }
+
+  closeCodAtv(): void {
+    setTimeout(() => {
+      this.codAtvOpen = false;
+      this.codAtvSearch = this.labelForCodAtv(this.atividadeForm.get('codAtv')?.value);
+      this.atividadeForm.get('codAtv')?.markAsTouched();
+    }, 150);
   }
 
   private formatTimeForInput(date: Date): string {
@@ -228,6 +271,8 @@ export class ItemAtividadeForm implements OnInit, OnDestroy {
   private resetForm(): void {
     this.stopRecording();
     this.atividadeForm.reset({ acionamento: 'Programado' });
+    this.codAtvSearch = '';
+    this.codAtvOpen = false;
     this.atividade = undefined;
     this.isEditMode = false;
   }

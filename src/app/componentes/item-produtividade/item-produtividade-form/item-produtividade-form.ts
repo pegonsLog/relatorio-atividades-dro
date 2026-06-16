@@ -25,6 +25,10 @@ export class ItemProdutividadeForm implements OnInit {
   produtividadeForm: FormGroup;
   codigosProdutos: Array<{ codigo: number; descricao: string }> = [];
 
+  // Autocomplete do código do produto
+  codProdSearch = '';
+  codProdOpen = false;
+
   constructor(
     private fb: FormBuilder,
     private produtividadeService: ItemProdutividadeService,
@@ -80,6 +84,8 @@ export class ItemProdutividadeForm implements OnInit {
     this.tabelaService.list().subscribe({
       next: (lista) => {
         this.codigosProdutos = (lista || []).map(p => ({ codigo: p.codigo, descricao: p.nome }));
+        const cod = this.produtividadeForm.get('codProd')?.value;
+        if (cod) this.codProdSearch = this.labelForCodProd(cod);
       },
       error: (e) => {
         console.error('Erro ao carregar tabela de produtividade:', e);
@@ -101,7 +107,43 @@ export class ItemProdutividadeForm implements OnInit {
         codProd: this.itemProdutividade.codProd,
         qtdProd: this.itemProdutividade.qtdProd
       });
+      this.codProdSearch = this.labelForCodProd(this.itemProdutividade.codProd);
     }
+  }
+
+  // ===== Autocomplete (busca com filtro) para o Código do Produto =====
+  private labelForCodProd(cod: number | string | null | undefined): string {
+    if (cod == null || cod === '') return '';
+    const p = this.codigosProdutos.find(x => Number(x.codigo) === Number(cod));
+    return p ? `${p.codigo} - ${p.descricao}` : String(cod);
+  }
+
+  get codProdResults(): Array<{ codigo: number; descricao: string }> {
+    const t = (this.codProdSearch || '').trim().toLowerCase();
+    if (!t) return this.codigosProdutos;
+    return this.codigosProdutos.filter(p =>
+      (p.descricao || '').toLowerCase().includes(t) || String(p.codigo).includes(t)
+    );
+  }
+
+  onCodProdInput(value: string): void {
+    this.codProdSearch = value;
+    this.codProdOpen = true;
+    this.produtividadeForm.get('codProd')?.setValue('');
+  }
+
+  selectCodProd(p: { codigo: number; descricao: string }): void {
+    this.produtividadeForm.get('codProd')?.setValue(p.codigo);
+    this.codProdSearch = `${p.codigo} - ${p.descricao}`;
+    this.codProdOpen = false;
+  }
+
+  closeCodProd(): void {
+    setTimeout(() => {
+      this.codProdOpen = false;
+      this.codProdSearch = this.labelForCodProd(this.produtividadeForm.get('codProd')?.value);
+      this.produtividadeForm.get('codProd')?.markAsTouched();
+    }, 150);
   }
 
   onSubmit(): void {
@@ -140,6 +182,8 @@ export class ItemProdutividadeForm implements OnInit {
 
   private resetForm(): void {
     this.produtividadeForm.reset();
+    this.codProdSearch = '';
+    this.codProdOpen = false;
     this.itemProdutividade = undefined;
     this.isEditMode = false;
   }

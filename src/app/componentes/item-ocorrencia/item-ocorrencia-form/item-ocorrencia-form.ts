@@ -25,6 +25,10 @@ export class ItemOcorrenciaForm implements OnInit {
   ocorrenciaForm: FormGroup;
   codigosOcorrencias: Array<{ codigo: number; nome: string }> = [];
 
+  // Autocomplete do código da ocorrência
+  codOcorSearch = '';
+  codOcorOpen = false;
+
   constructor(
     private fb: FormBuilder,
     private ocorrenciaService: ItemOcorrenciaService,
@@ -74,6 +78,8 @@ export class ItemOcorrenciaForm implements OnInit {
     this.tabelaService.list().subscribe({
       next: (lista) => {
         this.codigosOcorrencias = (lista || []).map(o => ({ codigo: o.codigo, nome: o.nome }));
+        const cod = this.ocorrenciaForm.get('codOcor')?.value;
+        if (cod) this.codOcorSearch = this.labelForCodOcor(cod);
       },
       error: (e) => {
         console.error('Erro ao carregar tabela de ocorrências:', e);
@@ -95,7 +101,43 @@ export class ItemOcorrenciaForm implements OnInit {
         codOcor: this.itemOcorrencia.codOcor,
         qtdOcor: this.itemOcorrencia.qtdOcor
       });
+      this.codOcorSearch = this.labelForCodOcor(this.itemOcorrencia.codOcor);
     }
+  }
+
+  // ===== Autocomplete (busca com filtro) para o Código da Ocorrência =====
+  private labelForCodOcor(cod: number | string | null | undefined): string {
+    if (cod == null || cod === '') return '';
+    const o = this.codigosOcorrencias.find(x => Number(x.codigo) === Number(cod));
+    return o ? `${o.codigo} - ${o.nome}` : String(cod);
+  }
+
+  get codOcorResults(): Array<{ codigo: number; nome: string }> {
+    const t = (this.codOcorSearch || '').trim().toLowerCase();
+    if (!t) return this.codigosOcorrencias;
+    return this.codigosOcorrencias.filter(o =>
+      (o.nome || '').toLowerCase().includes(t) || String(o.codigo).includes(t)
+    );
+  }
+
+  onCodOcorInput(value: string): void {
+    this.codOcorSearch = value;
+    this.codOcorOpen = true;
+    this.ocorrenciaForm.get('codOcor')?.setValue('');
+  }
+
+  selectCodOcor(o: { codigo: number; nome: string }): void {
+    this.ocorrenciaForm.get('codOcor')?.setValue(o.codigo);
+    this.codOcorSearch = `${o.codigo} - ${o.nome}`;
+    this.codOcorOpen = false;
+  }
+
+  closeCodOcor(): void {
+    setTimeout(() => {
+      this.codOcorOpen = false;
+      this.codOcorSearch = this.labelForCodOcor(this.ocorrenciaForm.get('codOcor')?.value);
+      this.ocorrenciaForm.get('codOcor')?.markAsTouched();
+    }, 150);
   }
 
   onSubmit(): void {
@@ -133,6 +175,8 @@ export class ItemOcorrenciaForm implements OnInit {
 
   private resetForm(): void {
     this.ocorrenciaForm.reset();
+    this.codOcorSearch = '';
+    this.codOcorOpen = false;
     this.itemOcorrencia = undefined;
     this.isEditMode = false;
   }

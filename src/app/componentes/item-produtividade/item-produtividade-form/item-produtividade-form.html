@@ -20,13 +20,20 @@
               <hero-icon name="table-cells" size="1rem"></hero-icon>
               Código do Produto *
             </label>
-            <select id="codProd" formControlName="codProd" class="form-select"
-              [class.is-invalid]="isFieldInvalid('codProd')" (change)="onCodigoProdutoChange()">
-              <option value="">Selecione um produto</option>
-              <option *ngFor="let produto of codigosProdutos" [value]="produto.codigo">
-                {{ produto.codigo }} - {{ produto.descricao }}
-              </option>
-            </select>
+            <div class="autocomplete">
+              <input type="text" id="codProd" class="form-control" autocomplete="off"
+                placeholder="Buscar por código ou nome" [class.is-invalid]="isFieldInvalid('codProd')"
+                [value]="codProdSearch" (input)="onCodProdInput($any($event.target).value)" (focus)="codProdOpen = true"
+                (blur)="closeCodProd()" />
+              <ul class="autocomplete-list" *ngIf="codProdOpen && codProdResults.length">
+                <li *ngFor="let produto of codProdResults" class="autocomplete-item" (mousedown)="selectCodProd(produto)">
+                  {{ produto.codigo }} - {{ produto.descricao }}
+                </li>
+              </ul>
+              <div class="autocomplete-empty" *ngIf="codProdOpen && codProdSearch && !codProdResults.length">
+                Nenhum produto encontrado
+              </div>
+            </div>
             <div class="invalid-feedback" *ngIf="isFieldInvalid('codProd')">{{ getFieldError('codProd') }}</div>
           </div>
 

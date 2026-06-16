@@ -81,11 +81,20 @@
               <hero-icon name="table-cells" size="1rem"></hero-icon>
               Código da Atividade *
             </label>
-            <select id="codAtv" formControlName="codAtv" class="form-select"
-              [class.is-invalid]="isFieldInvalid('codAtv')">
-              <option [ngValue]="null" disabled>Selecione</option>
-              <option *ngFor="let atv of atividades" [ngValue]="atv.codigo">{{ atv.codigo }} - {{ atv.nome }}</option>
-            </select>
+            <div class="autocomplete">
+              <input type="text" id="codAtv" class="form-control" autocomplete="off"
+                placeholder="Buscar por código ou nome" [class.is-invalid]="isFieldInvalid('codAtv')"
+                [value]="codAtvSearch" (input)="onCodAtvInput($any($event.target).value)" (focus)="codAtvOpen = true"
+                (blur)="closeCodAtv()" />
+              <ul class="autocomplete-list" *ngIf="codAtvOpen && codAtvResults.length">
+                <li *ngFor="let atv of codAtvResults" class="autocomplete-item" (mousedown)="selectCodAtv(atv)">
+                  {{ atv.codigo }} - {{ atv.nome }}
+                </li>
+              </ul>
+              <div class="autocomplete-empty" *ngIf="codAtvOpen && codAtvSearch && !codAtvResults.length">
+                Nenhuma atividade encontrada
+              </div>
+            </div>
             <div class="invalid-feedback" *ngIf="isFieldInvalid('codAtv')">{{ getFieldError('codAtv') }}</div>
           </div>
 
