@@ -1,14 +1,14 @@
 .page-header {
   margin-bottom: 1.5rem;
-  h1 { font-size: 1.5rem; font-weight: 700; color: #111827; margin: 0; }
+  h1 { font-size: 1.65rem; font-weight: 700; margin: 0; letter-spacing: -0.02em; background: linear-gradient(135deg, #1BA1DD 0%, #8CC63F 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
   p { color: #6b7280; font-size: 0.875rem; margin: 0.25rem 0 0; }
 }
 
 .form-card {
   background: white;
-  border-radius: 1rem;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  border-radius: var(--radius-lg, 1rem);
+  border: 1px solid #eef1f6;
+  box-shadow: var(--shadow-md);
   padding: 2rem;
   max-width: 800px;
 }
@@ -47,9 +47,22 @@
   align-items: flex-start;
   gap: 0.75rem;
   padding: 1rem;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.625rem;
+  background: #f8fafc;
+  border: 1px solid #eef1f6;
+  border-radius: 0.85rem;
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+
+  &:hover {
+    border-color: #bfdbfe;
+    background: #f5f9ff;
+  }
+
+  // Destaque quando o checkbox está marcado
+  &:has(.form-check-input:checked) {
+    border-color: #1BA1DD;
+    background: linear-gradient(135deg, #e8f6fd 0%, #f0f9e4 100%);
+    box-shadow: 0 0 0 3px rgba(27, 161, 221, 0.12);
+  }
   
   .form-check-input {
     margin-top: 0.125rem;
@@ -63,7 +76,7 @@
     flex-direction: column;
     cursor: pointer;
     
-    .check-title { font-weight: 500; color: #111827; }
+    .check-title { font-weight: 600; color: #111827; }
     .check-desc { font-size: 0.8125rem; color: #6b7280; margin-top: 0.125rem; }
   }
 }

@@ -9,6 +9,12 @@
   <div class="sidebar-overlay" *ngIf="sidebarOpen" (click)="closeSidebar()"></div>
 
   <aside class="menu-sidebar" id="menuSidebar" [class.open]="sidebarOpen">
+    <div class="sidebar-mobile-header">
+      <span class="sidebar-mobile-title">Menu</span>
+      <button type="button" class="sidebar-close" (click)="closeSidebar()" aria-label="Fechar menu">
+        <hero-icon name="x-mark" size="1.5rem"></hero-icon>
+      </button>
+    </div>
     <div class="menu-nav">
       <div class="nav-section">
         <h3 class="nav-title">
@@ -90,6 +96,10 @@
       </div>
     </div>
     <div class="menu-footer">
+      <button type="button" class="btn btn-atualizar-app" (click)="atualizarApp()" [disabled]="atualizando()">
+        <hero-icon name="arrow-path" size="1.25rem" [class.girando]="atualizando()"></hero-icon>
+        {{ atualizando() ? 'Atualizando...' : 'Atualizar App' }}
+      </button>
       <button type="button" class="btn btn-logout" (click)="logout()">
         <hero-icon name="arrow-left-on-rectangle" size="1.25rem"></hero-icon>
         Sair do Sistema
@@ -168,16 +178,29 @@
 <div *ngIf="showFilterModal" class="modal-overlay" (click)="closeRelatorioBaseModal()">
   <div class="modal-container" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <div class="modal-icon">
-        <hero-icon name="document-text" size="1.5rem"></hero-icon>
-      </div>
+      <img src="assets/logo/BHTrans.png" alt="BHTRANS" class="modal-logo" />
       <div>
         <h5 class="modal-title">Cadastro de Relatório</h5>
        
       </div>
     </div>
     <div class="modal-body">
-      <div class="filter-row">
+      <div class="update-notice" *ngIf="atualizacaoDisponivel()">
+        <div class="update-notice-text">
+          <hero-icon name="arrow-path" size="1.125rem"></hero-icon>
+          <span>Uma nova versão do aplicativo está disponível.</span>
+        </div>
+        <button type="button" class="btn-update-now" (click)="atualizarApp()" [disabled]="atualizando()">
+          <hero-icon name="arrow-path" size="1rem" [class.girando]="atualizando()"></hero-icon>
+          {{ atualizando() ? 'Atualizando...' : 'Atualizar agora' }}
+        </button>
+      </div>
+      <div class="filter-stack">
+        <div class="filter-group">
+          <label class="filter-label">Data</label>
+          <input type="date" class="form-control" [(ngModel)]="selectedData" />
+          <small class="form-text text-muted">Data do relatório</small>
+        </div>
         <div class="filter-group">
           <label class="filter-label">Gerência</label>
           <select class="form-select" [(ngModel)]="selectedGerencia" appAutoFocus>
@@ -191,18 +214,6 @@
             <option *ngFor="let t of turnos" [value]="t">{{ t }}</option>
           </select>
           <small class="form-text text-muted">Turno em que prestou o serviço</small>
-        </div>
-      </div>
-      <div class="filter-row">
-        <div class="filter-group">
-          <label class="filter-label">Mat. 1</label>
-          <input type="text" class="form-control" [(ngModel)]="selectedMat1" placeholder="Matrícula 1" inputmode="numeric" />
-          <small class="form-text text-muted">Matrícula do agente digitador</small>
-        </div>
-        <div class="filter-group">
-          <label class="filter-label">Mat. 2</label>
-          <input type="text" class="form-control" [(ngModel)]="selectedMat2" placeholder="Matrícula 2 (opcional)" inputmode="numeric" />
-          <small class="form-text text-muted">Matrícula do segundo agente</small>
         </div>
       </div>
     </div>

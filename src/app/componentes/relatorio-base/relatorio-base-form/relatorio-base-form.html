@@ -134,6 +134,38 @@
     </div>
   </div>
 
+  <!-- Relatório geral descritivo (largura total) -->
+  <div class="form-group form-group-full">
+    <label class="form-label" for="relatorioGeralDescritivo">
+      <hero-icon name="document-text" size="1rem"></hero-icon>
+      Observações/Considerações sobre as atividades executadas
+    </label>
+    <textarea id="relatorioGeralDescritivo" class="form-control" rows="3"
+      formControlName="relatorioGeralDescritivo"
+      placeholder="Descreva o relatório geral das atividades do turno..."></textarea>
+    <div class="field-toolbar" *ngIf="speechSupported">
+      <button type="button" class="field-btn" [class.recording]="gravando"
+        [attr.aria-label]="gravando ? 'Parar gravação' : 'Gravar por voz'"
+        [title]="gravando ? 'Parar gravação' : 'Gravar por voz'" (click)="toggleRecording()">
+        <hero-icon [name]="gravando ? 'stop' : 'microphone'" size="1.125rem"></hero-icon>
+        {{ gravando ? 'Parar' : 'Gravar' }}
+      </button>
+      <button type="button" class="field-btn clear"
+        [disabled]="!form.get('relatorioGeralDescritivo')?.value"
+        aria-label="Limpar campo" title="Limpar campo" (click)="clearRelatorioGeral()">
+        <hero-icon name="x-circle" size="1.125rem"></hero-icon>
+        Limpar
+      </button>
+    </div>
+    <div class="mic-hint" *ngIf="gravando">
+      Gravando... fale agora. Toque no botão para parar (máx. 1 min).
+    </div>
+    <div class="speech-error" *ngIf="speechError">
+      <hero-icon name="exclamation-circle" size="1rem"></hero-icon>
+      {{ speechError }}
+    </div>
+  </div>
+
   <!-- Campos de auditoria -->
   <div class="audit-info" *ngIf="value">
     <div class="audit-item">

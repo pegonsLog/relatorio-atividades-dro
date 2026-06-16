@@ -1,8 +1,8 @@
 <div class="container py-4">
   <div class="page-header">
     <div class="header-content">
-      <h1>Relatórios Base</h1>
-      <p>Gerencie os relatórios diários do sistema</p>
+      <h1>Relatório</h1>
+      <p>Preenchimento do cabeçalho do relatório</p>
     </div>
     <div class="header-actions">
       <a class="btn btn-outline-secondary" [routerLink]="['/menu']">
@@ -21,7 +21,7 @@
           <span>{{ selected?.idRelatorio ? 'Editar Relatório' : 'Novo Relatório' }}</span>
         </div>
         <div class="section-body">
-          <app-relatorio-base-form [value]="selected" [defaults]="{ gerencia: defaultGerencia, turno: defaultTurno, mat1: defaultMat1, mat2: defaultMat2 }"
+          <app-relatorio-base-form [value]="selected" [defaults]="{ gerencia: defaultGerencia, turno: defaultTurno, data: defaultData, mat1: defaultMat1, mat2: defaultMat2 }"
             [saving]="saving" (submitValue)="onSubmit($event)" (cancel)="cancel()"></app-relatorio-base-form>
         </div>
       </div>

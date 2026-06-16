@@ -12,8 +12,12 @@ import { PwaUpdateService } from './services/pwa-update.service';
 export class App implements OnInit {
   private readonly pwaUpdate = inject(PwaUpdateService);
 
-  protected readonly title = signal('Sistema de Relatório de Atividades - DRO');
+  protected readonly title = signal('Relatório Diário de Atividades - DRO');
   protected readonly isMenuOpen = signal(true);
+
+  // Sinaliza quando há uma nova versão disponível (mostra o aviso).
+  protected readonly atualizacaoDisponivel = this.pwaUpdate.atualizacaoDisponivel;
+  protected readonly aplicandoAtualizacao = signal(false);
 
   ngOnInit() {
     // Garantir que o menu sempre inicie aberto
@@ -25,5 +29,13 @@ export class App implements OnInit {
 
   toggleMenu() {
     this.isMenuOpen.set(!this.isMenuOpen());
+  }
+
+  async aplicarAtualizacao() {
+    if (this.aplicandoAtualizacao()) {
+      return;
+    }
+    this.aplicandoAtualizacao.set(true);
+    await this.pwaUpdate.aplicarAtualizacao();
   }
 }

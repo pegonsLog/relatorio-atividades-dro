@@ -8,10 +8,14 @@
   
   .header-content {
     h1 {
-      font-size: 1.5rem;
+      font-size: 1.65rem;
       font-weight: 700;
-      color: #111827;
       margin: 0;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #1BA1DD 0%, #8CC63F 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     p {
       color: #6b7280;
@@ -78,10 +82,10 @@
 
 .table-container {
   background: white;
-  border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
+  border-radius: var(--radius-lg, 1rem);
+  border: 1px solid #eef1f6;
   overflow: hidden;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .sort-btn {
@@ -99,7 +103,7 @@
   cursor: pointer;
   
   &:hover {
-    color: #3b82f6;
+    color: #1BA1DD;
   }
   
   hero-icon {
@@ -184,8 +188,9 @@
   flex-shrink: 0;
   
   &.danger {
-    background: #fee2e2;
-    hero-icon { color: #dc2626; }
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+    box-shadow: 0 8px 18px rgba(225, 29, 72, 0.3);
+    hero-icon { color: white; }
   }
 }
 
