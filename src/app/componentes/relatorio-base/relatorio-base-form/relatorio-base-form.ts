@@ -272,14 +272,14 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit, OnDestroy 
     this.form.get('relatorioGeralDescritivo')?.markAsDirty();
   }
 
-  private appendSpeech(text: string, isFinal: boolean): void {
-    const sep = this.recordingBaseText && !/\s$/.test(this.recordingBaseText) ? ' ' : '';
-    const combined = (this.recordingBaseText + sep + text).trimStart();
+  private appendSpeech(finalText: string, interimText: string): void {
+    // finalText e interimText representam a sessão inteira (não deltas).
+    // Substituímos sempre: base original do campo + transcrição da sessão.
+    const spoken = `${finalText}${finalText && interimText ? ' ' : ''}${interimText}`.trim();
+    const sep = this.recordingBaseText && spoken && !/\s$/.test(this.recordingBaseText) ? ' ' : '';
+    const combined = (this.recordingBaseText + sep + spoken).trimStart();
     this.form.get('relatorioGeralDescritivo')?.setValue(combined);
     this.form.get('relatorioGeralDescritivo')?.markAsDirty();
-    if (isFinal) {
-      this.recordingBaseText = combined;
-    }
   }
 
   // ===== Autocomplete (busca com filtro) para Coord. e Superv. =====

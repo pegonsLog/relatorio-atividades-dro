@@ -28,8 +28,13 @@ interface SpeechRecognitionLike {
 }
 
 export interface SpeechCallbacks {
-  /** Texto reconhecido (parcial ou final) a ser anexado ao campo */
-  onText: (text: string, isFinal: boolean) => void;
+  /**
+   * Transcrição da sessão atual. `finalText` é o texto já consolidado
+   * (todos os resultados finais) e `interimText` é o trecho ainda em
+   * reconhecimento. Ambos representam a sessão inteira, não um delta,
+   * então o consumidor deve SUBSTITUIR o conteúdo, nunca somar.
+   */
+  onText: (finalText: string, interimText: string) => void;
   /** Reconhecimento encerrado (timeout, parada manual ou fim natural) */
   onEnd: () => void;
   /** Erro durante o reconhecimento */
@@ -80,24 +85,22 @@ export class SpeechToTextService {
     this.stoppedByUser = false;
 
     recognition.onresult = (event: SpeechRecognitionEventLike) => {
+      // Reconstrói a transcrição completa da sessão a cada evento (índice 0),
+      // em vez de anexar deltas a partir de event.resultIndex. No mobile a Web
+      // Speech API costuma reentregar resultados já finalizados; rebuildar e
+      // substituir o conteúdo evita a duplicação de palavras.
       let interim = '';
       let finalText = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
+      for (let i = 0; i < event.results.length; i++) {
         const result = event.results[i];
         const transcript = result[0]?.transcript ?? '';
         if (result.isFinal) {
-          finalText += transcript;
+          finalText += (finalText && !/\s$/.test(finalText) ? ' ' : '') + transcript.trim();
         } else {
           interim += transcript;
         }
       }
-      this.zone.run(() => {
-        if (finalText) {
-          callbacks.onText(finalText, true);
-        } else if (interim) {
-          callbacks.onText(interim, false);
-        }
-      });
+      this.zone.run(() => callbacks.onText(finalText, interim));
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEventLike) => {

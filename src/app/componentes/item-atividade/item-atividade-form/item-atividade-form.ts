@@ -221,7 +221,7 @@ export class ItemAtividadeForm implements OnInit, OnDestroy {
     const current = (this.atividadeForm.get(field)?.value ?? '').toString();
     this.recordingBaseText = current;
     const started = this.speech.start({
-      onText: (text, isFinal) => this.appendSpeech(field, text, isFinal),
+      onText: (finalText, interimText) => this.appendSpeech(field, finalText, interimText),
       onEnd: () => {
         this.recordingField = null;
       },
@@ -250,9 +250,13 @@ export class ItemAtividadeForm implements OnInit, OnDestroy {
     this.atividadeForm.get(field)?.markAsDirty();
   }
 
-  private appendSpeech(field: 'local' | 'observacoes', text: string, isFinal: boolean): void {
-    const sep = this.recordingBaseText && !/\s$/.test(this.recordingBaseText) ? ' ' : '';
-    let combined = (this.recordingBaseText + sep + text).trimStart();
+  private appendSpeech(field: 'local' | 'observacoes', finalText: string, interimText: string): void {
+    // finalText e interimText representam a sessão inteira (não deltas).
+    // Substituímos sempre: base original do campo + transcrição da sessão,
+    // evitando a duplicação de palavras observada no mobile.
+    const spoken = `${finalText}${finalText && interimText ? ' ' : ''}${interimText}`.trim();
+    const sep = this.recordingBaseText && spoken && !/\s$/.test(this.recordingBaseText) ? ' ' : '';
+    let combined = (this.recordingBaseText + sep + spoken).trimStart();
 
     // Respeita o limite de 500 caracteres das observações
     if (field === 'observacoes' && combined.length > 500) {
@@ -261,11 +265,6 @@ export class ItemAtividadeForm implements OnInit, OnDestroy {
 
     this.atividadeForm.get(field)?.setValue(combined);
     this.atividadeForm.get(field)?.markAsDirty();
-
-    // Resultados finais passam a fazer parte da base acumulada
-    if (isFinal) {
-      this.recordingBaseText = combined;
-    }
   }
 
   private resetForm(): void {
