@@ -2,32 +2,21 @@
   display: block;
 }
 
-.chart-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.chart-card {
+.resumo-card {
   background: white;
   border: 1px solid var(--border-color);
   border-radius: 0.75rem;
   padding: 1.25rem;
-  transition: all 0.2s;
 }
 
-.chart-card:hover {
-  box-shadow: var(--shadow-md);
-}
-
-.chart-header {
+.resumo-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
 }
 
-.chart-header h5 {
+.resumo-header h5 {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -37,10 +26,60 @@
   margin: 0;
 }
 
-.chart-wrapper {
+.resumo-table-wrapper {
   width: 100%;
-  overflow: auto;
-  min-height: 200px;
+  overflow-x: auto;
+}
+
+.resumo-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.resumo-table th,
+.resumo-table td {
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.resumo-table thead th {
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+.resumo-table tbody tr:hover {
+  background: var(--bg-hover, #f8f9fa);
+}
+
+.col-cod {
+  width: 6rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.col-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.resumo-table tfoot td {
+  font-weight: 700;
+  color: var(--text-primary);
+  border-top: 2px solid var(--border-color);
+  border-bottom: none;
+}
+
+.total-label {
+  text-align: right;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
 }
 
 .empty-state {

@@ -1,25 +1,40 @@
-<div class="chart-stack">
-  <div class="chart-card" *ngFor="let g of chartGroups; trackBy: trackByKey">
-    <div class="chart-header">
-      <h5>
-        <hero-icon name="exclamation-circle" size="1.25rem"></hero-icon>
-        Cód. {{ g.title }}
-      </h5>
-    </div>
+<div class="resumo-card">
+  <div class="resumo-header">
+    <h5>
+      <hero-icon name="exclamation-circle" size="1.25rem"></hero-icon>
+      Quantitativo por ocorrência
+    </h5>
+  </div>
 
-    <div class="chart-wrapper">
-      <ngx-charts-bar-vertical [results]="g.results" [xAxis]="true" [yAxis]="true" [legend]="false"
-        [showDataLabel]="true" [animations]="true" [scheme]="colorScheme">
-      </ngx-charts-bar-vertical>
-    </div>
-    <div class="empty-state" *ngIf="g.results.length === 0">
-      <hero-icon name="chart-bar" size="2rem"></hero-icon>
+  <div class="resumo-table-wrapper" *ngIf="resumo.length > 0; else semDados">
+    <table class="resumo-table">
+      <thead>
+        <tr>
+          <th class="col-cod">Código</th>
+          <th>Ocorrência</th>
+          <th class="col-num">Registros</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of resumo; trackBy: trackByKey">
+          <td class="col-cod">{{ r.key }}</td>
+          <td>{{ r.nome || '—' }}</td>
+          <td class="col-num">{{ r.registros }}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2" class="total-label">Total</td>
+          <td class="col-num">{{ totalRegistros }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <ng-template #semDados>
+    <div class="empty-state">
+      <hero-icon name="chart-bar" size="3rem"></hero-icon>
       <p>Sem dados para exibir</p>
     </div>
-  </div>
-
-  <div class="empty-state" *ngIf="chartGroups.length === 0">
-    <hero-icon name="chart-bar" size="3rem"></hero-icon>
-    <p>Sem dados para exibir</p>
-  </div>
+  </ng-template>
 </div>
