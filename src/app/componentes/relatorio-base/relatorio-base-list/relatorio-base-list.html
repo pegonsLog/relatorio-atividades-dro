@@ -33,6 +33,20 @@
         <div class="section-header">
           <hero-icon name="document-duplicate" size="1.25rem"></hero-icon>
           <span>Lista de Relatórios</span>
+          <div class="view-toggle" role="group" aria-label="Alternar visualização da lista">
+            <button type="button" class="view-btn" [class.active]="viewMode === 'lista'"
+              [attr.aria-pressed]="viewMode === 'lista'" (click)="setViewMode('lista')"
+              title="Visualizar em lista">
+              <hero-icon name="table-cells" size="1.125rem"></hero-icon>
+              <span class="view-btn-label">Lista</span>
+            </button>
+            <button type="button" class="view-btn" [class.active]="viewMode === 'card'"
+              [attr.aria-pressed]="viewMode === 'card'" (click)="setViewMode('card')"
+              title="Visualizar em cards">
+              <hero-icon name="squares-2x2" size="1.125rem"></hero-icon>
+              <span class="view-btn-label">Cards</span>
+            </button>
+          </div>
         </div>
 
         <div class="search-bar">
@@ -46,7 +60,7 @@
           </div>
         </div>
 
-        <div class="table-container">
+        <div class="table-container" *ngIf="viewMode === 'lista'">
           <table class="table">
             <thead>
               <tr>
@@ -159,7 +173,7 @@
           </table>
         </div>
 
-        <div class="cards-container">
+        <div class="cards-container" *ngIf="viewMode === 'card'">
           <div class="data-card" *ngFor="let r of pageItems" (dblclick)="startEdit(r)">
             <div class="data-card-header">
               <span class="data-card-date">{{ r.data | date:'dd/MM/yyyy' }}</span>

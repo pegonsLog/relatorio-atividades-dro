@@ -8,6 +8,9 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HeroIconComponent } from '../../../shared/icons/heroicons';
 
+/** Modos de visualização disponíveis para a lista de relatórios. */
+export type ViewMode = 'lista' | 'card';
+
 @Component({
   selector: 'app-relatorio-base-list',
   standalone: true,
@@ -46,6 +49,10 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
   // Ordenação
   sortKey: 'createdAt' | 'data' | 'gerencia' | 'turno' | 'mat1' | 'mat2' | 'coord' | 'superv' = 'createdAt';
   sortDir: 'asc' | 'desc' = 'desc';
+
+  // Modo de visualização da lista: cards ("card", padrão) ou tabela ("lista").
+  private readonly defaultView: ViewMode = 'card';
+  viewMode: ViewMode = this.defaultView;
 
   // Debounce do filtro
   private filterDebounce?: any;
@@ -111,6 +118,9 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
       const allowed: string[] = ['createdAt', 'data', 'gerencia', 'turno', 'mat1', 'mat2', 'coord', 'superv'];
       if (sk && allowed.includes(sk)) this.sortKey = sk;
       if (sd && ['asc', 'desc'].includes(sd)) this.sortDir = sd;
+      // Modo de visualização: usa o padrão quando não há valor válido na URL
+      const view = qp.get('view');
+      this.viewMode = view === 'lista' || view === 'card' ? view : this.defaultView;
     });
 
     this.service.getRelatorios$().subscribe(list => {
@@ -274,6 +284,13 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
     }
   }
 
+  // Alterna entre a visualização em tabela e em cards
+  setViewMode(mode: ViewMode) {
+    if (this.viewMode === mode) return;
+    this.viewMode = mode;
+    this.syncQuery();
+  }
+
   setSort(key: 'data' | 'gerencia' | 'turno' | 'mat1' | 'mat2' | 'coord' | 'superv') {
     if (this.sortKey === key) {
       this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
@@ -308,6 +325,8 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
       sortKey: this.sortKey !== 'createdAt' ? this.sortKey : undefined,
       // 'desc' é o padrão inicial; só grava se diferente disso
       sortDir: this.sortDir !== 'desc' ? this.sortDir : undefined,
+      // Só grava o modo de visualização quando difere do padrão do dispositivo
+      view: this.viewMode !== this.defaultView ? this.viewMode : undefined,
       gerencia: this.filterGerencia || undefined,
       turno: this.filterTurno || undefined,
     } as any;

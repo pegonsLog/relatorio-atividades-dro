@@ -38,15 +38,19 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit, OnDestroy 
     relatorioGeralDescritivo: [''],
   });
 
-  // Observable de agentes para popular selects (mat1/mat2)
+  // Observable de agentes (fonte dos campos de busca)
   agentes$ = this.agentesService.list();
 
-  // Lista de agentes carregada em memória para os campos de busca (coord/superv)
+  // Lista de agentes carregada em memória para os campos de busca (mat1/mat2/coord/superv)
   agentes: Agente[] = [];
 
   // Estado dos campos de busca com filtro (autocomplete)
+  mat1Search = '';
+  mat2Search = '';
   coordSearch = '';
   supervSearch = '';
+  mat1Open = false;
+  mat2Open = false;
   coordOpen = false;
   supervOpen = false;
 
@@ -116,9 +120,14 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit, OnDestroy 
     // Limpa estado de validação/toque
     this.form.markAsPristine();
     this.form.markAsUntouched();
-    // Limpa os textos de busca de coord/superv
+    // Limpa os textos de busca de mat1/mat2/coord/superv
+    // (mat1/mat2 podem vir autopreenchidos pelos defaults)
+    this.mat1Search = this.labelForMatricula(this.defaults?.mat1 ?? null);
+    this.mat2Search = this.labelForMatricula(this.defaults?.mat2 ?? null);
     this.coordSearch = '';
     this.supervSearch = '';
+    this.mat1Open = false;
+    this.mat2Open = false;
     this.coordOpen = false;
     this.supervOpen = false;
     // Foca o primeiro campo (Data)
@@ -130,6 +139,8 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit, OnDestroy 
     this.agentes$.subscribe(list => {
       this.agentes = list;
       // Sincroniza o texto exibido caso já exista valor selecionado
+      this.mat1Search = this.labelForMatricula(this.form.get('mat1')?.value);
+      this.mat2Search = this.labelForMatricula(this.form.get('mat2')?.value);
       this.coordSearch = this.labelForMatricula(this.form.get('coord')?.value);
       this.supervSearch = this.labelForMatricula(this.form.get('superv')?.value);
     });
@@ -165,7 +176,9 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit, OnDestroy 
         // Em edição, permitir alterar gerência/turno
         this.form.get('gerencia')?.enable({ emitEvent: false });
         this.form.get('turno')?.enable({ emitEvent: false });
-        // Sincroniza os textos de busca de coord/superv
+        // Sincroniza os textos de busca de mat1/mat2/coord/superv
+        this.mat1Search = this.labelForMatricula(v.mat1);
+        this.mat2Search = this.labelForMatricula(v.mat2);
         this.coordSearch = this.labelForMatricula(v.coord);
         this.supervSearch = this.labelForMatricula(v.superv);
       } else {
@@ -216,8 +229,12 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit, OnDestroy 
       relatorioGeralDescritivo: '',
     });
     // Limpa os textos de busca
+    this.mat1Search = '';
+    this.mat2Search = '';
     this.coordSearch = '';
     this.supervSearch = '';
+    this.mat1Open = false;
+    this.mat2Open = false;
     this.coordOpen = false;
     this.supervOpen = false;
     // Reseta estado de validação/toque
@@ -282,11 +299,12 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit, OnDestroy 
     this.form.get('relatorioGeralDescritivo')?.markAsDirty();
   }
 
-  // ===== Autocomplete (busca com filtro) para Coord. e Superv. =====
+  // ===== Autocomplete (busca com filtro) para Mat. 1, Mat. 2, Coord. e Superv. =====
 
-  // Retorna o rótulo "matricula - nome" para uma matrícula
+  // Retorna o rótulo "matricula - nome" para uma matrícula.
+  // Trata 0 como "sem valor" (registros antigos gravam 0 quando a Mat. 2 fica vazia).
   private labelForMatricula(matricula: number | null | undefined): string {
-    if (matricula == null) return '';
+    if (matricula == null || matricula === 0) return '';
     const a = this.agentes.find(x => x.matricula === matricula);
     return a ? `${a.matricula} - ${a.nome}` : String(matricula);
   }
@@ -300,6 +318,14 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit, OnDestroy 
     );
   }
 
+  get mat1Results(): Agente[] {
+    return this.filterAgentes(this.mat1Search);
+  }
+
+  get mat2Results(): Agente[] {
+    return this.filterAgentes(this.mat2Search);
+  }
+
   get coordResults(): Agente[] {
     return this.filterAgentes(this.coordSearch);
   }
@@ -309,6 +335,18 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit, OnDestroy 
   }
 
   // Reage à digitação: limpa a seleção enquanto o texto não corresponde
+  onMat1Input(value: string) {
+    this.mat1Search = value;
+    this.mat1Open = true;
+    this.form.get('mat1')?.setValue(null);
+  }
+
+  onMat2Input(value: string) {
+    this.mat2Search = value;
+    this.mat2Open = true;
+    this.form.get('mat2')?.setValue(null);
+  }
+
   onCoordInput(value: string) {
     this.coordSearch = value;
     this.coordOpen = true;
@@ -319,6 +357,18 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit, OnDestroy 
     this.supervSearch = value;
     this.supervOpen = true;
     this.form.get('superv')?.setValue(null);
+  }
+
+  selectMat1(a: Agente) {
+    this.form.get('mat1')?.setValue(a.matricula);
+    this.mat1Search = `${a.matricula} - ${a.nome}`;
+    this.mat1Open = false;
+  }
+
+  selectMat2(a: Agente) {
+    this.form.get('mat2')?.setValue(a.matricula);
+    this.mat2Search = `${a.matricula} - ${a.nome}`;
+    this.mat2Open = false;
   }
 
   selectCoord(a: Agente) {
@@ -334,6 +384,20 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit, OnDestroy 
   }
 
   // Fecha o dropdown ao perder o foco; restaura o texto se nenhuma seleção foi feita
+  closeMat1() {
+    setTimeout(() => {
+      this.mat1Open = false;
+      this.mat1Search = this.labelForMatricula(this.form.get('mat1')?.value);
+    }, 150);
+  }
+
+  closeMat2() {
+    setTimeout(() => {
+      this.mat2Open = false;
+      this.mat2Search = this.labelForMatricula(this.form.get('mat2')?.value);
+    }, 150);
+  }
+
   closeCoord() {
     setTimeout(() => {
       this.coordOpen = false;

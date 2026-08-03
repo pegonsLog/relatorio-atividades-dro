@@ -63,16 +63,25 @@
       <hero-icon name="user" size="1rem"></hero-icon>
       Mat. 1
     </label>
-    <ng-container *ngIf="isMat1Locked; else mat1Select">
+    <ng-container *ngIf="isMat1Locked; else mat1Search_">
       <input type="text" class="form-control locked-display" [value]="form.get('mat1')?.value || defaults?.mat1"
         readonly />
       <div class="form-hint">Definido pelos filtros</div>
     </ng-container>
-    <ng-template #mat1Select>
-      <select id="mat1" class="form-select" formControlName="mat1">
-        <option [ngValue]="null" disabled>Selecione</option>
-        <option *ngFor="let a of agentes$ | async" [ngValue]="a.matricula">{{ a.matricula }} - {{ a.nome }}</option>
-      </select>
+    <ng-template #mat1Search_>
+      <div class="autocomplete">
+        <input type="text" id="mat1" class="form-control" autocomplete="off"
+          placeholder="Buscar por matrícula ou nome" [value]="mat1Search"
+          (input)="onMat1Input($any($event.target).value)" (focus)="mat1Open = true" (blur)="closeMat1()" />
+        <ul class="autocomplete-list" *ngIf="mat1Open && mat1Results.length">
+          <li *ngFor="let a of mat1Results" class="autocomplete-item" (mousedown)="selectMat1(a)">
+            {{ a.matricula }} - {{ a.nome }}
+          </li>
+        </ul>
+        <div class="autocomplete-empty" *ngIf="mat1Open && mat1Search && !mat1Results.length">
+          Nenhum agente encontrado
+        </div>
+      </div>
     </ng-template>
   </div>
 
@@ -81,16 +90,25 @@
       <hero-icon name="user" size="1rem"></hero-icon>
       Mat. 2
     </label>
-    <ng-container *ngIf="isMat2Locked; else mat2Select">
+    <ng-container *ngIf="isMat2Locked; else mat2Search_">
       <input type="text" class="form-control locked-display" [value]="form.get('mat2')?.value || defaults?.mat2"
         readonly />
       <div class="form-hint">Definido pelos filtros</div>
     </ng-container>
-    <ng-template #mat2Select>
-      <select id="mat2" class="form-select" formControlName="mat2">
-        <option [ngValue]="null" disabled>Selecione</option>
-        <option *ngFor="let a of agentes$ | async" [ngValue]="a.matricula">{{ a.matricula }} - {{ a.nome }}</option>
-      </select>
+    <ng-template #mat2Search_>
+      <div class="autocomplete">
+        <input type="text" id="mat2" class="form-control" autocomplete="off"
+          placeholder="Buscar por matrícula ou nome" [value]="mat2Search"
+          (input)="onMat2Input($any($event.target).value)" (focus)="mat2Open = true" (blur)="closeMat2()" />
+        <ul class="autocomplete-list" *ngIf="mat2Open && mat2Results.length">
+          <li *ngFor="let a of mat2Results" class="autocomplete-item" (mousedown)="selectMat2(a)">
+            {{ a.matricula }} - {{ a.nome }}
+          </li>
+        </ul>
+        <div class="autocomplete-empty" *ngIf="mat2Open && mat2Search && !mat2Results.length">
+          Nenhum agente encontrado
+        </div>
+      </div>
     </ng-template>
   </div>
 
