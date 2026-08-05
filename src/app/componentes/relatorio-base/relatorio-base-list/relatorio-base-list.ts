@@ -6,6 +6,7 @@ import { RelatorioBaseService } from '../../../services/relatorio-base.service';
 import { RelatorioBaseFormComponent } from '../relatorio-base-form/relatorio-base-form';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { UserContextService } from '../../../services/user-context.service';
 import { HeroIconComponent } from '../../../shared/icons/heroicons';
 
 /** Modos de visualização disponíveis para a lista de relatórios. */
@@ -22,6 +23,18 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
   private readonly service = inject(RelatorioBaseService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly userCtx = inject(UserContextService);
+
+  /**
+   * Modo consulta (rota /meus-relatorios): lista apenas os relatórios do
+   * usuário logado, sem o formulário de cadastro e sem o recorte dos 10 mais
+   * recentes. O modo padrão (rota /relatorio-base) segue o fluxo de cadastro,
+   * filtrado por gerência/turno/data vindos do menu.
+   */
+  readonly modoConsulta = this.route.snapshot.data['consulta'] === true;
+
+  /** Matrícula do usuário logado, usada como critério no modo consulta */
+  private readonly matriculaLogada = Number(this.userCtx.getCurrentUserId()) || null;
 
   // Dados
   relatorios: RelatorioBase[] = [];
@@ -69,7 +82,8 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
 
   // Permissões/labels de status
   canEdit(r: RelatorioBase): boolean {
-    return r.status === 'em_preenchimento';
+    // No modo consulta não há formulário na tela, então não há edição
+    return r.status === 'em_preenchimento' && !this.modoConsulta;
   }
 
   statusLabel(status?: string): string {
@@ -140,26 +154,39 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
     if (this.filterDebounce) clearTimeout(this.filterDebounce);
   }
 
+  /**
+   * No modo consulta, o relatório "pertence" ao usuário quando ele é uma das
+   * matrículas do relatório (Mat. 1 ou Mat. 2) ou foi quem o criou.
+   */
+  private pertenceAoUsuario(r: RelatorioBase): boolean {
+    const mat = this.matriculaLogada;
+    if (mat == null) return false;
+    return r.mat1 === mat || r.mat2 === mat || String(r.criadoPor ?? '') === String(mat);
+  }
+
   // Filtrados
   get filtrados(): RelatorioBase[] {
     const f = this.filtro.trim().toLowerCase();
-    // Aplica filtros de gerência/turno/mat1/mat2 vindos do modal externo (query params)
-    const byFixed = this.relatorios.filter(r => {
-      const okGer = this.filterGerencia
-        ? String(r.gerencia || '').toLowerCase() === String(this.filterGerencia || '').toLowerCase()
-        : true;
-      const okTur = this.filterTurno
-        ? String(r.turno || '').toLowerCase() === String(this.filterTurno || '').toLowerCase()
-        : true;
-      const okMat1 = this.defaultMat1
-        ? r.mat1 === this.defaultMat1
-        : true;
-      const okMat2 = this.defaultMat2
-        ? r.mat2 === this.defaultMat2
-        : true;
-      return okGer && okTur && okMat1 && okMat2;
-    });
-    
+    // No modo consulta o critério é a titularidade; no cadastro, os filtros
+    // de gerência/turno/mat1/mat2 vindos do modal externo (query params).
+    const byFixed = this.modoConsulta
+      ? this.relatorios.filter(r => this.pertenceAoUsuario(r))
+      : this.relatorios.filter(r => {
+        const okGer = this.filterGerencia
+          ? String(r.gerencia || '').toLowerCase() === String(this.filterGerencia || '').toLowerCase()
+          : true;
+        const okTur = this.filterTurno
+          ? String(r.turno || '').toLowerCase() === String(this.filterTurno || '').toLowerCase()
+          : true;
+        const okMat1 = this.defaultMat1
+          ? r.mat1 === this.defaultMat1
+          : true;
+        const okMat2 = this.defaultMat2
+          ? r.mat2 === this.defaultMat2
+          : true;
+        return okGer && okTur && okMat1 && okMat2;
+      });
+
     let filtered = byFixed;
     if (f) {
       filtered = byFixed.filter(r => {
@@ -174,8 +201,13 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
       });
     }
     
-    // Retorna os 10 últimos registros (mais recentes por createdAt)
     if (filtered.length === 0) return [];
+
+    // Na consulta o usuário precisa ver todo o histórico dele; a ordenação
+    // fica a cargo do getter `sorted` e da paginação.
+    if (this.modoConsulta) return filtered;
+
+    // No cadastro, retorna os 10 últimos registros (mais recentes por createdAt)
     const sorted = [...filtered].sort((a, b) => {
       const timeA = new Date(a.createdAt as any).getTime() || 0;
       const timeB = new Date(b.createdAt as any).getTime() || 0;
@@ -242,6 +274,9 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
   }
 
   startEdit(item: RelatorioBase): void {
+    // O duplo clique nas linhas/cards também chama aqui; no modo consulta
+    // (somente leitura) não há formulário para receber a edição.
+    if (this.modoConsulta) return;
     this.selected = { ...item };
     // Rola a tela até o formulário para tornar a edição visível
     setTimeout(() => {

@@ -85,10 +85,13 @@ export class RelatorioBaseDetalhe implements OnInit {
 
   get atividadesOrdenadas(): ItemAtividade[] {
     return [...this.atividades].sort((a, b) => {
-      const ta = (a?.createdAt ? new Date(a.createdAt).getTime() : a?.chegada ? new Date(a.chegada).getTime() : 0);
-      const tb = (b?.createdAt ? new Date(b.createdAt).getTime() : b?.chegada ? new Date(b.chegada).getTime() : 0);
-      // Descrescente: mais recente primeiro
-      return tb - ta;
+      // Crescente pelo número do item
+      const diff = (Number(a?.item) || 0) - (Number(b?.item) || 0);
+      if (diff !== 0) return diff;
+      // Empate (itens com o mesmo número): mantém ordem estável pela criação
+      const ta = a?.createdAt ? new Date(a.createdAt).getTime() : a?.chegada ? new Date(a.chegada).getTime() : 0;
+      const tb = b?.createdAt ? new Date(b.createdAt).getTime() : b?.chegada ? new Date(b.chegada).getTime() : 0;
+      return ta - tb;
     });
   }
 

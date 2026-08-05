@@ -29,6 +29,14 @@ export const routes: Routes = [
     canActivate: [requireAuthGuard]
   },
   {
+    // Consulta dos relatórios do próprio usuário: reaproveita a lista do
+    // relatório base em modo somente-consulta (sem formulário de cadastro).
+    path: 'meus-relatorios',
+    loadComponent: () => import('./componentes/relatorio-base/relatorio-base-list/relatorio-base-list').then(m => m.RelatorioBaseList),
+    canActivate: [requireAuthGuard],
+    data: { consulta: true }
+  },
+  {
     path: 'relatorio-base/:id',
     loadComponent: () => import('./componentes/relatorio-base/relatorio-base-detalhe/relatorio-base-detalhe').then(m => m.RelatorioBaseDetalhe),
     canActivate: [requireAuthGuard]

@@ -1,8 +1,8 @@
 <div class="container py-4">
   <div class="page-header">
     <div class="header-content">
-      <h1>Relatório</h1>
-      <p>Preenchimento do cabeçalho do relatório</p>
+      <h1>{{ modoConsulta ? 'Meus Relatórios' : 'Relatório' }}</h1>
+      <p>{{ modoConsulta ? 'Relatórios em que você é Mat. 1, Mat. 2 ou o criador' : 'Preenchimento do cabeçalho do relatório' }}</p>
     </div>
     <div class="header-actions">
       <a class="btn btn-outline-secondary" [routerLink]="['/menu']">
@@ -13,8 +13,8 @@
   </div>
 
   <div class="content-grid">
-    <!-- Formulário -->
-    <div class="form-section" #formTop>
+    <!-- Formulário (oculto no modo consulta, que é somente leitura) -->
+    <div class="form-section" #formTop *ngIf="!modoConsulta">
       <div class="section-card">
         <div class="section-header">
           <hero-icon [name]="selected?.idRelatorio ? 'pencil-square' : 'document-text'" size="1.25rem"></hero-icon>
@@ -32,7 +32,8 @@
       <div class="section-card">
         <div class="section-header">
           <hero-icon name="document-duplicate" size="1.25rem"></hero-icon>
-          <span>Lista de Relatórios</span>
+          <span>{{ modoConsulta ? 'Meus Relatórios' : 'Lista de Relatórios' }}</span>
+          <span class="badge-count" *ngIf="modoConsulta && total > 0">{{ total }}</span>
           <div class="view-toggle" role="group" aria-label="Alternar visualização da lista">
             <button type="button" class="view-btn" [class.active]="viewMode === 'lista'"
               [attr.aria-pressed]="viewMode === 'lista'" (click)="setViewMode('lista')"

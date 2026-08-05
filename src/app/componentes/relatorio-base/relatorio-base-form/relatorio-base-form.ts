@@ -263,7 +263,7 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit, OnDestroy 
     const current = (this.form.get('relatorioGeralDescritivo')?.value ?? '').toString();
     this.recordingBaseText = current;
     const started = this.speech.start({
-      onText: (text, isFinal) => this.appendSpeech(text, isFinal),
+      onText: (finalText, interimText) => this.appendSpeech(finalText, interimText),
       onEnd: () => {
         this.gravando = false;
       },
@@ -285,6 +285,8 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit, OnDestroy 
 
   clearRelatorioGeral(): void {
     this.stopRecording();
+    // Zera a base para que um resultado tardio da gravação não ressuscite o texto
+    this.recordingBaseText = '';
     this.form.get('relatorioGeralDescritivo')?.setValue('');
     this.form.get('relatorioGeralDescritivo')?.markAsDirty();
   }

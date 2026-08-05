@@ -86,8 +86,19 @@ export class Menu implements OnInit {
 
   protected readonly menuItems = signal<MenuItem[]>([
     { icon: 'mdi-file-document', heroIcon: 'document-text', label: 'Cadastro de Relatório', route: '/relatorio-base' },
+    { icon: 'mdi-file-search', heroIcon: 'magnifying-glass', label: 'Meus Relatórios', route: '/meus-relatorios' },
     { icon: 'mdi-account-search', heroIcon: 'user-circle', label: 'Revisão do Coordenador', route: '/relatorios-coordenador' },
   ]);
+
+  /**
+   * Rotas disponíveis para qualquer perfil, inclusive no mobile: o cadastro do
+   * relatório e a consulta dos relatórios do próprio usuário.
+   */
+  private readonly rotasBasicas = ['/relatorio-base', '/meus-relatorios'];
+
+  isRotaBasica(route: string): boolean {
+    return this.rotasBasicas.includes(route);
+  }
 
   // Relatórios agrupados em submenu colapsável
   protected readonly reportItems = signal<MenuItem[]>([
@@ -103,6 +114,25 @@ export class Menu implements OnInit {
     { icon: 'mdi-table-large', heroIcon: 'table-cells', label: 'Produtividade', route: '/tabela-produtividade' },
     { icon: 'mdi-table-large', heroIcon: 'table-cells', label: 'Ocorrências', route: '/tabela-ocorrencias' }
   ]);
+
+  // ===== Escolha inicial (pós-login): consultar ou cadastrar =====
+  showEntryModal = false;
+
+  openEntryModal() { this.showEntryModal = true; }
+  closeEntryModal() { this.showEntryModal = false; }
+
+  /** Opção 1: consulta usando os dados do login (relatórios do próprio usuário) */
+  irParaMeusRelatorios() {
+    this.showEntryModal = false;
+    if (this.isMobile) this.sidebarOpen = false;
+    this.router.navigate(['/meus-relatorios']);
+  }
+
+  /** Opção 2: fluxo existente, com gerência, data e turno */
+  irParaCadastroRelatorio() {
+    this.showEntryModal = false;
+    this.openRelatorioBaseModal();
+  }
 
   showFilterModal = false;
   selectedGerencia = '';
@@ -247,11 +277,10 @@ export class Menu implements OnInit {
   async ngOnInit(): Promise<void> {
     this.updateIsMobile();
     await this.loadUserInfo();
-    // No mobile, vai direto para o fluxo de Relatório Base (abre o modal de filtros)
-    if (this.isMobile) {
-      this.sidebarOpen = false;
-      this.openRelatorioBaseModal();
-    }
+    // Ao entrar no menu, oferece as duas opções: consultar os próprios
+    // relatórios ou cadastrar um novo informando gerência, data e turno.
+    this.sidebarOpen = false;
+    this.openEntryModal();
   }
 
   private async loadUserInfo(): Promise<void> {

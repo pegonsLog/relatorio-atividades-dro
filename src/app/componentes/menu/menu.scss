@@ -426,6 +426,76 @@
   padding: 1.5rem;
 }
 
+// Opções da escolha inicial (consultar x cadastrar)
+.entry-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.entry-option {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
+  padding: 1rem;
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+
+  .entry-option-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.75rem;
+    background: #e0f2fe;
+    color: #1BA1DD;
+  }
+
+  .entry-option-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .entry-option-title {
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .entry-option-desc {
+    font-size: 0.8125rem;
+    color: #64748b;
+    line-height: 1.35;
+  }
+
+  .entry-option-arrow {
+    margin-left: auto;
+    flex: 0 0 auto;
+    color: #94a3b8;
+  }
+
+  &:hover {
+    border-color: #1BA1DD;
+    background: #f8fafc;
+    box-shadow: 0 2px 8px rgba(27, 161, 221, 0.12);
+
+    .entry-option-arrow { color: #1BA1DD; }
+  }
+
+  &:focus-visible {
+    outline: 2px solid #1BA1DD;
+    outline-offset: 2px;
+  }
+}
+
 // Aviso de nova versão dentro do modal
 .update-notice {
   display: flex;

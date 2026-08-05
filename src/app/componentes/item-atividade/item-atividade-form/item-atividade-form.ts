@@ -246,6 +246,8 @@ export class ItemAtividadeForm implements OnInit, OnDestroy {
     if (this.recordingField === field) {
       this.stopRecording();
     }
+    // Zera a base para que um resultado tardio da gravação não ressuscite o texto
+    this.recordingBaseText = '';
     this.atividadeForm.get(field)?.setValue('');
     this.atividadeForm.get(field)?.markAsDirty();
   }

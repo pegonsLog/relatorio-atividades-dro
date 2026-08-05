@@ -48,6 +48,18 @@
   hero-icon { color: #1BA1DD; }
 }
 
+/* Contador de registros no cabeçalho (modo consulta) */
+.badge-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  background: #e0f2fe;
+  color: #0369a1;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 /* Alternador de visualização (lista x cards) */
 .view-toggle {
   margin-left: auto;

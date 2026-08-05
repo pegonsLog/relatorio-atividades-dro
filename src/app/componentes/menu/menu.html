@@ -23,8 +23,8 @@
         </h3>
 
         @for (item of menuItems(); track item.route) {
-        <a class="nav-item" [class.hide-on-mobile]="item.route !== '/relatorio-base'"
-          [class.hide-usuario-comum]="item.route !== '/relatorio-base' && !isPerfilAvancado"
+        <a class="nav-item" [class.hide-on-mobile]="!isRotaBasica(item.route)"
+          [class.hide-usuario-comum]="!isRotaBasica(item.route) && !isPerfilAvancado"
           [routerLink]="requiresDirectNav(item.route) ? item.route : undefined" (click)="onMenuClick($event, item)"
           routerLinkActive="active">
           <hero-icon [name]="item.heroIcon" size="1.25rem"></hero-icon>
@@ -170,6 +170,61 @@
         <hero-icon name="check" size="1.25rem"></hero-icon>
         Continuar
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Escolha inicial: consultar os próprios relatórios ou cadastrar um novo -->
+<div *ngIf="showEntryModal" class="modal-overlay" (click)="closeEntryModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <img src="assets/logo/BHTrans.png" alt="BHTRANS" class="modal-logo" />
+      <div>
+        <h5 class="modal-title">O que você deseja fazer?</h5>
+      </div>
+      <button type="button" class="modal-close" (click)="closeEntryModal()" aria-label="Fechar">
+        <hero-icon name="x-mark" size="1.5rem"></hero-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="update-notice" *ngIf="atualizacaoDisponivel()">
+        <div class="update-notice-text">
+          <hero-icon name="arrow-path" size="1.125rem"></hero-icon>
+          <span>Uma nova versão do aplicativo está disponível.</span>
+        </div>
+        <button type="button" class="btn-update-now" (click)="atualizarApp()" [disabled]="atualizando()">
+          <hero-icon name="arrow-path" size="1rem" [class.girando]="atualizando()"></hero-icon>
+          {{ atualizando() ? 'Atualizando...' : 'Atualizar agora' }}
+        </button>
+      </div>
+
+      <div class="entry-options">
+        <button type="button" class="entry-option" (click)="irParaMeusRelatorios()">
+          <span class="entry-option-icon">
+            <hero-icon name="magnifying-glass" size="1.5rem"></hero-icon>
+          </span>
+          <span class="entry-option-text">
+            <span class="entry-option-title">Consultar meus relatórios</span>
+            <span class="entry-option-desc">
+              Usa a sua matrícula ({{ displayName || 'usuário logado' }}) para listar os relatórios em que você aparece
+            </span>
+          </span>
+          <hero-icon name="chevron-right" size="1.125rem" class="entry-option-arrow"></hero-icon>
+        </button>
+
+        <button type="button" class="entry-option" (click)="irParaCadastroRelatorio()">
+          <span class="entry-option-icon">
+            <hero-icon name="document-text" size="1.5rem"></hero-icon>
+          </span>
+          <span class="entry-option-text">
+            <span class="entry-option-title">Cadastrar relatório</span>
+            <span class="entry-option-desc">
+              Informe gerência, data e turno para carregar o relatório base
+            </span>
+          </span>
+          <hero-icon name="chevron-right" size="1.125rem" class="entry-option-arrow"></hero-icon>
+        </button>
+      </div>
     </div>
   </div>
 </div>
