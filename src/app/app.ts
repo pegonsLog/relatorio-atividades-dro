@@ -12,7 +12,7 @@ import { PwaUpdateService } from './services/pwa-update.service';
 export class App implements OnInit {
   private readonly pwaUpdate = inject(PwaUpdateService);
 
-  protected readonly title = signal('Relatório Diário de Atividades - DRO');
+  protected readonly title = signal('Relatório Diário de Atividades');
   protected readonly isMenuOpen = signal(true);
 
   // Sinaliza quando há uma nova versão disponível (mostra o aviso).
