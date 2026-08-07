@@ -43,3 +43,7 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Kiro: config de MCP é local da máquina (contém caminho absoluto em --dir).
+# O resto de .kiro/ (steering, hooks, specs) continua versionado.
+.kiro/settings/mcp.json
