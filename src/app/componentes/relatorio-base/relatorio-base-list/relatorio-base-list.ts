@@ -82,13 +82,30 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
 
   // Permissões/labels de status
   canEdit(r: RelatorioBase): boolean {
-    // No modo consulta não há formulário na tela, então não há edição
+    // Editável enquanto em preenchimento e também quando o coordenador
+    // devolveu com pendência, para o agente corrigir e reenviar.
+    // No modo consulta não há formulário na tela, então não há edição.
+    const editavel = r.status === 'em_preenchimento' || r.status === 'lido_pendente';
+    return editavel && !this.modoConsulta;
+  }
+
+  /**
+   * Exclusão é mais restritiva que edição: só antes do primeiro envio. Depois
+   * que o coordenador revisou, o agente corrige, mas não apaga o relatório.
+   */
+  canDelete(r: RelatorioBase): boolean {
     return r.status === 'em_preenchimento' && !this.modoConsulta;
+  }
+
+  /** Indica que o relatório voltou do coordenador com pendência a corrigir */
+  temPendencia(r: RelatorioBase): boolean {
+    return r.status === 'lido_pendente';
   }
 
   statusLabel(status?: string): string {
     switch (status) {
       case 'lido': return 'Lido';
+      case 'lido_pendente': return 'Lido/Pendente';
       case 'pendente': return 'Pendente';
       case 'em_preenchimento': return 'Em preenchimento';
       default: return 'Em preenchimento';
@@ -98,6 +115,7 @@ export class RelatorioBaseList implements OnInit, OnDestroy {
   statusClass(status?: string): string {
     switch (status) {
       case 'lido': return 'text-bg-success';
+      case 'lido_pendente': return 'text-bg-danger';
       case 'pendente': return 'text-bg-warning';
       case 'em_preenchimento': return 'text-bg-info';
       default: return 'text-bg-info';

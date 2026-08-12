@@ -71,12 +71,130 @@
     }
   }
   
+  /* Os controles são botões: remove a aparência padrão do navegador */
+  background: none;
+  border: none;
+  font: inherit;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
   &.active.pendente {
     background: #f59e0b;
   }
   
   &.active.lido {
     background: #22c55e;
+  }
+
+  &.active.lido-pendente {
+    background: #ef4444;
+  }
+}
+
+/* Bloco de pendência dentro do documento (sai também na impressão) */
+.doc-pendencia {
+  margin: 0 0 3mm;
+  padding: 3mm 4mm;
+  border: 1px solid #ef4444;
+  border-left: 3px solid #ef4444;
+  border-radius: 2px;
+  background: #fef2f2;
+
+  h2 {
+    margin: 0 0 1mm;
+    font-size: 12px;
+    color: #b91c1c;
+  }
+
+  p {
+    margin: 0;
+    white-space: pre-wrap;
+  }
+}
+
+/* Modal de registro da pendência */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.modal-container {
+  width: 100%;
+  max-width: 32rem;
+  background: #ffffff;
+  border-radius: 0.9rem;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+  overflow: hidden;
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #eef1f6;
+    color: #b91c1c;
+
+    .modal-title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .modal-close {
+      margin-left: auto;
+      padding: 0.25rem;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+
+      &:hover { color: #475569; }
+    }
+  }
+
+  .modal-body {
+    padding: 1.25rem;
+
+    .modal-hint {
+      margin: 0 0 1rem;
+      font-size: 0.875rem;
+      color: #64748b;
+      line-height: 1.45;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .char-counter {
+      margin-top: 0.35rem;
+      text-align: right;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid #eef1f6;
+    background: #f8fafc;
   }
 }
 

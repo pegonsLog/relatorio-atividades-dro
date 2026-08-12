@@ -238,6 +238,23 @@ export class RelatoriosCoordenadorComponent implements OnInit {
     this.page = Math.min(this.totalPages, Math.max(1, p));
   }
 
+  // Rótulo/cor do status (inclui Lido/Pendente, devolvido com pendência)
+  statusLabel(status?: string): string {
+    switch (status) {
+      case 'lido': return 'Lido';
+      case 'lido_pendente': return 'Lido/Pendente';
+      default: return 'Pendente';
+    }
+  }
+
+  statusClass(status?: string): string {
+    switch (status) {
+      case 'lido': return 'text-bg-success';
+      case 'lido_pendente': return 'text-bg-danger';
+      default: return 'text-bg-warning';
+    }
+  }
+
   goToRelatorio(id: string | number | undefined) {
     if (id) {
       this.router.navigate(['/relatorio-base', id]);

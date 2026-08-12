@@ -58,6 +58,18 @@
     </div>
   </div>
 
+  <!-- Pendência devolvida pelo coordenador -->
+  <div class="pendencia-box" *ngIf="relatorio!.status === 'lido_pendente' && relatorio!.pendencia">
+    <div class="pendencia-title">
+      <hero-icon name="exclamation-triangle" size="1.125rem"></hero-icon>
+      Pendência apontada pelo coordenador
+    </div>
+    <p class="pendencia-text">{{ relatorio!.pendencia }}</p>
+    <p class="pendencia-hint">
+      Corrija o que foi apontado e reenvie o relatório para nova revisão.
+    </p>
+  </div>
+
   <!-- Ações -->
   <div class="section-actions" *ngIf="podeEditar">
     <button class="btn btn-primary" (click)="abrirForm()">

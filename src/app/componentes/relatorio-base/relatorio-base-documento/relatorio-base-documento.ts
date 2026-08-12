@@ -1,7 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RelatorioBase, ItemAtividade, ItemProdutividade, ItemOcorrencia } from '../../../models';
+import { StatusRelatorio } from '../../../models/relatorio-base.interface';
 import { RelatorioBaseService } from '../../../services/relatorio-base.service';
 import { ItemAtividadeService } from '../../../services/item-atividade.service';
 import { ItemProdutividadeService } from '../../../services/item-produtividade.service';
@@ -11,7 +13,7 @@ import { HeroIconComponent } from '../../../shared/icons/heroicons';
 @Component({
   selector: 'app-relatorio-base-documento',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeroIconComponent],
+  imports: [CommonModule, FormsModule, RouterModule, HeroIconComponent],
   templateUrl: './relatorio-base-documento.html',
   styleUrls: ['./relatorio-base-documento.scss']
 })
@@ -100,13 +102,47 @@ export class RelatorioBaseDocumento implements OnInit {
   }
 
   // Atualizar status (apenas coordenador)
-  async setStatus(status: 'pendente' | 'lido'): Promise<void> {
+  async setStatus(status: StatusRelatorio): Promise<void> {
     if (!this.idRelatorio || this.updatingStatus) return;
     this.updatingStatus = true;
     try {
       await this.relatorioService.updateStatus(this.idRelatorio, status);
     } catch (e) {
       console.error('Erro ao atualizar status:', e);
+    } finally {
+      this.updatingStatus = false;
+    }
+  }
+
+  // ===== Pendência do coordenador (status 'lido_pendente') =====
+
+  showPendenciaModal = false;
+  pendenciaTexto = '';
+
+  get pendenciaValida(): boolean {
+    return this.pendenciaTexto.trim().length > 0;
+  }
+
+  /** Abre o modal já com a pendência atual, permitindo corrigir o texto */
+  abrirPendencia(): void {
+    if (this.updatingStatus) return;
+    this.pendenciaTexto = this.relatorio?.pendencia || '';
+    this.showPendenciaModal = true;
+  }
+
+  fecharPendencia(): void {
+    this.showPendenciaModal = false;
+  }
+
+  /** Marca o relatório como Lido/Pendente e grava a pendência descrita */
+  async confirmarPendencia(): Promise<void> {
+    if (!this.idRelatorio || !this.pendenciaValida || this.updatingStatus) return;
+    this.updatingStatus = true;
+    try {
+      await this.relatorioService.updateStatus(this.idRelatorio, 'lido_pendente', this.pendenciaTexto);
+      this.showPendenciaModal = false;
+    } catch (e) {
+      console.error('Erro ao registrar pendência:', e);
     } finally {
       this.updatingStatus = false;
     }

@@ -8,14 +8,20 @@
     <div class="status-controls" *ngIf="fromCoord && relatorio">
       <span class="status-label">Status:</span>
       <div class="radio-group">
-        <label class="radio-option pendente" [class.active]="relatorio.status !== 'lido'">
-          <input type="radio" name="status" value="pendente" [checked]="relatorio.status !== 'lido'" (change)="setStatus('pendente')" [disabled]="updatingStatus" />
+        <button type="button" class="radio-option pendente" [class.active]="relatorio.status === 'pendente'"
+          [attr.aria-pressed]="relatorio.status === 'pendente'" [disabled]="updatingStatus"
+          (click)="setStatus('pendente')">
           <span class="radio-label">Pendente</span>
-        </label>
-        <label class="radio-option lido" [class.active]="relatorio.status === 'lido'">
-          <input type="radio" name="status" value="lido" [checked]="relatorio.status === 'lido'" (change)="setStatus('lido')" [disabled]="updatingStatus" />
+        </button>
+        <button type="button" class="radio-option lido" [class.active]="relatorio.status === 'lido'"
+          [attr.aria-pressed]="relatorio.status === 'lido'" [disabled]="updatingStatus" (click)="setStatus('lido')">
           <span class="radio-label">Lido</span>
-        </label>
+        </button>
+        <button type="button" class="radio-option lido-pendente" [class.active]="relatorio.status === 'lido_pendente'"
+          [attr.aria-pressed]="relatorio.status === 'lido_pendente'" [disabled]="updatingStatus"
+          (click)="abrirPendencia()" title="Aprovar com pendência a ser corrigida pelo agente">
+          <span class="radio-label">Lido/Pendente</span>
+        </button>
       </div>
     </div>
     <button class="btn btn-primary" (click)="print()">
@@ -51,6 +57,12 @@
         <div><strong>Coordenação:</strong> {{ relatorio?.coord || '-' }}</div>
         <div><strong>Supervisão:</strong> {{ relatorio?.superv || '-' }}</div>
       </div>
+    </section>
+
+    <!-- Pendência apontada pelo coordenador -->
+    <section class="doc-pendencia avoid-break" *ngIf="relatorio?.status === 'lido_pendente' && relatorio?.pendencia">
+      <h2>Pendência apontada pelo coordenador</h2>
+      <p>{{ relatorio?.pendencia }}</p>
     </section>
 
     <section class="doc-section avoid-break">
@@ -150,4 +162,35 @@
       <div>Gerado em {{ now | date:'dd/MM/yyyy HH:mm' }}</div>
     </footer>
   </ng-container>
+</div>
+
+<!-- Modal: descrever a pendência ao marcar Lido/Pendente -->
+<div *ngIf="showPendenciaModal" class="modal-overlay no-print" (click)="fecharPendencia()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <hero-icon name="exclamation-triangle" size="1.5rem"></hero-icon>
+      <h5 class="modal-title">Registrar pendência</h5>
+      <button type="button" class="modal-close" (click)="fecharPendencia()" aria-label="Fechar">
+        <hero-icon name="x-mark" size="1.5rem"></hero-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-hint">
+        Descreva o que precisa ser corrigido. O relatório ficará com o status
+        <strong>Lido/Pendente</strong> e o agente poderá editar e reenviar para nova revisão.
+      </p>
+      <label class="form-label" for="pendenciaTexto">Pendência</label>
+      <textarea id="pendenciaTexto" class="form-control" rows="4" maxlength="500"
+        placeholder="Ex.: informar o horário de saída da atividade 3" [(ngModel)]="pendenciaTexto"></textarea>
+      <div class="char-counter">{{ pendenciaTexto.length }}/500</div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="fecharPendencia()">Cancelar</button>
+      <button type="button" class="btn btn-primary" (click)="confirmarPendencia()"
+        [disabled]="!pendenciaValida || updatingStatus">
+        <hero-icon name="check" size="1.125rem"></hero-icon>
+        {{ updatingStatus ? 'Salvando...' : 'Salvar pendência' }}
+      </button>
+    </div>
+  </div>
 </div>

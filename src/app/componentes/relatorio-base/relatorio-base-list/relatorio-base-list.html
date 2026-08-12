@@ -158,7 +158,7 @@
                     <button class="btn btn-sm btn-outline-primary" (click)="startEdit(r)" title="Editar" *ngIf="canEdit(r)">
                       <hero-icon name="pencil" size="1rem"></hero-icon>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" (click)="openDelete(r.idRelatorio!)" title="Excluir" *ngIf="canEdit(r)">
+                    <button class="btn btn-sm btn-outline-danger" (click)="openDelete(r.idRelatorio!)" title="Excluir" *ngIf="canDelete(r)">
                       <hero-icon name="trash" size="1rem"></hero-icon>
                     </button>
                   </div>
@@ -185,6 +185,14 @@
             <div class="data-card-badges">
               <span class="badge text-bg-primary">{{ r.gerencia }}</span>
               <span class="badge text-bg-secondary">{{ r.turno }}</span>
+            </div>
+            <!-- Pendência devolvida pelo coordenador -->
+            <div class="pendencia-box" *ngIf="temPendencia(r) && r.pendencia">
+              <div class="pendencia-title">
+                <hero-icon name="exclamation-triangle" size="1rem"></hero-icon>
+                Pendência do coordenador
+              </div>
+              <p class="pendencia-text">{{ r.pendencia }}</p>
             </div>
             <div class="data-card-body">
               <div class="data-card-field">
@@ -227,7 +235,7 @@
                 <hero-icon name="pencil" size="1rem"></hero-icon>
               </button>
               <button class="btn btn-sm btn-outline-danger" (click)="openDelete(r.idRelatorio!)" title="Excluir"
-                *ngIf="canEdit(r)">
+                *ngIf="canDelete(r)">
                 <hero-icon name="trash" size="1rem"></hero-icon>
               </button>
             </div>

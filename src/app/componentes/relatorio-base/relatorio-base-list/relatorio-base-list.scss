@@ -249,3 +249,32 @@
     .view-btn-label { display: none; }
   }
 }
+
+/* Pendência apontada pelo coordenador (status Lido/Pendente) */
+.pendencia-box {
+  margin: 0.5rem 0 0.25rem;
+  padding: 0.6rem 0.75rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 3px solid #ef4444;
+  border-radius: 0.5rem;
+
+  .pendencia-title {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #b91c1c;
+  }
+
+  .pendencia-text {
+    margin: 0.3rem 0 0;
+    font-size: 0.8125rem;
+    color: #7f1d1d;
+    line-height: 1.4;
+    white-space: pre-wrap;
+  }
+}

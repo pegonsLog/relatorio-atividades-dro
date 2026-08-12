@@ -39,9 +39,10 @@ export class RelatorioBaseDetalhe implements OnInit {
   contagemProd: { [idAtividade: string]: number } = {};
   contagemOcor: { [idAtividade: string]: number } = {};
 
-  // Verifica se o relatório pode ser editado (apenas enquanto em preenchimento)
+  // Editável enquanto em preenchimento e também quando o coordenador devolveu
+  // com pendência, para o agente corrigir os itens e reenviar.
   get podeEditar(): boolean {
-    return this.relatorio?.status === 'em_preenchimento';
+    return this.relatorio?.status === 'em_preenchimento' || this.relatorio?.status === 'lido_pendente';
   }
 
   ngOnInit(): void {

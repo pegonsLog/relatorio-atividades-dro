@@ -453,3 +453,34 @@
     justify-content: center;
   }
 }
+
+/* Pendência apontada pelo coordenador (status Lido/Pendente) */
+.pendencia-box {
+  margin: 1rem 0;
+  padding: 1rem 1.1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 4px solid #ef4444;
+  border-radius: 0.75rem;
+
+  .pendencia-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    color: #b91c1c;
+  }
+
+  .pendencia-text {
+    margin: 0.5rem 0 0;
+    color: #7f1d1d;
+    line-height: 1.45;
+    white-space: pre-wrap;
+  }
+
+  .pendencia-hint {
+    margin: 0.5rem 0 0;
+    font-size: 0.8125rem;
+    color: #9f1239;
+  }
+}

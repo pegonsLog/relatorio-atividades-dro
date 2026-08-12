@@ -90,22 +90,36 @@ export class RelatorioBaseService {
     });
   }
 
-  // UPDATE STATUS (envio para revisão e ações do coordenador)
-  updateStatus(id: string | number, status: StatusRelatorio): Promise<void> {
+  /**
+   * UPDATE STATUS (envio para revisão e ações do coordenador).
+   *
+   * A pendência acompanha o status: ao marcar 'lido_pendente' o texto informado
+   * é gravado; ao marcar 'lido' a pendência é limpa, porque o relatório foi
+   * aprovado. No reenvio do agente ('pendente') o texto é preservado, para o
+   * coordenador conferir o que havia sido pedido.
+   */
+  updateStatus(id: string | number, status: StatusRelatorio, pendencia?: string): Promise<void> {
     return runInInjectionContext(this.injector, async () => {
       const userId = this.userCtx.getCurrentUserId() || undefined;
       const ref = doc(this.firestore, 'relatorio-base', String(id));
-      const data = {
+      const data: any = {
         status,
         updatedAt: new Date(),
         modificadoPor: userId,
       };
+      if (status === 'lido_pendente') {
+        data.pendencia = (pendencia || '').trim();
+      } else if (status === 'lido') {
+        data.pendencia = '';
+      }
       try {
         await updateDoc(ref, data);
         const arr = [...this.subject.value];
         const i = arr.findIndex(r => r.idRelatorio === id);
         if (i !== -1) {
           arr[i] = { ...arr[i], status, updatedAt: data.updatedAt, modificadoPor: data.modificadoPor };
+          // Só sobrescreve a pendência quando o status mexe nela
+          if ('pendencia' in data) arr[i].pendencia = data.pendencia;
           this.subject.next(arr);
         }
       } catch (error) {
@@ -170,6 +184,7 @@ export class RelatorioBaseService {
             superv: data['superv'] || 0,
             relatorioGeralDescritivo: data['relatorioGeralDescritivo'] || '',
             status: data['status'] || 'pendente',
+            pendencia: data['pendencia'] || '',
             createdAt: data['createdAt']?.toDate?.() || data['createdAt'] || undefined,
             updatedAt: data['updatedAt']?.toDate?.() || data['updatedAt'] || undefined,
             criadoPor: data['criadoPor'] || undefined,

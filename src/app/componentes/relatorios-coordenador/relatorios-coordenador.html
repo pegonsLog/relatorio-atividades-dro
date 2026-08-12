@@ -87,8 +87,8 @@
             <td>{{ r.mat2 }}</td>
             <td>{{ r.superv }}</td>
             <td>
-              <span class="badge" [ngClass]="r.status === 'lido' ? 'text-bg-success' : 'text-bg-warning'">
-                {{ r.status === 'lido' ? 'Lido' : 'Pendente' }}
+              <span class="badge" [ngClass]="statusClass(r.status)" [title]="r.pendencia || ''">
+                {{ statusLabel(r.status) }}
               </span>
             </td>
             <td class="text-end">
