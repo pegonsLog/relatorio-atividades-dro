@@ -78,6 +78,14 @@ export class RelatorioAnexos implements OnInit, OnChanges {
 
   // ===== Upload =====
 
+  /**
+   * Input que originou o arquivo selecionado. Guardamos a referência para
+   * poder limpá-lo DEPOIS do upload: zerar `input.value` enquanto o `File`
+   * ainda não foi lido invalida o blob em navegadores móveis (Safari/iOS),
+   * fazendo o upload enviar corpo vazio e o servidor responder HTTP 400.
+   */
+  private inputArquivo: HTMLInputElement | null = null;
+
   onArquivoSelecionado(evento: Event): void {
     const input = evento.target as HTMLInputElement;
     const selecionado = input.files?.[0] ?? null;
@@ -91,12 +99,19 @@ export class RelatorioAnexos implements OnInit, OnChanges {
     }
 
     this.arquivo = selecionado;
+    this.inputArquivo = input;
     // Sugere o nome do arquivo como nome do anexo, sem sobrescrever o que já foi digitado
     if (this.arquivo && !this.nome.trim()) {
       this.nome = this.arquivo.name.replace(/\.[^.]+$/, '');
     }
-    // Permite reenviar o mesmo arquivo depois de limpar a seleção
-    input.value = '';
+  }
+
+  /** Zera o input para permitir escolher o mesmo arquivo novamente */
+  private resetarInput(): void {
+    if (this.inputArquivo) {
+      this.inputArquivo.value = '';
+      this.inputArquivo = null;
+    }
   }
 
   limparSelecao(): void {
@@ -104,6 +119,7 @@ export class RelatorioAnexos implements OnInit, OnChanges {
     this.nome = '';
     this.descricao = '';
     this.erro = '';
+    this.resetarInput();
   }
 
   get podeEnviar(): boolean {
@@ -125,7 +141,10 @@ export class RelatorioAnexos implements OnInit, OnChanges {
       this.anexos = [novo, ...this.anexos];
       this.limparSelecao();
     } catch (e: any) {
+      // Mantém o detalhe técnico visível: 'storage/unknown' só é diagnosticável
+      // com a resposta do servidor que o SDK anexa ao erro.
       this.erro = e?.message || 'Falha ao enviar o arquivo.';
+      console.error('Falha no upload do anexo:', e);
     } finally {
       this.enviando = false;
       this.progresso = 0;

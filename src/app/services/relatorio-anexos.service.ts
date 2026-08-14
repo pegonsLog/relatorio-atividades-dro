@@ -3,11 +3,9 @@ import { Observable, from, map, catchError, of } from 'rxjs';
 import {
   Firestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where
 } from '@angular/fire/firestore';
-import {
-  Storage, ref, uploadBytesResumable, getDownloadURL, deleteObject
-} from '@angular/fire/storage';
 import { RelatorioAnexo } from '../models/relatorio-anexo.interface';
 import { UserContextService } from './user-context.service';
+import { firebaseConfig } from '../firebase.config';
 
 /** Progresso de um upload em andamento */
 export interface ProgressoUpload {
@@ -19,9 +17,17 @@ export interface ProgressoUpload {
 @Injectable({ providedIn: 'root' })
 export class RelatorioAnexosService {
   private readonly firestore = inject(Firestore);
-  private readonly storage = inject(Storage);
   private readonly userCtx = inject(UserContextService);
   private readonly injector = inject(Injector);
+
+  /**
+   * O arquivo vai por requisição direta à API REST do Storage, e não pelo SDK.
+   * Motivo: o SDK falhava com 'storage/unknown' + HTTP 400 no mobile sem expor
+   * a resposta do servidor, tornando o problema indiagnosticável. Com XHR
+   * mantemos o progresso do upload e conseguimos ler o corpo do erro.
+   */
+  private readonly bucket = firebaseConfig.storageBucket;
+  private readonly apiStorage = 'https://firebasestorage.googleapis.com/v0/b';
 
   private readonly COLECAO = 'relatorio-anexo';
   /** Tamanho máximo aceito por arquivo (20 MB), alinhado ao storage.rules */
@@ -81,33 +87,33 @@ export class RelatorioAnexosService {
       throw new Error(`Arquivo maior que o limite de ${this.formatarTamanho(this.TAMANHO_MAXIMO)}.`);
     }
 
+    // Lê TODO o conteúdo para memória antes de qualquer outra coisa. Enviar o
+    // `File` direto era o defeito: o blob podia ser desanexado entre a seleção
+    // e o envio, e o upload ia com corpo vazio criando um objeto de 0 byte sem
+    // erro nenhum. Com o buffer em mãos, o conteúdo não depende mais do input.
+    let conteudo: ArrayBuffer;
+    try {
+      conteudo = await arquivo.arrayBuffer();
+    } catch {
+      throw new Error('Não foi possível ler o arquivo. Selecione-o novamente.');
+    }
+    if (conteudo.byteLength === 0 || conteudo.byteLength !== arquivo.size) {
+      throw new Error(
+        `Leitura do arquivo incompleta (${conteudo.byteLength} de ${arquivo.size} bytes). Selecione-o novamente.`
+      );
+    }
+
     // Prefixo com timestamp evita colisão entre arquivos de mesmo nome
     const nomeSeguro = this.sanitizarNomeArquivo(arquivo.name);
     const caminho = `relatorio-anexos/${idRelatorio}/${Date.now()}_${nomeSeguro}`;
 
-    const url = await runInInjectionContext(this.injector, async () => {
-      const referencia = ref(this.storage, caminho);
-      const tarefa = uploadBytesResumable(referencia, arquivo, {
-        contentType: arquivo.type || 'application/octet-stream',
-      });
-
-      await new Promise<void>((resolve, reject) => {
-        tarefa.on(
-          'state_changed',
-          snap => {
-            const pct = snap.totalBytes
-              ? Math.round((snap.bytesTransferred / snap.totalBytes) * 100)
-              : 0;
-            onProgresso?.({ percentual: pct, concluido: false });
-          },
-          erro => reject(erro),
-          () => resolve()
-        );
-      });
-
-      return getDownloadURL(tarefa.snapshot.ref);
-    });
-
+    const url = await this.uploadViaRest(
+      caminho,
+      conteudo,
+      arquivo.type || 'application/octet-stream',
+      arquivo.size,
+      onProgresso
+    );
     onProgresso?.({ percentual: 100, concluido: true });
 
     const agora = new Date();
@@ -131,9 +137,7 @@ export class RelatorioAnexosService {
         return { ...registro, idAnexo: docRef.id } as RelatorioAnexo;
       } catch (erro) {
         // Metadados falharam: remove o arquivo para não deixar órfão no Storage
-        try {
-          await deleteObject(ref(this.storage, caminho));
-        } catch { /* melhor esforço */ }
+        await this.excluirArquivo(caminho);
         throw erro;
       }
     });
@@ -156,13 +160,7 @@ export class RelatorioAnexosService {
     return runInInjectionContext(this.injector, async () => {
       // Apaga o arquivo primeiro; se o objeto já não existir, segue adiante
       if (anexo.caminho) {
-        try {
-          await deleteObject(ref(this.storage, anexo.caminho));
-        } catch (erro: any) {
-          if (erro?.code !== 'storage/object-not-found') {
-            console.error('Erro ao excluir arquivo do Storage:', erro);
-          }
-        }
+        await this.excluirArquivo(anexo.caminho);
       }
       if (anexo.idAnexo) {
         await deleteDoc(doc(this.firestore, this.COLECAO, anexo.idAnexo));
@@ -188,6 +186,100 @@ export class RelatorioAnexosService {
       }
     }
     return total;
+  }
+
+  /**
+   * Envia o arquivo por XHR direto à API REST do Storage e devolve a URL de
+   * download. Usa XHR (não fetch) porque só ele expõe progresso de upload.
+   * Em caso de falha, a mensagem carrega o status e o corpo da resposta.
+   */
+  private uploadViaRest(
+    caminho: string,
+    conteudo: ArrayBuffer,
+    contentType: string,
+    tamanhoEsperado: number,
+    onProgresso?: (p: ProgressoUpload) => void
+  ): Promise<string> {
+    const endpoint =
+      `${this.apiStorage}/${this.bucket}/o?uploadType=media&name=${encodeURIComponent(caminho)}`;
+
+    return new Promise<string>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', endpoint, true);
+      xhr.setRequestHeader('Content-Type', contentType);
+
+      xhr.upload.onprogress = evento => {
+        if (evento.lengthComputable) {
+          const pct = Math.round((evento.loaded / evento.total) * 100);
+          onProgresso?.({ percentual: pct, concluido: false });
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status < 200 || xhr.status >= 300) {
+          reject(new Error(this.mensagemDeFalha(xhr.status, xhr.responseText)));
+          return;
+        }
+        try {
+          const corpo = JSON.parse(xhr.responseText || '{}');
+
+          // Rede de segurança: confere o que o servidor realmente gravou. Sem
+          // isso, um corpo vazio cria objeto de 0 byte e nós salvaríamos
+          // metadados apontando para um arquivo inútil.
+          const gravado = Number(corpo.size);
+          if (!Number.isFinite(gravado) || gravado !== tamanhoEsperado) {
+            this.excluirArquivo(caminho);
+            reject(new Error(
+              `O servidor gravou ${gravado || 0} de ${tamanhoEsperado} bytes. Envio descartado, tente novamente.`
+            ));
+            return;
+          }
+
+          const token = (corpo.downloadTokens || '').split(',')[0];
+          if (!token) {
+            reject(new Error('Upload concluído, mas o servidor não devolveu o token de download.'));
+            return;
+          }
+          resolve(
+            `${this.apiStorage}/${this.bucket}/o/${encodeURIComponent(caminho)}?alt=media&token=${token}`
+          );
+        } catch {
+          reject(new Error('Upload concluído, mas a resposta do servidor não pôde ser interpretada.'));
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('Falha de rede ao enviar o arquivo.'));
+      xhr.ontimeout = () => reject(new Error('Tempo esgotado ao enviar o arquivo.'));
+
+      xhr.send(conteudo);
+    });
+  }
+
+  /**
+   * Remove um objeto do Storage. Trata 404 como sucesso: o objetivo é que o
+   * arquivo não exista mais, e ele já não existe.
+   */
+  private async excluirArquivo(caminho: string): Promise<void> {
+    const endpoint = `${this.apiStorage}/${this.bucket}/o/${encodeURIComponent(caminho)}`;
+    try {
+      const resposta = await fetch(endpoint, { method: 'DELETE' });
+      if (!resposta.ok && resposta.status !== 404) {
+        console.error('Erro ao excluir arquivo do Storage:',
+          this.mensagemDeFalha(resposta.status, await resposta.text()));
+      }
+    } catch (erro) {
+      console.error('Falha de rede ao excluir arquivo do Storage:', erro);
+    }
+  }
+
+  /** Extrai a mensagem real da resposta de erro do Storage */
+  private mensagemDeFalha(status: number, corpo: string): string {
+    let detalhe = (corpo || '').slice(0, 400);
+    try {
+      const json = JSON.parse(corpo);
+      detalhe = json?.error?.message || detalhe;
+    } catch { /* corpo não é JSON, usa o texto cru */ }
+    return `HTTP ${status}${detalhe ? ' - ' + detalhe : ''}`;
   }
 
   /** Substitui caracteres problemáticos no nome do arquivo */

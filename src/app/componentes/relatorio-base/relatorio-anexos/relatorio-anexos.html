@@ -14,16 +14,18 @@
   <!-- Envio de novo anexo -->
   <div class="upload-box" *ngIf="podeEditar">
     <div class="upload-pickers">
+      <!-- Os inputs NÃO usam [disabled]: desabilitá-los durante o envio faz o
+           navegador desanexar o arquivo selecionado, e o upload sobe vazio. -->
       <label class="btn btn-outline-primary" [class.disabled]="enviando">
         <hero-icon name="camera" size="1.125rem"></hero-icon>
         Tirar foto
-        <input type="file" accept="image/*" capture="environment" hidden [disabled]="enviando"
+        <input type="file" accept="image/*" capture="environment" hidden
           (change)="onArquivoSelecionado($event)" />
       </label>
       <label class="btn btn-outline-secondary" [class.disabled]="enviando">
         <hero-icon name="folder" size="1.125rem"></hero-icon>
         Escolher arquivo
-        <input type="file" hidden [disabled]="enviando" (change)="onArquivoSelecionado($event)" />
+        <input type="file" hidden (change)="onArquivoSelecionado($event)" />
       </label>
     </div>
 
