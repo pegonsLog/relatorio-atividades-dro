@@ -1,0 +1,26 @@
+rules_version = '2';
+
+// Regras do Cloud Storage.
+//
+// ATENÇÃO: estas regras liberam leitura e escrita para qualquer pessoa, no
+// mesmo espírito do firestore.rules atual deste projeto. O app não usa Firebase
+// Auth (a autenticação é feita contra a coleção `usuarios`), então não há
+// `request.auth` para checar. Trate isto como provisório: qualquer pessoa com o
+// bucket em mãos consegue ler e gravar anexos.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Anexos dos relatórios, organizados por relatório
+    match /relatorio-anexos/{idRelatorio}/{arquivo=**} {
+      allow read: if true;
+      // Limita a 20 MB por arquivo para evitar upload acidental de algo enorme
+      allow write: if request.resource == null
+                   || request.resource.size < 20 * 1024 * 1024;
+    }
+
+    // Nada mais é acessível
+    match /{outros=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -7,6 +7,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserContextService } from '../../services/user-context.service';
 import { UsuariosService } from '../../services/usuarios.service';
 import { PwaUpdateService } from '../../services/pwa-update.service';
+import { GERENCIAS } from '../../shared/gerencias';
 import { HeroIconComponent } from '../../shared/icons/heroicons';
 import { firstValueFrom } from 'rxjs';
 
@@ -35,6 +36,8 @@ export class Menu implements OnInit {
 
   displayName = '';
   displayPerfil = '';
+  displayMatricula = '';
+  displayLotacao = '';
   atualizando = signal(false);
 
   // Indica que há uma nova versão disponível (mostra aviso no menu).
@@ -85,7 +88,7 @@ export class Menu implements OnInit {
   }
 
   protected readonly menuItems = signal<MenuItem[]>([
-    { icon: 'mdi-file-document', heroIcon: 'document-text', label: 'Cadastro de Relatório', route: '/relatorio-base' },
+    { icon: 'mdi-file-document', heroIcon: 'document-text', label: 'Preencher Relatório', route: '/relatorio-base' },
     { icon: 'mdi-file-search', heroIcon: 'magnifying-glass', label: 'Meus Relatórios', route: '/meus-relatorios' },
     { icon: 'mdi-account-search', heroIcon: 'user-circle', label: 'Revisão do Coordenador', route: '/relatorios-coordenador' },
   ]);
@@ -139,7 +142,7 @@ export class Menu implements OnInit {
   selectedTurno = '';
   selectedData = '';
 
-  readonly gerencias = ['GARBO', 'GARNE', 'GARNP', 'GARVN', 'GEACE', 'GAOPE'];
+  readonly gerencias = GERENCIAS;
   readonly turnos = ['MANHÃ', 'TARDE', 'MADRUGADA'];
 
   onMenuClick(event: Event, item: MenuItem) {
@@ -285,19 +288,29 @@ export class Menu implements OnInit {
 
   private async loadUserInfo(): Promise<void> {
     try {
+      this.displayMatricula = this.userContext.getCurrentUserId() || '';
+
       const name = (localStorage.getItem('dro.currentUserName') || '').trim();
       const perfil = (localStorage.getItem('dro.currentUserPerfil') || '').trim();
-      if (name || perfil) {
-        this.displayName = name || 'Usuário';
-        this.displayPerfil = perfil || '';
-        return;
-      }
+      const lotacao = (localStorage.getItem('dro.currentUserLotacao') || '').trim();
+      if (name) this.displayName = name;
+      if (perfil) this.displayPerfil = perfil;
+      if (lotacao) this.displayLotacao = lotacao;
+
+      // Sessões abertas antes da lotação existir não têm o valor em cache;
+      // nesse caso busca o usuário e completa o que estiver faltando.
+      if (this.displayName && this.displayPerfil && this.displayLotacao) return;
+
       const id = this.userContext.getCurrentUserId();
       if (!id) return;
       const usuario = await firstValueFrom(this.usuarios.getByMatricula(Number(id)));
       if (usuario) {
         this.displayName = (usuario.nome || 'Usuário').trim();
         this.displayPerfil = (usuario.perfil || '').trim();
+        this.displayLotacao = (usuario.lotacao || '').trim();
+        try {
+          localStorage.setItem('dro.currentUserLotacao', this.displayLotacao);
+        } catch { /* cache é opcional */ }
       }
     } catch { /* silencioso */ }
   }

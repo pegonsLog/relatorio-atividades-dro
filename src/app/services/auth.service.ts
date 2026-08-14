@@ -19,10 +19,11 @@ export class AuthService {
 
     // Define usuário atual para auditoria
     this.userContext.setCurrentUserId(String(usuario.matricula));
-    // Opcional: guardar nome/perfil para UI
+    // Opcional: guardar nome/perfil/lotação para UI
     try {
       localStorage.setItem('dro.currentUserName', usuario.nome || '');
       localStorage.setItem('dro.currentUserPerfil', usuario.perfil || '');
+      localStorage.setItem('dro.currentUserLotacao', usuario.lotacao || '');
     } catch {}
 
     return usuario;
@@ -33,6 +34,7 @@ export class AuthService {
       localStorage.removeItem('dro.currentUser');
       localStorage.removeItem('dro.currentUserName');
       localStorage.removeItem('dro.currentUserPerfil');
+      localStorage.removeItem('dro.currentUserLotacao');
     } catch {}
   }
 

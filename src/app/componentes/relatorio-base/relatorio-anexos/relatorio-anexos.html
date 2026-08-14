@@ -1,0 +1,224 @@
+<div class="anexos-section">
+  <div class="anexos-header">
+    <hero-icon name="paper-clip" size="1.25rem"></hero-icon>
+    <h3>Anexos</h3>
+    <span class="badge badge-count" *ngIf="anexos.length">{{ anexos.length }}</span>
+  </div>
+
+  <!-- Erro geral da seção -->
+  <div class="anexos-erro" *ngIf="erro">
+    <hero-icon name="exclamation-circle" size="1rem"></hero-icon>
+    {{ erro }}
+  </div>
+
+  <!-- Envio de novo anexo -->
+  <div class="upload-box" *ngIf="podeEditar">
+    <div class="upload-pickers">
+      <label class="btn btn-outline-primary" [class.disabled]="enviando">
+        <hero-icon name="camera" size="1.125rem"></hero-icon>
+        Tirar foto
+        <input type="file" accept="image/*" capture="environment" hidden [disabled]="enviando"
+          (change)="onArquivoSelecionado($event)" />
+      </label>
+      <label class="btn btn-outline-secondary" [class.disabled]="enviando">
+        <hero-icon name="folder" size="1.125rem"></hero-icon>
+        Escolher arquivo
+        <input type="file" hidden [disabled]="enviando" (change)="onArquivoSelecionado($event)" />
+      </label>
+    </div>
+
+    <div class="upload-form" *ngIf="arquivo">
+      <div class="arquivo-escolhido">
+        <hero-icon name="paper-clip" size="1rem"></hero-icon>
+        <span class="arquivo-nome">{{ arquivo.name }}</span>
+        <span class="arquivo-tamanho">{{ formatarTamanho(arquivo.size) }}</span>
+        <button type="button" class="btn-icon" (click)="limparSelecao()" [disabled]="enviando"
+          aria-label="Remover arquivo selecionado">
+          <hero-icon name="x-mark" size="1rem"></hero-icon>
+        </button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="anexoNome">Nome *</label>
+        <input type="text" id="anexoNome" class="form-control" maxlength="120" [(ngModel)]="nome"
+          [disabled]="enviando" placeholder="Como este anexo será identificado" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="anexoDescricao">Descrição</label>
+        <textarea id="anexoDescricao" class="form-control" rows="2" maxlength="500" [(ngModel)]="descricao"
+          [disabled]="enviando" placeholder="Detalhe o que este arquivo registra"></textarea>
+      </div>
+
+      <div class="progresso" *ngIf="enviando">
+        <div class="progresso-barra" [style.width.%]="progresso"></div>
+        <span class="progresso-texto">{{ progresso }}%</span>
+      </div>
+
+      <div class="upload-acoes">
+        <button type="button" class="btn btn-outline-secondary" (click)="limparSelecao()" [disabled]="enviando">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-primary" (click)="enviar()" [disabled]="!podeEnviar">
+          <hero-icon name="arrow-up-tray" size="1.125rem"></hero-icon>
+          {{ enviando ? 'Enviando...' : 'Enviar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carregando -->
+  <div class="anexos-loading" *ngIf="carregando">Carregando anexos...</div>
+
+  <!-- Lista -->
+  <ng-container *ngIf="!carregando">
+    <div class="anexos-vazio" *ngIf="anexos.length === 0">
+      <hero-icon name="paper-clip" size="2.5rem"></hero-icon>
+      <p>Nenhum anexo neste relatório</p>
+    </div>
+
+    <div class="anexos-lista" *ngIf="anexos.length">
+      <div class="anexo-card" *ngFor="let a of anexos">
+        <!-- Miniatura para imagem, ícone para os demais tipos -->
+        <div class="anexo-thumb" (click)="abrirVisualizacao(a)" [class.clicavel]="temPreview(a)">
+          <img *ngIf="isImagem(a)" [src]="a.url" [alt]="a.nome" loading="lazy" />
+          <hero-icon *ngIf="!isImagem(a)" [name]="iconePara(a)" size="1.75rem"></hero-icon>
+        </div>
+
+        <div class="anexo-info">
+          <span class="anexo-nome">{{ a.nome }}</span>
+          <span class="anexo-descricao" *ngIf="a.descricao">{{ a.descricao }}</span>
+          <span class="anexo-meta">
+            {{ a.nomeArquivo }} · {{ formatarTamanho(a.tamanho) }}
+            <ng-container *ngIf="a.createdAt"> · {{ a.createdAt | date:'dd/MM/yyyy HH:mm' }}</ng-container>
+          </span>
+        </div>
+
+        <div class="anexo-acoes">
+          <button type="button" class="btn btn-sm btn-outline-info" (click)="abrirVisualizacao(a)"
+            title="Visualizar">
+            <hero-icon name="eye" size="1rem"></hero-icon>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="exportar(a)"
+            title="Exportar / baixar">
+            <hero-icon name="arrow-down-tray" size="1rem"></hero-icon>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-primary" *ngIf="podeEditar" (click)="abrirEdicao(a)"
+            title="Editar nome e descrição">
+            <hero-icon name="pencil" size="1rem"></hero-icon>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-danger" *ngIf="podeEditar" (click)="abrirExclusao(a)"
+            title="Excluir">
+            <hero-icon name="trash" size="1rem"></hero-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<!-- Modal: visualizar anexo -->
+<div class="anexo-modal-overlay" *ngIf="visualizando" (click)="fecharVisualizacao()">
+  <div class="anexo-modal" (click)="$event.stopPropagation()">
+    <div class="anexo-modal-header">
+      <div class="anexo-modal-titulo">
+        <span class="anexo-nome">{{ visualizando.nome }}</span>
+        <span class="anexo-meta">{{ visualizando.nomeArquivo }} · {{ formatarTamanho(visualizando.tamanho) }}</span>
+      </div>
+      <button type="button" class="btn-icon" (click)="fecharVisualizacao()" aria-label="Fechar">
+        <hero-icon name="x-mark" size="1.5rem"></hero-icon>
+      </button>
+    </div>
+
+    <div class="anexo-modal-body">
+      <p class="anexo-modal-descricao" *ngIf="visualizando.descricao">{{ visualizando.descricao }}</p>
+
+      <img *ngIf="isImagem(visualizando)" [src]="visualizando.url" [alt]="visualizando.nome"
+        class="anexo-preview-img" />
+
+      <iframe *ngIf="isPdf(visualizando) && urlPdfSegura" [src]="urlPdfSegura" class="anexo-preview-pdf"
+        [title]="visualizando.nome"></iframe>
+
+      <div class="anexo-sem-preview" *ngIf="!temPreview(visualizando)">
+        <hero-icon name="document" size="2.5rem"></hero-icon>
+        <p>Este tipo de arquivo não pode ser exibido aqui.</p>
+        <p class="hint">Use Exportar para baixar e abrir no seu dispositivo.</p>
+      </div>
+    </div>
+
+    <div class="anexo-modal-footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="fecharVisualizacao()">Fechar</button>
+      <button type="button" class="btn btn-primary" (click)="exportar(visualizando)">
+        <hero-icon name="arrow-down-tray" size="1.125rem"></hero-icon>
+        Exportar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: editar metadados -->
+<div class="anexo-modal-overlay" *ngIf="emEdicao" (click)="cancelarEdicao()">
+  <div class="anexo-modal anexo-modal-sm" (click)="$event.stopPropagation()">
+    <div class="anexo-modal-header">
+      <div class="anexo-modal-titulo">
+        <span class="anexo-nome">Editar anexo</span>
+        <span class="anexo-meta">{{ emEdicao.nomeArquivo }}</span>
+      </div>
+      <button type="button" class="btn-icon" (click)="cancelarEdicao()" aria-label="Fechar">
+        <hero-icon name="x-mark" size="1.5rem"></hero-icon>
+      </button>
+    </div>
+
+    <div class="anexo-modal-body">
+      <div class="form-group">
+        <label class="form-label" for="edicaoNome">Nome *</label>
+        <input type="text" id="edicaoNome" class="form-control" maxlength="120" [(ngModel)]="nomeEdicao"
+          [disabled]="salvando" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="edicaoDescricao">Descrição</label>
+        <textarea id="edicaoDescricao" class="form-control" rows="3" maxlength="500" [(ngModel)]="descricaoEdicao"
+          [disabled]="salvando"></textarea>
+      </div>
+      <p class="anexo-modal-hint">O arquivo em si não é alterado, apenas suas informações.</p>
+    </div>
+
+    <div class="anexo-modal-footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="cancelarEdicao()"
+        [disabled]="salvando">Cancelar</button>
+      <button type="button" class="btn btn-primary" (click)="salvarEdicao()" [disabled]="!edicaoValida || salvando">
+        <hero-icon name="check" size="1.125rem"></hero-icon>
+        {{ salvando ? 'Salvando...' : 'Salvar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: confirmar exclusão -->
+<div class="anexo-modal-overlay" *ngIf="paraExcluir" (click)="cancelarExclusao()">
+  <div class="anexo-modal anexo-modal-sm" (click)="$event.stopPropagation()">
+    <div class="anexo-modal-header danger">
+      <div class="anexo-modal-titulo">
+        <span class="anexo-nome">Excluir anexo</span>
+        <span class="anexo-meta">Esta ação não pode ser desfeita</span>
+      </div>
+      <button type="button" class="btn-icon" (click)="cancelarExclusao()" aria-label="Fechar">
+        <hero-icon name="x-mark" size="1.5rem"></hero-icon>
+      </button>
+    </div>
+
+    <div class="anexo-modal-body">
+      <p>Excluir <strong>{{ paraExcluir.nome }}</strong>?</p>
+      <p class="anexo-modal-hint">O arquivo será removido definitivamente do armazenamento.</p>
+    </div>
+
+    <div class="anexo-modal-footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="cancelarExclusao()"
+        [disabled]="excluindo">Cancelar</button>
+      <button type="button" class="btn btn-danger" (click)="confirmarExclusao()" [disabled]="excluindo">
+        <hero-icon name="trash" size="1.125rem"></hero-icon>
+        {{ excluindo ? 'Excluindo...' : 'Excluir' }}
+      </button>
+    </div>
+  </div>
+</div>

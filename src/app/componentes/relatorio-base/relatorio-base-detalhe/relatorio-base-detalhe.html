@@ -70,6 +70,9 @@
     </p>
   </div>
 
+  <!-- Anexos do relatório (fotos e arquivos) -->
+  <app-relatorio-anexos [idRelatorio]="idRelatorio" [podeEditar]="podeEditar"></app-relatorio-anexos>
+
   <!-- Ações -->
   <div class="section-actions" *ngIf="podeEditar">
     <button class="btn btn-primary" (click)="abrirForm()">

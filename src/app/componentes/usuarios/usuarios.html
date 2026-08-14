@@ -20,7 +20,7 @@
     <div class="search-input">
       <hero-icon name="magnifying-glass" size="1.25rem"></hero-icon>
       <input type="text" class="form-control" [(ngModel)]="filtro" (ngModelChange)="onFilterChange()" name="filtro"
-        placeholder="Buscar por nome ou matrícula..." />
+        placeholder="Buscar por nome, matrícula ou lotação..." />
       <button class="btn-clear" type="button" (click)="clearFilter()" *ngIf="filtro">
         <hero-icon name="x-circle" size="1.25rem"></hero-icon>
       </button>
@@ -61,6 +61,14 @@
               </button>
             </th>
             <th>
+              <button type="button" class="sort-btn" (click)="setSort('lotacao')">
+                Lotação
+                <hero-icon
+                  [name]="sortKey==='lotacao' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
+                  size="0.875rem"></hero-icon>
+              </button>
+            </th>
+            <th>
               <button type="button" class="sort-btn" (click)="setSort('ativo')">
                 Status
                 <hero-icon [name]="sortKey==='ativo' ? (sortDir==='asc' ? 'arrow-up' : 'arrow-down') : 'arrows-up-down'"
@@ -80,6 +88,7 @@
                 {{ u.perfil }}
               </span>
             </td>
+            <td>{{ u.lotacao || '-' }}</td>
             <td>
               <span class="status-badge" [class.active]="u.ativo" [class.inactive]="!u.ativo">
                 <span class="status-dot"></span>
@@ -100,7 +109,7 @@
             </td>
           </tr>
           <tr *ngIf="filtrados.length === 0">
-            <td colspan="5" class="empty-state">
+            <td colspan="6" class="empty-state">
               <hero-icon name="user-group" size="3rem"></hero-icon>
               <p>Nenhum usuário encontrado</p>
             </td>

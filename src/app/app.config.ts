@@ -9,6 +9,7 @@ import { firebaseConfig } from './firebase.config';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideAuth, getAuth } from '@angular/fire/auth';
+import { provideStorage, getStorage } from '@angular/fire/storage';
 import { provideServiceWorker } from '@angular/service-worker';
 
 // Registra locale pt para formatações em português
@@ -23,6 +24,7 @@ export const appConfig: ApplicationConfig = {
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
     provideFirestore(() => getFirestore()),
     provideAuth(() => getAuth()),
+    provideStorage(() => getStorage()),
     { provide: LOCALE_ID, useValue: 'pt-BR' },
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),

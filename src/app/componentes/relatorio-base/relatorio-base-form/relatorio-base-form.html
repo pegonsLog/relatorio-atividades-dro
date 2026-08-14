@@ -28,12 +28,7 @@
     <ng-template #gerenciaSelect>
       <select id="gerencia" class="form-select" formControlName="gerencia">
         <option value="" disabled selected>Selecione</option>
-        <option value="GARBO">GARBO</option>
-        <option value="GARNE">GARNE</option>
-        <option value="GARNP">GARNP</option>
-        <option value="GARVN">GARVN</option>
-        <option value="GEACE">GEACE</option>
-        <option value="GAOPE">GAOPE</option>
+        <option *ngFor="let g of gerencias" [value]="g">{{ g }}</option>
       </select>
     </ng-template>
   </div>

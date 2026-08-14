@@ -5,6 +5,7 @@ import { Firestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs } fro
 import { ItemAtividadeService } from './item-atividade.service';
 import { ItemProdutividadeService } from './item-produtividade.service';
 import { UserContextService } from './user-context.service';
+import { RelatorioAnexosService } from './relatorio-anexos.service';
 import { StatusRelatorio } from '../models/relatorio-base.interface';
 
 @Injectable({ providedIn: 'root' })
@@ -12,6 +13,7 @@ export class RelatorioBaseService {
   private readonly subject = new BehaviorSubject<RelatorioBase[]>([]);
   private injector = inject(Injector);
   private readonly userCtx = inject(UserContextService);
+  private readonly anexosService = inject(RelatorioAnexosService);
 
   constructor(private firestore: Firestore, private atvService: ItemAtividadeService, private prodService: ItemProdutividadeService) {
     this.loadFromFirestore();
@@ -133,6 +135,12 @@ export class RelatorioBaseService {
   delete(id: string | number): Promise<void> {
     return runInInjectionContext(this.injector, async () => {
       const alvo = String(id);
+      try {
+        // 0) Deleta anexos (arquivo no Storage + metadados)
+        await this.anexosService.excluirPorRelatorio(alvo);
+      } catch (err) {
+        console.error('Erro ao deletar anexos do relatório:', err);
+      }
       try {
         // 1) Deleta itens de produtividade do relatório
         await this.prodService.deleteByRelatorio(alvo);

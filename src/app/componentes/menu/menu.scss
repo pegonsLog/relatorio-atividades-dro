@@ -426,6 +426,43 @@
   padding: 1.5rem;
 }
 
+// Identificação do usuário no modal de cadastro de relatório
+.user-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 0.85rem 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+
+  hero-icon { color: #1BA1DD; flex: 0 0 auto; }
+
+  .user-summary-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .user-summary-name {
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.2;
+  }
+
+  .user-summary-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    font-size: 0.8125rem;
+    color: #64748b;
+  }
+
+  .user-summary-sep { color: #cbd5e1; }
+}
+
 // Opções da escolha inicial (consultar x cadastrar)
 .entry-options {
   display: flex;

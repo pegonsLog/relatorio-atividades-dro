@@ -6,6 +6,7 @@ import { RelatorioBaseService } from '../../../services/relatorio-base.service';
 import { ItemAtividade } from '../../../models/item-atividade.interface';
 import { ItemAtividadeService } from '../../../services/item-atividade.service';
 import { ItemAtividadeForm } from '../../item-atividade/item-atividade-form/item-atividade-form';
+import { RelatorioAnexos } from '../relatorio-anexos/relatorio-anexos';
 import { ItemProdutividadeService } from '../../../services/item-produtividade.service';
 import { ItemOcorrenciaService } from '../../../services/item-ocorrencia.service';
 import { HeroIconComponent } from '../../../shared/icons/heroicons';
@@ -13,7 +14,7 @@ import { HeroIconComponent } from '../../../shared/icons/heroicons';
 @Component({
   selector: 'app-relatorio-base-detalhe',
   standalone: true,
-  imports: [CommonModule, RouterModule, ItemAtividadeForm, HeroIconComponent],
+  imports: [CommonModule, RouterModule, ItemAtividadeForm, RelatorioAnexos, HeroIconComponent],
   templateUrl: './relatorio-base-detalhe.html',
   styleUrls: ['./relatorio-base-detalhe.scss']
 })

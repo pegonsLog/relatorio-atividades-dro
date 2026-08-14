@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RelatorioBase } from '../../../models';
 import { AgentesService } from '../../../services/agentes.service';
+import { GERENCIAS } from '../../../shared/gerencias';
 import { SpeechToTextService } from '../../../services/speech-to-text.service';
 import { Agente } from '../../../models/agente.interface';
 import { HeroIconComponent } from '../../../shared/icons/heroicons';
@@ -37,6 +38,9 @@ export class RelatorioBaseFormComponent implements OnChanges, OnInit, OnDestroy 
     superv: [null, [Validators.required]],
     relatorioGeralDescritivo: [''],
   });
+
+  /** Opções do select de gerência */
+  readonly gerencias = GERENCIAS;
 
   // Observable de agentes (fonte dos campos de busca)
   agentes$ = this.agentesService.list();

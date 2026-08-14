@@ -20,7 +20,7 @@ export class Usuarios implements OnInit {
   page = 1;
   pageSize = 10;
   readonly pageSizes = [5, 10, 20, 50];
-  sortKey: 'matricula' | 'nome' | 'senha' | 'perfil' | 'ativo' = 'matricula';
+  sortKey: 'matricula' | 'nome' | 'senha' | 'perfil' | 'lotacao' | 'ativo' = 'matricula';
   sortDir: 'asc' | 'desc' = 'asc';
   showDeleteModal = false;
   toDelete?: number;
@@ -49,7 +49,10 @@ export class Usuarios implements OnInit {
 
   get filtrados(): Usuario[] {
     const f = this.filtro.trim().toLowerCase();
-    return this.usuarios.filter(u => !f || u.nome.toLowerCase().includes(f) || String(u.matricula).includes(f));
+    return this.usuarios.filter(u => !f
+      || u.nome.toLowerCase().includes(f)
+      || String(u.matricula).includes(f)
+      || (u.lotacao || '').toLowerCase().includes(f));
   }
 
   get pageItems(): Usuario[] {
@@ -76,6 +79,7 @@ export class Usuarios implements OnInit {
         case 'nome': va = a.nome.toLowerCase(); vb = b.nome.toLowerCase(); break;
         case 'senha': va = a.senha.toLowerCase(); vb = b.senha.toLowerCase(); break;
         case 'perfil': va = a.perfil.toLowerCase(); vb = b.perfil.toLowerCase(); break;
+        case 'lotacao': va = (a.lotacao || '').toLowerCase(); vb = (b.lotacao || '').toLowerCase(); break;
         case 'ativo': va = a.ativo ? 1 : 0; vb = b.ativo ? 1 : 0; break;
       }
       if (va < vb) return -1 * dir;
@@ -85,7 +89,7 @@ export class Usuarios implements OnInit {
     return arr;
   }
 
-  setSort(key: 'matricula' | 'nome' | 'senha' | 'perfil' | 'ativo') {
+  setSort(key: 'matricula' | 'nome' | 'senha' | 'perfil' | 'lotacao' | 'ativo') {
     if (this.sortKey === key) {
       this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
     } else {

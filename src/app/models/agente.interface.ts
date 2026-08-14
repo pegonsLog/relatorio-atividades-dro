@@ -3,5 +3,6 @@ export interface Agente {
   nome: string;
   cargo: string;
   turno: string;
+  /** Gerência onde o agente está lotado */
   gerencia: string;
 }

@@ -235,7 +235,7 @@
     <div class="modal-header">
       <img src="assets/logo/BHTrans.png" alt="BHTRANS" class="modal-logo" />
       <div>
-        <h5 class="modal-title">Cadastro de Relatório</h5>
+        <h5 class="modal-title">Preencher Relatório</h5>
        
       </div>
     </div>
@@ -250,6 +250,19 @@
           {{ atualizando() ? 'Atualizando...' : 'Atualizar agora' }}
         </button>
       </div>
+      <!-- Identificação do usuário que vai preencher o relatório -->
+      <div class="user-summary">
+        <hero-icon name="user-circle" size="2.25rem"></hero-icon>
+        <div class="user-summary-text">
+          <span class="user-summary-name">{{ displayName || 'Usuário' }}</span>
+          <span class="user-summary-meta">
+            <span>Matrícula {{ displayMatricula || '-' }}</span>
+            <span class="user-summary-sep">·</span>
+            <span>Lotação {{ displayLotacao || '-' }}</span>
+          </span>
+        </div>
+      </div>
+
       <div class="filter-stack">
         <div class="filter-group">
           <label class="filter-label">Data</label>
